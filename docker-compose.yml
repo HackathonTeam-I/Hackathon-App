@@ -48,7 +48,7 @@ services:
     # ボリュームを指定
     # ローカルのカレントディレクトリをコンテナの/codeにマウントする
     volumes:
-      - ./SNSApp:/code
+      - ./AppFile:/code
     # ローカルのFlaskポートとコンテナの5000番ポートをつなぐ
     ports:
       - "${FLASK_PORT}:5000"
