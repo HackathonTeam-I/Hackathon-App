@@ -110,7 +110,7 @@ CREATE TABLE notifications (
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 -- 部署
-INSERT
+INSERT INTO
   departments (name)
 VALUES
   ('総務部'),
@@ -145,7 +145,8 @@ VALUES
   -- 食べ物・日用品
   ('水筒'),
   ('お弁当'),
-  ('バッグ') -- その他
+  ('バッグ'),
+  -- その他
   ('その他');
 
 -- ユーザー情報の登録
@@ -179,7 +180,6 @@ INSERT INTO
 VALUES
   (
     1,
-    'ハンカチ',
     1,
     '2026-03-05',
     '2階女性トイレ',
@@ -187,7 +187,6 @@ VALUES
   ),
   (
     1,
-    '付箋',
     3,
     '2026-03-14',
     '第1会議室',
