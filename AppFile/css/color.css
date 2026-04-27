@@ -1,0 +1,10 @@
+/* 色を変数化 */
+:root {
+    --bc: #FFFFFF;
+    --bg: #00A6FF;
+    --r-btn: #000000;
+    --del-btn: #fa3e00;
+    --form-bg: #D9D9D9;
+    --logo-top: #FFFFFF;
+    --text-main: #000000;
+}
