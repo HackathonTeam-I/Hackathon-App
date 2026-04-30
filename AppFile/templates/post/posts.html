@@ -16,6 +16,7 @@
             </div>
         </div>
 
+        {% if posts and posts|length > 0 %}
         <div class="posts-list">
             {% for post in posts %}
             <a href="/posts/{{ post.id }}" class="post-card">
@@ -36,5 +37,10 @@
             </a>
             {% endfor %}
         </div>
+        {% else %}
+        <div class="empty">
+            <p>投稿がありません</p>
+        </div>
+        {% endif %}
     </main>
 </div>
