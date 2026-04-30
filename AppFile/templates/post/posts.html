@@ -3,4 +3,38 @@
 {% block title %}ホーム - Find It{% endblock %}
 
 {% block page_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/posts.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="home-posts">
+    <main>
+        <div class="posts-header">
+            <div class="posts-header_title-area">
+                <h1 class="posts-header_title">Find It</h1>
+                <p class="posts-header_subtitle">Search your lost item!</p>
+            </div>
+        </div>
+
+        <div class="posts-list">
+            {% for post in posts %}
+            <a href="/posts/{{ post.id }}" class="post-card">
+                <div class="post-card_image-box">
+                    <img class="post-card_image" src="{{ post.images[0].image_path }}" alt="{{ post.categorie.name}}">
+                </div>
+
+                <div class="post-card_content">
+                    <h2 class="post-card_title">{{ post.category.name }}</h2>
+
+                    <div class="post-card_meta">
+                        <span class="post-card_date">{{ post.found_date }}</span>
+                        <span class="post-card_location">{{ post.found_place }}</span>
+                    </div>
+
+                    <p class="posts-card_desc">{{ post.description }}</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </main>
+</div>
