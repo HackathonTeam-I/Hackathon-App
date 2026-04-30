@@ -20,7 +20,7 @@
             {% for post in posts %}
             <a href="/posts/{{ post.id }}" class="post-card">
                 <div class="post-card_image-box">
-                    <img class="post-card_image" src="{{ post.images[0].image_path }}" alt="{{ post.categorie.name}}">
+                    <img class="post-card_image" src="{{ post.images[0].image_path }}" alt="{{ post.category.name}}">
                 </div>
 
                 <div class="post-card_content">
@@ -28,7 +28,7 @@
 
                     <div class="post-card_meta">
                         <span class="post-card_date">{{ post.found_date }}</span>
-                        <span class="post-card_location">{{ post.found_place }}</span>
+                        <span class="post-card_location">📍 {{ post.found_place }}</span>
                     </div>
 
                     <p class="posts-card_desc">{{ post.description }}</p>
