@@ -4,7 +4,7 @@
 
 {% block page_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/posts.css') }}">
-{% endblock %}
+{% endblock %}>
 
 {% block content %}
 <div class="home-posts">
@@ -16,11 +16,12 @@
             </div>
         </div>
 
+        {% if posts and posts|length > 0 %}
         <div class="posts-list">
             {% for post in posts %}
             <a href="/posts/{{ post.id }}" class="post-card">
                 <div class="post-card_image-box">
-                    <img class="post-card_image" src="{{ post.images[0].image_path }}" alt="{{ post.categorie.name}}">
+                    <img class="post-card_image" src="{{ post.images[0].image_path }}" alt="{{ post.category.name}}">
                 </div>
 
                 <div class="post-card_content">
@@ -28,7 +29,7 @@
 
                     <div class="post-card_meta">
                         <span class="post-card_date">{{ post.found_date }}</span>
-                        <span class="post-card_location">{{ post.found_place }}</span>
+                        <span class="post-card_location">📍 {{ post.found_place }}</span>
                     </div>
 
                     <p class="posts-card_desc">{{ post.description }}</p>
@@ -36,5 +37,18 @@
             </a>
             {% endfor %}
         </div>
+        {% else %}
+        <div class="empty">
+            <p>投稿がありません</p>
+        </div>
+        {% endif %}
     </main>
+
+    <!--Admin専用機能”新規投稿”-->
+    {% if current_users.role == 'admin' %}
+    <a href="/admin/posts" class="new-post">
+        <div class="post-btn">+</div>
+    </a>
+    {% endif %}
 </div>
+{% endblock %}
