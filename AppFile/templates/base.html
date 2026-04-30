@@ -19,6 +19,13 @@
     {% include 'common/fooler.html' %}
 
     <nav class="bottom-nav">
+        {% if current_user.role == 'admin' %}
+        <a href="{{ url_for('admin_top') }}" class="bottom-nav_admin">
+            <span class="bottom-nav_icon">⚙️</span>
+            <span class="bottom-nav_text">管理</span>
+        </a>
+        {% endif %}
+
         <a href="{{ url_for('home') }}" class="bottom-nav_home">
             <span class="bottom-nav_icon">🏚️</span>
             <span class="bottom-nav_text">ホーム</span>
@@ -32,11 +39,6 @@
         <a href="{{ url_for('notification') }}" class="bottom-nav_notifi">
             <span class="bottom-nav_icon">🔔</span>
             <span class="bottom-nav_text">通知</span>
-        </a>
-
-        <a href="{{ url_for('admin_top') }}" class="bottom-nav_admin">
-            <span class="bottom-nav_icon">⚙️</span>
-            <span class="bottom-nav_text">管理</span>
         </a>
 
         <a href="{{ url_for('logout') }}" class="bottom-nav_logout">
