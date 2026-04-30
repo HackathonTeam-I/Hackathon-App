@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}ログイン - Find It{% endblock %}
+{% block page_css %}
+<link rel="stylesheet" href="{{ url_for('static, filename='css/auth.css')}}">
+{% endblock %}
+
+{% block content %}
+<div class="page-auth">
+  <main class="page-auth-main">
+    <div class="wrapper">
+      <div class="card">
+        <div class="card-header">
+          <h2>Welcome to find it!</h2>
+          <p>Find & Reunite Lost Items Easily</p>
+        </div>
+
+        <form class="auth-form" method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div>
+            <input type="text" placeholder="メールアドレス" name="email" />
+          </div>
+
+          <div>
+            <input type="password" placeholder="パスワード" name="password" />
+          </div>
+
+          <div class="auth-button-container">
+            <button type="submit">ログイン</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}
