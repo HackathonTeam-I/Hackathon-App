@@ -4,7 +4,7 @@
 
 {% block page_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/posts.css') }}">
-{% endblock %}
+{% endblock %}>
 
 {% block content %}
 <div class="home-posts">
@@ -43,4 +43,12 @@
         </div>
         {% endif %}
     </main>
+
+    <!--Admin専用機能”新規投稿”-->
+    {% if current_users.role == 'admin' %}
+    <a href="/admin/posts" class="new-post">
+        <div class="post-btn">+</div>
+    </a>
+    {% endif %}
 </div>
+{% endblock %}
