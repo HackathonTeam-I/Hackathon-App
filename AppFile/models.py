@@ -87,3 +87,21 @@ class Post:
             abort(500)
         finally:
             db_pool.release(conn)
+
+    @classmethod
+    def delete_posts(cls,id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql ="""
+                UPDATE posts
+                SET deleted_at = NOW()
+                where id = %s
+                """
+                cur.execute(sql,(id,))
+                conn.commit()
+        except pymysql.Error as e:
+            print(f'サーバー接続上のエラーが発生しています：{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
