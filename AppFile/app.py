@@ -77,7 +77,7 @@ def create_posts():
     found_date = request.form.get('found_date')
     found_place = request.form.get('found_place')
     description = request.form.get('description')
-    if not all[category_id,found_date,found_place]:
+    if not all([category_id,found_date,found_place]):
         flash('必須項目を入力して下さい','error')
         return redirect(url_for('show_admin_posts')) #新規投稿画面へ
 
