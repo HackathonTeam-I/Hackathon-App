@@ -43,6 +43,25 @@ def show_posts():
     else:
         return render_template('post/posts.html',message='投稿内容がありません')
 
+# 投稿表示取得
+@app.route('/api/posts/<int:id>',methods=['GET'])
+def get_posts_detail(id):
+    post = Post.get_post_by_id(id)
+    if post is None:
+        abort(404, description='指定された投稿が見つかりません')
+    return jsonify(post)
+
+# 投稿詳細表示
+@app.route('/posts/<int:id>',methods=['GET'])
+def show_posts_detail(id):
+    post = Post.get_post_by_id(id)
+    if post is None:
+        abort(404, description='指定された投稿が見つかりません')
+    return render_template('post/posts_detail.html',post=post)
+
+
+
+
 
 
 

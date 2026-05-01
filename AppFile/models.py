@@ -31,3 +31,24 @@ class Post:
             abort(500)
         finally:
             db_pool.release(conn)
+
+    @classmethod
+    def get_post_by_id(cls,id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = """
+                SELECT posts.*,
+                    categories.name as category_name
+                FROM posts
+                LEFT JOIN categories ON posts.category_id = categories.id
+                WHERE posts.id = %s AND deleted_at IS NULL;
+                """
+                cur.execute(sql,(id,))
+                post = cur.fetchone()
+            return post
+        except pymysql.Error as e:
+            print(f'サーバー接続上のエラーが発生しています：{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
