@@ -21,6 +21,13 @@
     font-weight: 700;
 }
 
+.posts-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding-bottom: 80px;
+}
+
 .empty {
     display: flex;
     justify-content: center;
