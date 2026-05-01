@@ -1,6 +1,7 @@
 from flask import Flask, jsonify,request, redirect,  render_template, session, flash, abort, url_for
 from flask_wtf.csrf import CSRFProtect
 from datetime import timedelta
+from functools import wraps
 import hashlib
 import uuid
 import re
@@ -24,6 +25,15 @@ app.permanent_session_lifetime = timedelta(days=SESSION_DAYS)
 
 #悪意あるサイトから勝手にリクエストを送られる攻撃
 csrf = CSRFProtect(app)
+
+# 管理者権限チェック用デコレータ
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args,**kwargs):
+        if session.get('role') != 'admin':
+            abort(403)
+        return f(*args,**kwargs)
+    return decorated_function
 
 """
 投稿機能
