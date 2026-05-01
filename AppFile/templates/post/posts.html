@@ -21,7 +21,7 @@
             {% for post in posts %}
             <a href="/posts/{{ post.id }}" class="post-card">
                 <div class="post-card_image-box">
-                    <img class="post-card_image" src="{{ post.images[0].image_path }}" alt="{{ post.category.name}}">
+                    <img class="post-card_image" src="{{ post.images[0].image_path }}" alt="{{ post.category.name }}">
                 </div>
 
                 <div class="post-card_content">
@@ -45,7 +45,7 @@
     </main>
 
     <!--Admin専用機能”新規投稿”-->
-    {% if current_users.role == 'admin' %}
+    {% if current_user.role == 'admin' %}
     <a href="/admin/posts" class="new-post">
         <div class="post-btn">+</div>
     </a>
