@@ -70,12 +70,20 @@ class Post:
         finally:
             db_pool.release(conn)
 
-
     @classmethod
-    def update_posts(cls,id):
-        pass
-
-
-    @classmethod
-    def delete_posts(cls,id):
-        pass
+    def update_posts(cls,id,category_id,found_date,found_place,description):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = """
+                UPDATE posts
+                SET category_id=%s,found_date=%s,found_place=%s,description=%s
+                WHERE id = %s;
+                """
+                cur.execute(sql,(category_id,found_date,found_place,description,id))
+                conn.commit()
+        except pymysql.Error as e:
+            print(f'サーバー接続上のエラーが発生しています：{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
