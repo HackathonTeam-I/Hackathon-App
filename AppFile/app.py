@@ -59,8 +59,21 @@ def show_posts_detail(id):
         abort(404, description='指定された投稿が見つかりません')
     return render_template('post/posts_detail.html',post=post)
 
+# 新規投稿処理
+@app.route('/api/admin/posts',methods=['POST'])
+@admin_required
+def create_posts():
+    category_id = request.form.get('category_id')
+    found_date = request.form.get('found_date')
+    found_place = request.form.get('found_place')
+    description = request.form.get('description')
+    if not all[category_id,found_date,found_place]:
+        flash('必須項目を入力して下さい','error')
+        return redirect(url_for('show_admin_posts')) #新規投稿画面へ
 
-
+    Post.create_posts(category_id,found_date,found_place,description)
+    flash('投稿が完了しました','success')
+    return redirect(url_for('show_admin_top')) #管理者トップ画面へ
 
 
 
