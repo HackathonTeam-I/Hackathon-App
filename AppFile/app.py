@@ -102,7 +102,16 @@ def update_posts(id):
     flash('投稿内容が更新されました','success')
     return redirect(url_for('show_posts_detail',id=id))
 
-
+# 投稿削除機能
+@app.route('/api/admin/posts/<int:id>',methods=['DELETE'])
+@admin_required
+def delete_posts(id):
+    post = Post.get_post_by_id(id)
+    if post is None:
+        abort(404)
+    Post.delete_posts(id)
+    flash('投稿を削除しました', 'success')
+    return redirect(url_for('show_posts'))
 
 
 
