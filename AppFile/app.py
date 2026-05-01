@@ -75,6 +75,25 @@ def create_posts():
     flash('投稿が完了しました','success')
     return redirect(url_for('show_admin_top')) #管理者トップ画面へ
 
+# 投稿更新処理
+@app.route('/api/admin/posts/<int:id>',methods=['PATCH'])
+@admin_required
+def update_posts(id):
+    post = Post.get_post_by_id(id)
+    if post is None:
+        abort(404)
+
+    category_id = request.form.get('category_id')
+    found_date = request.form.get('found_date')
+    found_place = request.form.get('found_place')
+    description = request.form.get('description')
+
+    Post.update_posts(id,category_id,found_date,found_place,description)
+    flash('投稿内容が更新されました','success')
+    return redirect(url_for('show_posts_detail',id=id))
+
+
+
 
 
 
