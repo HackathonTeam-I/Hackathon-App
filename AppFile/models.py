@@ -15,7 +15,7 @@ class Post:
                 sql = """
                 SELECT
                     posts.*,
-                    users.name
+                    users.name,
                     categories.name as category_name
                 FROM posts
                 LEFT JOIN users ON posts.user_id = users.id
