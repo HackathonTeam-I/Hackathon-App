@@ -120,7 +120,7 @@ class Image:
                 """
                 cur.execute(sql,(post_id,))
                 images = cur.fetchall()
-            return image
+            return images
         except pymysql.Error as e:
             print(f'サーバー接続上のエラーが発生しています{e}')
             abort(500)
@@ -133,7 +133,7 @@ class Image:
         try:
             with conn.cursor() as cur:
                 sql = """
-                INSERT INTO images (post_id,image_path) VALUES (%s,%s)
+                INSERT INTO images (post_id,image_path) VALUES (%s,%s);
                 """
                 cur.execute(sql,(post_id,image_path))
                 conn.commit()
@@ -151,7 +151,7 @@ class Image:
                 sql = """
                 UPDATE images
                 SET image_path = %s
-                WHERE id = %s
+                WHERE id = %s;
                 """
                 cur.execute(sql,(image_path,id))
                 conn.commit()
