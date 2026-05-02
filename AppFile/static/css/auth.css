@@ -54,6 +54,7 @@
     outline:1px solid transparent;
     font-size:16px;
     font-weight:400;
+    box-sizing:border-box;
     }
 
 .auth-form input[type="text"]:focus,
@@ -72,4 +73,5 @@
     outline:1px solid transparent;
     font-size:16px;
     font-weight:400;
+    box-sizing:border-box;
 }
