@@ -7,7 +7,7 @@ import uuid
 import re
 import os
 
-from models import Post,Thread,Message
+from models import Post,Image,Thread,Message
 
 # 定数定義　メール形式チェック用の正規表現とセッション有効期間（日数）を定義
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
@@ -69,7 +69,8 @@ def show_posts_detail(id):
     post = Post.get_post_by_id(id)
     if post is None:
         abort(404, description='指定された投稿が見つかりません')
-    return render_template('post/posts_detail.html',post=post)
+    images = Image.get_images_by_post_id(post['id'])
+    return render_template('post/posts_detail.html',post=post,images=images)
 
 # 新規投稿処理
 @app.route('/api/admin/posts',methods=['POST'])
