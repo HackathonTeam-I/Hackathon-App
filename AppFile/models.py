@@ -105,3 +105,24 @@ class Post:
             abort(500)
         finally:
             db_pool.release(conn)
+
+# Imageクラス
+class Image:
+    @classmethod
+    def get_images_by_post_id(cls,post_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = """
+                SELECT *
+                FROM images
+                WHERE post_id = %s;
+                """
+                cur.execute(sql,(post_id,))
+                images = cur.fetchall()
+            return image
+        except pymysql.Error as e:
+            print(f'サーバー接続上のエラーが発生しています{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
