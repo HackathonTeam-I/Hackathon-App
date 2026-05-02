@@ -1,6 +1,7 @@
 from flask import Flask, jsonify,request, redirect,  render_template, session, flash, abort, url_for
 from flask_wtf.csrf import CSRFProtect
 from datetime import timedelta
+from functools import wraps
 import hashlib
 import uuid
 import re
@@ -24,6 +25,15 @@ app.permanent_session_lifetime = timedelta(days=SESSION_DAYS)
 
 #悪意あるサイトから勝手にリクエストを送られる攻撃
 csrf = CSRFProtect(app)
+
+# 管理者権限チェック用デコレータ
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args,**kwargs):
+        if session.get('role') != 'admin':
+            abort(403)
+        return f(*args,**kwargs)
+    return decorated_function
 
 """
 投稿機能
@@ -59,8 +69,49 @@ def show_posts_detail(id):
         abort(404, description='指定された投稿が見つかりません')
     return render_template('post/posts_detail.html',post=post)
 
+# 新規投稿処理
+@app.route('/api/admin/posts',methods=['POST'])
+@admin_required
+def create_posts():
+    category_id = request.form.get('category_id')
+    found_date = request.form.get('found_date')
+    found_place = request.form.get('found_place')
+    description = request.form.get('description')
+    if not all([category_id,found_date,found_place]):
+        flash('必須項目を入力して下さい','error')
+        return redirect(url_for('show_admin_posts')) #新規投稿画面へ
 
+    Post.create_posts(category_id,found_date,found_place,description)
+    flash('投稿が完了しました','success')
+    return redirect(url_for('show_admin_top')) #管理者トップ画面へ
 
+# 投稿更新処理
+@app.route('/api/admin/posts/<int:id>',methods=['PATCH'])
+@admin_required
+def update_posts(id):
+    post = Post.get_post_by_id(id)
+    if post is None:
+        abort(404)
+
+    category_id = request.form.get('category_id')
+    found_date = request.form.get('found_date')
+    found_place = request.form.get('found_place')
+    description = request.form.get('description')
+
+    Post.update_posts(id,category_id,found_date,found_place,description)
+    flash('投稿内容が更新されました','success')
+    return redirect(url_for('show_posts_detail',id=id))
+
+# 投稿削除機能
+@app.route('/api/admin/posts/<int:id>',methods=['DELETE'])
+@admin_required
+def delete_posts(id):
+    post = Post.get_post_by_id(id)
+    if post is None:
+        abort(404)
+    Post.delete_posts(id)
+    flash('投稿を削除しました', 'success')
+    return redirect(url_for('show_posts'))
 
 
 
