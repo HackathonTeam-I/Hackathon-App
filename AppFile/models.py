@@ -142,3 +142,21 @@ class Image:
             abort(500)
         finally:
             db_pool.release(conn)
+
+    @classmethod
+    def update_images(cls,id,image_path):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = """
+                UPDATE images
+                SET image_path = %s
+                WHERE id = %s
+                """
+                cur.execute(sql,(image_path,id))
+                conn.commit()
+        except pymysql.Error as e:
+            print(f'サーバー接続上のエラーが発生しています{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
