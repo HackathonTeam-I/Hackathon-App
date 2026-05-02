@@ -49,6 +49,8 @@ def get_posts():
 def show_posts():
     posts = Post.get_all_posts()
     if posts:
+        for post in posts:
+            post['images'] = Image.get_images_by_post_id(post['id'])
         return render_template('post/posts.html',posts=posts)
     else:
         return render_template('post/posts.html',message='投稿内容がありません')
