@@ -126,3 +126,19 @@ class Image:
             abort(500)
         finally:
             db_pool.release(conn)
+
+    @classmethod
+    def create_images(cls,post_id,image_path):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = """
+                INSERT INTO images (post_id,image_path) VALUES (%s,%s)
+                """
+                cur.execute(sql,(post_id,image_path))
+                conn.commit()
+        except pymysql.Error as e:
+            print(f'サーバー接続上のエラーが発生しています{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
