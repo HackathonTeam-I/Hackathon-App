@@ -101,7 +101,7 @@ def upload_images(post_id):
     filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
 
     # ３：サーバーに画像を保存
-    image_path = os.path.join('static/images',filename)
+    image_path = os.path.join('static/uploads',filename)
     image_file.save(os.path.join('AppFile',image_path))
 
     # ４：DBにパスを登録
@@ -135,7 +135,7 @@ def update_images(post_id,image_id):
         abort(404)
     image_file = request.files.get('image')
     filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
-    image_path = os.path.join('static/images',filename)
+    image_path = os.path.join('static/uploads',filename)
     image_file.save(os.path.join('AppFile',image_path))
 
     Image.update_images(image_id,image_path)
