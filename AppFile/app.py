@@ -107,7 +107,7 @@ def upload_images(post_id):
     # ４：DBにパスを登録
     Image.create_images(post_id,image_path)
     flash('画像を登録しました','success')
-    return redirect(url_for(show_posts_detail,id=post_id))
+    return redirect(url_for('show_posts_detail',id=post_id))
 
 # 投稿更新処理
 @app.route('/api/admin/posts/<int:id>',methods=['PATCH'])
@@ -142,7 +142,7 @@ def update_images(post_id,image_id):
     flash('画像が更新されました','success')
     return redirect(url_for('show_posts_detail',id=post_id))
 
-# 投稿削除機能
+# 投稿削除処理
 @app.route('/api/admin/posts/<int:id>',methods=['DELETE'])
 @admin_required
 def delete_posts(id):
@@ -153,8 +153,16 @@ def delete_posts(id):
     flash('投稿を削除しました', 'success')
     return redirect(url_for('show_posts'))
 
-
-
+# 画像削除処理
+@app.route('/api/admin/posts/<int:post_id>/images/<int:image_id>',methods=['DELETE'])
+@admin_required
+def delete_images(post_id,image_id):
+    image = Image.get_images_by_post_id(post_id)
+    if image is None:
+        abort(404)
+    Image.delete_images_by_post_id(post_id)
+    flash('画像が削除されました','success')
+    return redirect(url_for('show_posts'))
 
 """
 プログラム実行
