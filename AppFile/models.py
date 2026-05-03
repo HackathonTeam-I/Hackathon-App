@@ -60,7 +60,7 @@ class Post:
             with conn.cursor() as cur:
                 sql = """
                 INSERT INTO
-                posts (user_id,category_id,found_date,found_place,description) VALUES (%s,%s,%s,%s,%s)
+                posts (user_id,category_id,found_date,found_place,description) VALUES (%s,%s,%s,%s,%s);
                 """
                 cur.execute(sql,(user_id,category_id,found_date,found_place,description))
                 conn.commit()
