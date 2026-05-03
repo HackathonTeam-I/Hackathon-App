@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}詳細 - Find It{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/posts.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="detail-post">
+    <header class="detail-header">
+        <a href="{{ url_for('show_posts') }}" class="back-button">←</a>
+    </header>
+
+    <main class="main-detail">
+        <!--画像エリア-->
+        <div class="detail-image-wrapper">
+            <button class="slider-arrow left-arrow">〈</button>
+            {% if post.images %}
+            <img src="{{ post.images[0].image_path }}" alt="{{ post.category.name}}" class="detail-image">
+            {% endif %}
+            <button class="slider-arrow right-arrow">〉</button>
+
+            <!--削除操作-->
+            <div id="deleteModal" class="delete-modal hidden">
+                <p class="modal-text">削除してもいいですか？</p>
+                <div class="modal-button">
+                    <button id="confirmDeleteBtn" class="modal-btn btn-yes">はい</button>
+                    <button id="cancelDeleteBtn" class="modal-btn btn-no">いいえ</button>
+                </div>
+            </div>
+        </div>
+
+        <!--テキスト情報エリア-->
+        <div class="detail-info">
+            <h1 class="detail-title">{{ post.category.name }}</h1>
+            <p class="detail-desc">{{ post.description }}</p>
+            <p class="detail-date">{{ post.found_date }}</p>
+            <p class="detail-location">
+                <span class="location-icon">📍</span> {{ post.found_place}}
+            </p>
+        </div>
+    </main>
+
+    <!--アクションボタン系-->
+    <div class="action-btn">
+        {% if current_user.role == 'admin' %}
+        <div class="admin-actions">
+            <a href="{{ url_for('update_posts', id=post.id) }}" class="action-btn btn-edit">編集</a>
+            <!--JSでIDを取得できるようにdata-post-idを仕込む-->
+            <button id="showDeleteModalBtn" class="action-btn btn-delete" data-post-id="{{ post.id }}">削除</button>
+        </div>
+        {% else %}
+        <div class="user-actions">
+            <a href="{{ url_for('show_messages', userid=post.user_id)}}" class="action-btn btn-dm">DMで申請</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script src="{{ url_for('static', filename='js/post_detail.js') }}"></script>
+{% endblock %}
