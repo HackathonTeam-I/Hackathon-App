@@ -44,7 +44,7 @@ CREATE TABLE users (
 CREATE TABLE posts (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id BIGINT UNSIGNED NOT NULL,
-  category_id BIGINT UNSIGNED,
+  category_id BIGINT UNSIGNED NOT NULL,
   found_date DATE NOT NULL,
   found_place VARCHAR(100) NOT NULL,
   description TEXT,
