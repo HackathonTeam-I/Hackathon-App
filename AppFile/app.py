@@ -126,6 +126,22 @@ def update_posts(id):
     flash('投稿内容が更新されました','success')
     return redirect(url_for('show_posts_detail',id=id))
 
+# 画像更新処理
+@app.route('/api/admin/posts/<int:post_id>/images/<int:image_id>',methods=['PATCH'])
+@admin_required
+def update_images(post_id,image_id):
+    image = Image.get_images_by_post_id(post_id)
+    if image is None:
+        abort(404)
+    image_file = request.files.get('image')
+    filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
+    image_path = os.path.join('static/images',filename)
+    image_file.save(os.path.join('AppFile',image_path))
+
+    Image.update_images(image_id,image_path)
+    flash('画像が更新されました','success')
+    return redirect(url_for('show_posts_detail',id=post_id))
+
 # 投稿削除機能
 @app.route('/api/admin/posts/<int:id>',methods=['DELETE'])
 @admin_required
