@@ -13,7 +13,6 @@ from models import Post,Image,Thread,Message
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
 SESSION_DAYS = 30
 
-
 #Flaskアプリの本体を作成
 app = Flask(__name__)
 
@@ -87,6 +86,28 @@ def create_posts():
     Post.create_posts(category_id,found_date,found_place,description)
     flash('投稿が完了しました','success')
     return redirect(url_for('show_admin_top')) #管理者トップ画面へ
+
+# 画像追加処理
+@app.route('/api/admin/posts/<int:post_id>/images',methods=['POST'])
+@admin_required
+def upload_images(post_id):
+    # １：フォームから画像ファイルを受け取る
+    image_file = request.files.get('image')
+    if image_file is None:
+        flash('投稿画像を選択して下さい','error')
+        return redirect(url_for('show_admin_posts')) #新規投稿画面へ
+
+    # ２：保存するファイル名を生成（上書き防止）
+    filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
+
+    # ３：サーバーに画像を保存
+    image_path = os.path.join('static/images',filename)
+    image_file.save(os.path.join('AppFile',image_path))
+
+    # ４：DBにパスを登録
+    Image.create_images(post_id,image_path)
+    flash('画像を登録しました','success')
+    return redirect(url_for(show_posts_detail,id=post_id))
 
 # 投稿更新処理
 @app.route('/api/admin/posts/<int:id>',methods=['PATCH'])
