@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}チャット - Find {% endblock %}
+{% block page_css %}
+<link rel="stylesheet" href="{{url_for('static', filename='css/messages.css')}}">
+{% endblock %}
+
+{% block content %}
+<div class="page-messages">
+    <main class="messages-container">
+        <div class="messages-header">
+            <!--管理者用と一般ユーザー用で見出し切り替え-->
+            {% if session.get('role')== 'admin' %}
+                <!--送信先のユーザー名を見出しとし、ユーザー名は「receiver」としてFlask（Python側）から受け取る-->
+                <h2>{{receiver}}</h2>
+            {% else %}
+                <h2 class="messages-header-title">管理者へDM送信</h2>
+            {% enfif %}
+        </div>
+
+        <!-- メッセージ表示エリア-->
+        <div class="chat-messages">
+            {for message in messages %}
+                <!--相手からのメッセージ表示（左側）-->
+                {% if message.sender == 'received' %}
+                   <div class="message-received">
+                        <!--相手のアイコン表示-->
+                        <img class="receiver-icon" src="{{url_for('static', filename='images/receiver-icon.png')}}" alt="{{receiver}}"> 
+                        <!--メッセージ本体表示-->
+                        <div class="message-body">
+                            {{message}}
+                        </div>
+                        <!--時間表示-->
+                        <span class="message-time">{{message.time}}</span>
+                    </div>
+
+                {% else %}
+                    <div class="message-sent">
+                        <!--自分のアイコン表示（右側）-->
+                        <img class="sender-icon" src="{{url_for('static', filename='images/sender-icon.png')}}" alt="{{sender}}"> 
+                        <!--メッセージ本体表示-->
+                        <div class="message-body">
+                            {{message}}
+                        </div>
+                        <!--時間表示-->
+                        <span class="message-time">{{message.time}}</span>
+                    </div>
+            {% endfor %}
+        </div>
+
+        <!--メッセージ入力エリア(actionでFlaskの/api/messages/<userid>へPOST送信)-->
+        <form class="messages-input-area" action="/api/messages/<userid>" method="POST">
+            <!--空欄時は送信できない、自動入力候補の無効化-->
+            <input type="text" name="message" placeholder="メッセージを入力してください" required autocomplete="off">
+            <button type="submit"></button>
+        </form>
+
+
+    </main>
+</div>
