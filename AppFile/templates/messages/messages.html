@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}チャット - Find {% endblock %}
+{% block title %}DM送信 - Find It {% endblock %}
 {% block page_css %}
 <link rel="stylesheet" href="{{url_for('static', filename='css/messages.css')}}">
 {% endblock %}
@@ -8,14 +8,18 @@
 {% block content %}
 <div class="page-messages">
     <main class="messages-container">
-        <div class="messages-header">
+        <header class="messages-header">
+            <a href="{{url_for('show_posts')}}" class="back-button">←</a>
+        </header>
+
+        <div class="messages-title">
             <!--管理者用と一般ユーザー用で見出し切り替え-->
             {% if session.get('role')== 'admin' %}
-                <!--送信先のユーザー名を見出しとし、ユーザー名は「receiver」としてFlask（Python側）から受け取る-->
-                <h2>{{receiver}}</h2>
+                <!--送信先のユーザー名を見出しとし、ユーザー名は{{receiver}}としてFlask（Python側）から受け取る-->
+                <h2 class="messages-user-title">{{receiver}}</h2>
             {% else %}
-                <h2 class="messages-header-title">管理者へDM送信</h2>
-            {% enfif %}
+                <h2 class="messages-user-title">管理者へDM送信</h2>
+            {% endif %}
         </div>
 
         <!-- メッセージ表示エリア-->
@@ -52,9 +56,9 @@
         <form class="messages-input-area" action="/api/messages/<userid>" method="POST">
             <!--空欄時は送信できない、自動入力候補の無効化-->
             <input type="text" name="message" placeholder="メッセージを入力してください" required autocomplete="off">
-            <button type="submit"></button>
+            <button type="submit">
+                <img class="send-icon" src="{{url_for('static', filename='images/send-icon.png')}}" alt="{{send}}"> 
+            </button>
         </form>
-
-
     </main>
 </div>
