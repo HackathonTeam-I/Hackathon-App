@@ -164,6 +164,19 @@ def delete_images(post_id,image_id):
     flash('画像が削除されました','success')
     return redirect(url_for('show_posts'))
 
+ 
+
+#DM画面表示
+@app.route('/threads', methods=['GET'])
+def show_threads():
+    threads = Thread.get_all_threads()
+    if threads:
+        return render_template('post/threads.html',threads=threads)
+    else:
+        return render_template('post/threads.html',message='スレッドがありません')
+
+
+
 """
 プログラム実行
 """
