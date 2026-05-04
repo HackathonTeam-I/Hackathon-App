@@ -1,0 +1,106 @@
+.page-messages{
+    background: var(--bc);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;  
+}
+
+.back-button{
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--text-main);
+    text-decoration: none;
+}
+
+.messages-title{
+    margin: 0px 40px;
+}
+
+.messages-user-title{
+    padding: 0px;
+    font-size: 28px;
+    color: var(--text-main);
+    font-weight: 700px;   
+}
+
+.chat-messages{
+    display: flex;
+    max-width: 85%;
+    align-items: flex-start;
+}
+
+.message-received{
+    align-self: flex-start;
+}
+
+.receiver-icon{
+    width: 50px;
+    aspect-ratio: 1 / 1; /*正方形*/
+    border-radius: 50%;
+    object-fit: cover; /*アイコンの歪み防止、中央で切り抜き*/
+    margin: 12px;
+}
+
+.message-content-wrapper{
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+.message-received-body{
+    padding: 8px 16px;
+    font-size:16px;
+    font-weight: 500px;
+    color: var(--logo-top);
+    background: var(--bg);
+    overflow-wrap: anywhere; /*要素の幅が中身に合わせて伸縮するレイアウトで自動改行させる*/
+    border-radius: 20px;
+}
+
+.message-time{
+    padding: 0px;
+    font-size: 16px;
+    color: var(--text-main);
+}
+
+.message-sent{
+    align-self: flex-end;
+    flex-direction :row;
+}
+
+.sender-icon{
+    width: 50px;
+    aspect-ratio: 1 / 1; /*正方形*/
+    border-radius: 50%;
+    object-fit: cover; /*アイコンの歪み防止、中央で切り抜き*/
+    margin: 12px;
+}
+
+.message-sent-body{
+    padding: 8px 16px;
+    font-size:16px;
+    font-weight: 500px;
+    color: var(--text-main);
+    background: F3F4F6;
+    overflow-wrap: anywhere; /*要素の幅が中身に合わせて伸縮するレイアウトで自動改行させる*/
+    border-radius: 20px;
+}
+
+.messages-input-area{
+    border-radius: 20px;
+    width: 376px;
+    height: 72px;
+    padding: 8px 16px;
+    cursor: pointer;
+    outline:1px solid transparent;
+    font-size:16px;
+    font-weight:500;
+    box-sizing:border-box;
+}
+
+.messages-input-area:forcus{
+    background-color: var(--bc);;
+    outline:1px solid #000000;
+    transition: outline 0.3s;
+}
+
