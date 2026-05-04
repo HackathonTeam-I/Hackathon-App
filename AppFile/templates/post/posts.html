@@ -45,7 +45,7 @@
     </main>
 
     <!--Admin専用機能”新規投稿”-->
-    {% if current_user.role == 'admin' %}
+    {% if session.get('role') == 'admin' %}
     <a href="/admin/posts" class="new-post">
         <div class="post-btn">+</div>
     </a>
