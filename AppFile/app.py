@@ -113,6 +113,15 @@ def delete_posts(id):
     flash('投稿を削除しました', 'success')
     return redirect(url_for('show_posts'))
 
+#DM画面表示
+@app.route('/threads', methods=['GET'])
+def show_threads():
+    threads = Thread.get_all_threads()
+    if threads:
+        return render_template('post/threads.html',threads=threads)
+    else:
+        return render_template('post/threads.html',message='スレッドがありません')
+
 
 
 
