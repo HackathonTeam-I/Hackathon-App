@@ -7,12 +7,11 @@ import uuid
 import re
 import os
 
-from models import Post,Thread,Message
+from models import Post,Image,Thread,Message
 
 # 定数定義　メール形式チェック用の正規表現とセッション有効期間（日数）を定義
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
 SESSION_DAYS = 30
-
 
 #Flaskアプリの本体を作成
 app = Flask(__name__)
@@ -49,6 +48,8 @@ def get_posts():
 def show_posts():
     posts = Post.get_all_posts()
     if posts:
+        for post in posts:
+            post['images'] = Image.get_images_by_post_id(post['id'])
         return render_template('post/posts.html',posts=posts)
     else:
         return render_template('post/posts.html',message='投稿内容がありません')
@@ -67,7 +68,8 @@ def show_posts_detail(id):
     post = Post.get_post_by_id(id)
     if post is None:
         abort(404, description='指定された投稿が見つかりません')
-    return render_template('post/posts_detail.html',post=post)
+    images = Image.get_images_by_post_id(post['id'])
+    return render_template('post/posts_detail.html',post=post,images=images)
 
 # 新規投稿処理
 @app.route('/api/admin/posts',methods=['POST'])
@@ -84,6 +86,28 @@ def create_posts():
     Post.create_posts(category_id,found_date,found_place,description)
     flash('投稿が完了しました','success')
     return redirect(url_for('show_admin_top')) #管理者トップ画面へ
+
+# 画像追加処理
+@app.route('/api/admin/posts/<int:post_id>/images',methods=['POST'])
+@admin_required
+def upload_images(post_id):
+    # １：フォームから画像ファイルを受け取る
+    image_file = request.files.get('image')
+    if image_file is None:
+        flash('投稿画像を選択して下さい','error')
+        return redirect(url_for('show_admin_posts')) #新規投稿画面へ
+
+    # ２：保存するファイル名を生成（上書き防止）
+    filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
+
+    # ３：サーバーに画像を保存
+    image_path = os.path.join('static/uploads',filename)
+    image_file.save(os.path.join('AppFile',image_path))
+
+    # ４：DBにパスを登録
+    Image.create_images(post_id,image_path)
+    flash('画像を登録しました','success')
+    return redirect(url_for('show_posts_detail',id=post_id))
 
 # 投稿更新処理
 @app.route('/api/admin/posts/<int:id>',methods=['PATCH'])
@@ -102,7 +126,23 @@ def update_posts(id):
     flash('投稿内容が更新されました','success')
     return redirect(url_for('show_posts_detail',id=id))
 
-# 投稿削除機能
+# 画像更新処理
+@app.route('/api/admin/posts/<int:post_id>/images/<int:image_id>',methods=['PATCH'])
+@admin_required
+def update_images(post_id,image_id):
+    image = Image.get_images_by_post_id(post_id)
+    if image is None:
+        abort(404)
+    image_file = request.files.get('image')
+    filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
+    image_path = os.path.join('static/uploads',filename)
+    image_file.save(os.path.join('AppFile',image_path))
+
+    Image.update_images(image_id,image_path)
+    flash('画像が更新されました','success')
+    return redirect(url_for('show_posts_detail',id=post_id))
+
+# 投稿削除処理
 @app.route('/api/admin/posts/<int:id>',methods=['DELETE'])
 @admin_required
 def delete_posts(id):
@@ -113,6 +153,19 @@ def delete_posts(id):
     flash('投稿を削除しました', 'success')
     return redirect(url_for('show_posts'))
 
+# 画像削除処理
+@app.route('/api/admin/posts/<int:post_id>/images/<int:image_id>',methods=['DELETE'])
+@admin_required
+def delete_images(post_id,image_id):
+    image = Image.get_images_by_post_id(post_id)
+    if image is None:
+        abort(404)
+    Image.delete_images_by_post_id(post_id)
+    flash('画像が削除されました','success')
+    return redirect(url_for('show_posts'))
+
+ 
+
 #DM画面表示
 @app.route('/threads', methods=['GET'])
 def show_threads():
@@ -121,7 +174,6 @@ def show_threads():
         return render_template('post/threads.html',threads=threads)
     else:
         return render_template('post/threads.html',message='スレッドがありません')
-
 
 
 
