@@ -23,43 +23,50 @@
         </div>
 
         <!-- メッセージ表示エリア-->
+        {% if threads %}
         <div class="chat-messages">
-            {for message in messages %}
+            {% for thread in threads %}
                 <!--相手からのメッセージ表示（左側）-->
-                {% if message.sender == 'received' %}
+                {% if thread.sender == 'received' %}
                    <div class="message-received">
-                        <div message-content-wrapper>
+                        <div class="message-content-wrapper">
                             <!--相手のアイコン表示-->
                             <img class="receiver-icon" src="{{url_for('static', filename='images/receiver-icon.png')}}" alt="{{receiver}}"> 
                             <!--メッセージ本体表示-->
                             <div class="message-received-body">
-                                {{message}}
+                                {{thread}}
                             </div>
                             <!--時間表示-->
-                            <span class="message-time">{{message.time}}</span>
+                            <span class="message-time">{{thread.time}}</span>
                         </div>
                     </div>
 
                 {% else %}
                     <div class="message-sent">
-                         <div message-content-wrapper>
+                         <div class="message-content-wrapper">
                             <!--自分のアイコン表示（右側）-->
                             <img class="sender-icon" src="{{url_for('static', filename='images/sender-icon.png')}}" alt="{{sender}}"> 
                             <!--メッセージ本体表示-->
                             <div class="message-sent-body">
-                                {{message}}
+                                {{thread}}
                             </div>
                             <!--時間表示-->
                             <span class="message-time">{{message.time}}</span>
                          </div> 
                     </div>
+                {% endif %}
             {% endfor %}
         </div>
+        {% else %}
+            <p>スレッドがありません。</p>
+        {% endif}
+       
 
         <!--メッセージ入力エリア(actionでFlaskの/api/messages/<userid>へPOST送信)-->
         <form class="messages-input-area" action="/api/messages/<userid>" method="POST">
+            <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
             <!--空欄時は送信できない、自動入力候補の無効化-->
-            <input type="text" name="message" placeholder="メッセージを入力してください" required autocomplete="off">
+            <input type="text" name="threads" placeholder="メッセージを入力してください" required autocomplete="off">
             <button type="submit">
                 <img class="send-icon" src="{{url_for('static', filename='images/send-icon.png')}}" alt="{{send}}"> 
             </button>
