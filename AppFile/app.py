@@ -139,8 +139,14 @@ def update_images(post_id,image_id):
     image_file.save(os.path.join('AppFile',image_path))
 
     Image.update_images(image_id,image_path)
-    flash('画像が更新されました','success')
-    return redirect(url_for('show_posts_detail',id=post_id))
+
+    next_url = url_for('show_posts_detail',id=post_id)
+
+    return jsonify({
+        'status':'success',
+        'message':'画像が更新されました',
+        'redirect_url':'next_url'
+    }),200
 
 # 投稿削除処理
 @app.route('/api/admin/posts/<int:id>',methods=['DELETE'])
@@ -164,7 +170,7 @@ def delete_images(post_id,image_id):
     flash('画像が削除されました','success')
     return redirect(url_for('show_posts'))
 
- 
+
 
 #DM画面表示
 @app.route('/threads', methods=['GET'])
