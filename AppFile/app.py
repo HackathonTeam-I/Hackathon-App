@@ -163,7 +163,10 @@ def delete_images(post_id,image_id):
         abort(404)
     Image.delete_images_by_post_id(post_id)
     flash('画像が削除されました','success')
-    return redirect(url_for('show_posts'))
+    return redirect({
+        'status':'success',
+        'message':'画像を削除しました'
+    }),200
 
 
 
