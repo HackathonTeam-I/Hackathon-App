@@ -154,10 +154,12 @@ def update_images(post_id,image_id):
 def delete_posts(id):
     post = Post.get_post_by_id(id)
     if post is None:
-        abort(404)
+        abort(404,description='指定された投稿が見つかりません')
     Post.delete_posts(id)
-    flash('投稿を削除しました', 'success')
-    return redirect(url_for('show_posts'))
+    return jsonify({
+        'status':'success',
+        'message':'投稿を削除しました'
+        }),200
 
 # 画像削除処理
 @app.route('/api/admin/posts/<int:post_id>/images/<int:image_id>',methods=['DELETE'])
