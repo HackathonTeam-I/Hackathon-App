@@ -157,7 +157,10 @@ def delete_posts(id):
         abort(404)
     Post.delete_posts(id)
     flash('投稿を削除しました', 'success')
-    return redirect(url_for('show_posts'))
+    return jsonify({
+        'status':'success'
+        'message':'画像を削除しました'
+        }),200
 
 # 画像削除処理
 @app.route('/api/admin/posts/<int:post_id>/images/<int:image_id>',methods=['DELETE'])
