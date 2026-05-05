@@ -102,7 +102,7 @@ def upload_images(post_id):
 def update_posts(id):
     post = Post.get_post_by_id(id)
     if post is None:
-        abort(404)
+        abort(404,description='指定された投稿が見つかりません')
 
     category_id = request.form.get('category_id')
     found_date = request.form.get('found_date')
@@ -110,8 +110,14 @@ def update_posts(id):
     description = request.form.get('description')
 
     Post.update_posts(id,category_id,found_date,found_place,description)
-    flash('投稿内容が更新されました','success')
-    return redirect(url_for('show_posts_detail',id=id))
+
+    next_url = url_for('show_posts_detail',id=id)  #処理成功後の行き先を指定
+
+    return jsonify({
+        'status':'success',
+        'message':'投稿内容が更新されました',
+        'redirect_url':'next_url'  #先ほど指定した行き先を渡す
+    }),200
 
 # 画像更新処理
 @app.route('/api/admin/posts/<int:post_id>/images/<int:image_id>',methods=['PATCH'])
@@ -135,10 +141,12 @@ def update_images(post_id,image_id):
 def delete_posts(id):
     post = Post.get_post_by_id(id)
     if post is None:
-        abort(404)
+        abort(404,description='指定された投稿が見つかりません')
     Post.delete_posts(id)
-    flash('投稿を削除しました', 'success')
-    return redirect(url_for('show_posts'))
+    return jsonify({
+        'status':'success',
+        'message':'投稿を削除しました'
+        }),200
 
 # 画像削除処理
 @app.route('/api/admin/posts/<int:post_id>/images/<int:image_id>',methods=['DELETE'])
@@ -151,7 +159,7 @@ def delete_images(post_id,image_id):
     flash('画像が削除されました','success')
     return redirect(url_for('show_posts'))
 
- 
+
 
 #DM画面表示
 @app.route('/threads', methods=['GET'])
