@@ -162,8 +162,7 @@ def delete_images(post_id,image_id):
     if image is None:
         abort(404)
     Image.delete_images_by_post_id(post_id)
-    flash('画像が削除されました','success')
-    return redirect({
+    return jsonify({
         'status':'success',
         'message':'画像を削除しました'
     }),200
