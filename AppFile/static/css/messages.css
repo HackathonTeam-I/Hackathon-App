@@ -26,7 +26,7 @@
 .chat-messages{
     display: flex;
     max-width: 85%;
-    align-items: flex-start;
+    align-items: flex-end;
 }
 
 .message-received{
@@ -87,10 +87,16 @@
 }
 
 .messages-input-area{
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+}
+
+.messages-input-area input{
     border-radius: 20px;
-    width: 376px;
+    width: 100%;
     height: 72px;
-    padding: 8px 16px;
+    padding: 8px 76px 8px 16px;
     cursor: pointer;
     outline:1px solid transparent;
     font-size:16px;
@@ -98,9 +104,21 @@
     box-sizing:border-box;
 }
 
-.messages-input-area:forcus{
+.messages-input-area input:focus{
     background-color: var(--bc);;
     outline:1px solid #000000;
     transition: outline 0.3s;
+}
+
+.send-button{
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 72px;
+    height: 72px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
 }
 
