@@ -125,7 +125,7 @@ def update_posts(id):
 def update_images(post_id,image_id):
     image = Image.get_images_by_post_id(post_id)
     if image is None:
-        abort(404)
+        abort(404,description='指定された画像が見つかりません')
     image_file = request.files.get('image')
     filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
     image_path = os.path.join('static/uploads',filename)
@@ -138,7 +138,7 @@ def update_images(post_id,image_id):
     return jsonify({
         'status':'success',
         'message':'画像が更新されました',
-        'redirect_url':'next_url'
+        'redirect_url':next_url
     }),200
 
 # 投稿削除処理
@@ -160,7 +160,7 @@ def delete_posts(id):
 def delete_images(post_id,image_id):
     image = Image.get_images_by_post_id(post_id)
     if image is None:
-        abort(404)
+        abort(404,description='指定された画像が見つかりません')
     Image.delete_images_by_post_id(post_id)
     return jsonify({
         'status':'success',
