@@ -173,11 +173,7 @@ def delete_images(post_id,image_id):
 @app.route('/threads', methods=['GET'])
 def show_threads():
     threads = Thread.get_all_threads()
-    if threads:
-        return render_template('post/threads.html',threads=threads)
-    else:
-        return render_template('post/threads.html',message='スレッドがありません')
-
+    
 
 
 """

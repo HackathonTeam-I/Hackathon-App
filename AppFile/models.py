@@ -188,18 +188,27 @@ class Thread:
                 SELECT
                     threads.id,
                     threads.created_at,
-                    users.name as users_name
+                    users.name as user_name
                 FROM threads
                 LEFT JOIN users ON threads.user_id = users.id
                 ORDER BY threads.created_at DESC;
                 """
                 cur.execute(sql)
                 threads = cur.fetchall()
-
+            for thread in threads:
+                thread['created_at'] = str(['created_at'])
+            return threads
+        except pymysql.Error as e:
+            print(f'エラーが発生しています：{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+        
             for threads in threads:
                 threads['created_at'] = str(t['created_at'])
 
             cursor.close()
             conn.close()
 
-            return threads
+            return threads    
+        
