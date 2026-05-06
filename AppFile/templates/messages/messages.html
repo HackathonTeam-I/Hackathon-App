@@ -37,7 +37,7 @@
                                 {{message.content}}
                             </div>
                             <!--時間表示-->
-                            <span class="message-time">{{message.time.strftime(' %H:%M ')}}</span>
+                            <span class="message-received-time">{{message.time.strftime(' %H:%M ')}}</span>
                         </div>
                     </div>
 
@@ -51,7 +51,7 @@
                                 {{message.content}}
                             </div>
                             <!--時間表示-->
-                            <span class="message-time">{{message.time.strftime(' %H:%M ')}}</span>
+                            <span class="message-sent-time">{{message.time.strftime(' %H:%M ')}}</span>
                          </div> 
                     </div>
                 {% endif %}
@@ -67,7 +67,7 @@
             <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
             <!--空欄時は送信できない、自動入力候補の無効化-->
             <input type="text" name="message" placeholder="メッセージを入力してください" required autocomplete="off">
-            <button type="submit">
+            <button type="submit" class="send-button">
                 <img class="send-icon" src="{{url_for('static', filename='images/send-icon.png')}}" alt="送信"> 
             </button>
         </form>
