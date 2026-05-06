@@ -204,23 +204,11 @@ class Thread:
         finally:
             db_pool.release(conn)
         
+            for threads in threads:
+                threads['created_at'] = str(t['created_at'])
 
+            cursor.close()
+            conn.close()
 
-     @classmethod
-    def create_thread():
-        conn = db_pool.get_conn()
-        try:
-            with conn.cursor() as cur:
-                sql = """
-                INSERT INTO
-                    threads.user_id,
-                    threads.created_at,
-                    users.name as users_name
-                FROM threads
-                LEFT JOIN users ON threads.user_id = users.id
-                ORDER BY threads.created_at DESC;
-                """
-                cur.execute(sql)
-                threads = cur.fetchall()
-       
+            return threads    
         
