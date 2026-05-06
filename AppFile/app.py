@@ -116,7 +116,7 @@ def update_posts(id):
     return jsonify({
         'status':'success',
         'message':'投稿内容が更新されました',
-        'redirect_url':'next_url'  #先ほど指定した行き先を渡す
+        'redirect_url':next_url  #先ほど指定した行き先を渡す
     }),200
 
 # 画像更新処理
@@ -173,7 +173,7 @@ def delete_images(post_id,image_id):
 @app.route('/threads', methods=['GET'])
 def show_threads():
     threads = Thread.get_all_threads()
-    
+
 
 
 """
