@@ -84,10 +84,10 @@ def upload_images(post_id):
         flash('投稿画像を選択して下さい','error')
         return redirect(url_for('show_admin_posts')) #新規投稿画面へ
 
-    # ２：保存するファイル名を生成（上書き防止）
+    # ２：保存するファイル名を生成
     filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
 
-    # ３：サーバーに画像を保存
+    # ３：パスの組み立て
     image_path = os.path.join('static/uploads',filename)
     image_file.save(os.path.join('AppFile',image_path))
 
@@ -123,15 +123,20 @@ def update_posts(id):
 @app.route('/api/admin/posts/<int:post_id>/images/<int:image_id>',methods=['PATCH'])
 @admin_required
 def update_images(post_id,image_id):
-    image = Image.get_images_by_post_id(post_id)
+    image = Image.get_images_by_image_id(image_id)
     if image is None:
         abort(404,description='指定された画像が見つかりません')
+    old_path = os.path.join('AppFile',image['image_path'])
+    if os.path.exists(old_path):
+        os.remove(old_path)
     image_file = request.files.get('image')
+    if image_file is None:
+        abort(400,description='画像ファイルがありません')
     filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
     image_path = os.path.join('static/uploads',filename)
     image_file.save(os.path.join('AppFile',image_path))
 
-    Image.update_images(image_id,image_path)
+    Image.update_images_by_image_id(image_id,image_path)
 
     next_url = url_for('show_posts_detail',id=post_id)
 

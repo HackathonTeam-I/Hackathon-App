@@ -126,6 +126,25 @@ class Image:
             db_pool.release(conn)
 
     @classmethod
+    def get_image_by_image_id(cls,image_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = """
+                SELECT *
+                from images
+                WHERE id = %s;
+                """
+                cur.execute(sql,(image_id,))
+                image = cur.fetchone()
+            return image
+        except pymysql.Error as e:
+            print(f'サーバー接続上のエラーが発生しています{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
+    @classmethod
     def create_images(cls,post_id,image_path):
         conn = db_pool.get_conn()
         try:
@@ -155,6 +174,24 @@ class Image:
                 conn.commit()
         except pymysql.Error as e:
             print(f'サーバー接続上のエラーが発生しています{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
+    @classmethod
+    def update_image_by_image_id(cls,id,image_path):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = """
+                UPDATE images
+                SET image_path = %s
+                WHERE id = %s;
+                """
+                cur.execute(sql,(image_path,id))
+                conn.commit()
+        except pymysql.Error as e:
+            print(f'サーバー接続上のエラー場発生しています{e}')
             abort(500)
         finally:
             db_pool.release(conn)
@@ -196,7 +233,7 @@ class Thread:
                 cur.execute(sql)
                 threads = cur.fetchall()
 
-            #日付フォーマット   
+            #日付フォーマット
             for thread in threads:
                 if thread['created_at']:
                     thread['created_at'] = thread['created_at'].strftime('%Y-%m-%d %H:%M')
@@ -206,5 +243,3 @@ class Thread:
             abort(500)
         finally:
             db_pool.release(conn)
-
-
