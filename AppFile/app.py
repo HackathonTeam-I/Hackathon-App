@@ -105,10 +105,17 @@ def update_posts(id):
     if post is None:
         abort(404,description='指定された投稿が見つかりません')
 
-    category_id = request.form.get('category_id')
-    found_date = request.form.get('found_date')
-    found_place = request.form.get('found_place')
-    description = request.form.get('description')
+    data = request.get_json()
+    category_id = data.get('category_id')
+    found_date = data.get('found_date')
+    found_place = data.get('found_place')
+    description = data.get('description')
+
+    if not all([category_id,found_date,found_place]):
+        return jsonify({
+            'status':'error',
+            'message':'必須項目を入力して下さい'
+        }),400
 
     Post.update_posts(id,category_id,found_date,found_place,description)
 
