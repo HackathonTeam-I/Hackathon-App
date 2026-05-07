@@ -97,6 +97,16 @@ def upload_images(post_id):
     flash('画像を登録しました','success')
     return redirect(url_for('show_posts_detail',id=post_id))
 
+# 編集フォーム画面表示
+@app.route('/admin/posts/<int:id>/edit',methods=['GET'])
+@admin_required
+def show_update_posts(id):
+    post = Post.get_post_by_id(id)
+    if post is None:
+        abort(404,description='指定された投稿がありません')
+    images= Image.get_images_by_post_id(id)
+    return render_template('admin/posts/edit.html',post=post,images=images)
+
 # 投稿更新処理
 @app.route('/api/admin/posts/<int:id>',methods=['PATCH'])
 @admin_required
