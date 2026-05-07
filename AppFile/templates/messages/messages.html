@@ -31,7 +31,7 @@
                    <div class="message-received">
                         <div class="message-content-wrapper">
                             <!--相手のアイコン表示-->
-                            <img class="receiver-icon" src="{{url_for('static', filename='images/receiver-icon.png')}}" alt="receiver"> 
+                            <img class="receiver-icon" src="{{url_for('static', filename='images/receiver-icon.svg')}}" alt="receiver"> 
                             <!--メッセージ本体表示-->
                             <div class="message-received-body">
                                 {{message.content}}
@@ -45,7 +45,7 @@
                     <div class="message-sent">
                          <div class="message-content-wrapper">
                             <!--自分のアイコン表示（右側）-->
-                            <img class="sender-icon" src="{{url_for('static', filename='images/sender-icon.png')}}" alt="sender"> 
+                            <img class="sender-icon" src="{{url_for('static', filename='images/sender-icon.svg')}}" alt="sender"> 
                             <!--メッセージ本体表示-->
                             <div class="message-sent-body">
                                 {{message.content}}
@@ -68,7 +68,7 @@
             <!--空欄時は送信できない、自動入力候補の無効化-->
             <input type="text" name="message" placeholder="メッセージを入力してください" required autocomplete="off">
             <button type="submit" class="send-button">
-                <img class="send-icon" src="{{url_for('static', filename='images/send-icon.png')}}" alt="送信"> 
+                <img class="send-icon" src="{{url_for('static', filename='images/send-icon.svg')}}" alt="送信"> 
             </button>
         </form>
     </main>
