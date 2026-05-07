@@ -163,10 +163,13 @@ def delete_posts(id):
 @app.route('/api/admin/posts/<int:post_id>/images/<int:image_id>',methods=['DELETE'])
 @admin_required
 def delete_images(post_id,image_id):
-    image = Image.get_images_by_post_id(post_id)
+    image = Image.get_image_by_image_id(image_id)
     if image is None:
         abort(404,description='指定された画像が見つかりません')
-    Image.delete_images_by_post_id(post_id)
+    file_path = os.path.join('AppFile',image['image_path'])
+    if os.path.exists(file_path):
+        os.remove(file_path)
+    Image.delete_image_by_image_id(image_id)
     return jsonify({
         'status':'success',
         'message':'画像を削除しました'
