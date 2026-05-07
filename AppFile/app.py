@@ -62,6 +62,7 @@ def show_posts_detail(id):
 @app.route('/api/admin/posts',methods=['POST'])
 @admin_required
 def create_posts():
+    user_id = session.get('user_id')
     category_id = request.form.get('category_id')
     found_date = request.form.get('found_date')
     found_place = request.form.get('found_place')
