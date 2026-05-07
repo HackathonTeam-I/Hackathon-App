@@ -62,6 +62,7 @@ def show_posts_detail(id):
 @app.route('/api/admin/posts',methods=['POST'])
 @admin_required
 def create_posts():
+    user_id = session.get('user_id')
     category_id = request.form.get('category_id')
     found_date = request.form.get('found_date')
     found_place = request.form.get('found_place')
@@ -84,10 +85,10 @@ def upload_images(post_id):
         flash('投稿画像を選択して下さい','error')
         return redirect(url_for('show_admin_posts')) #新規投稿画面へ
 
-    # ２：保存するファイル名を生成（上書き防止）
+    # ２：保存するファイル名を生成
     filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
 
-    # ３：サーバーに画像を保存
+    # ３：パスの組み立て
     image_path = os.path.join('static/uploads',filename)
     image_file.save(os.path.join('AppFile',image_path))
 
@@ -104,10 +105,17 @@ def update_posts(id):
     if post is None:
         abort(404,description='指定された投稿が見つかりません')
 
-    category_id = request.form.get('category_id')
-    found_date = request.form.get('found_date')
-    found_place = request.form.get('found_place')
-    description = request.form.get('description')
+    data = request.get_json()
+    category_id = data.get('category_id')
+    found_date = data.get('found_date')
+    found_place = data.get('found_place')
+    description = data.get('description')
+
+    if not all([category_id,found_date,found_place]):
+        return jsonify({
+            'status':'error',
+            'message':'必須項目を入力して下さい'
+        }),400
 
     Post.update_posts(id,category_id,found_date,found_place,description)
 
@@ -116,29 +124,34 @@ def update_posts(id):
     return jsonify({
         'status':'success',
         'message':'投稿内容が更新されました',
-        'redirect_url':'next_url'  #先ほど指定した行き先を渡す
+        'redirect_url':next_url  #先ほど指定した行き先を渡す
     }),200
 
 # 画像更新処理
 @app.route('/api/admin/posts/<int:post_id>/images/<int:image_id>',methods=['PATCH'])
 @admin_required
 def update_images(post_id,image_id):
-    image = Image.get_images_by_post_id(post_id)
+    image = Image.get_image_by_image_id(image_id)
     if image is None:
-        abort(404)
+        abort(404,description='指定された画像が見つかりません')
+    old_path = os.path.join('AppFile',image['image_path'])
+    if os.path.exists(old_path):
+        os.remove(old_path)
     image_file = request.files.get('image')
+    if image_file is None:
+        abort(400,description='画像ファイルがありません')
     filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
     image_path = os.path.join('static/uploads',filename)
     image_file.save(os.path.join('AppFile',image_path))
 
-    Image.update_images(image_id,image_path)
+    Image.update_image_by_image_id(image_id,image_path)
 
     next_url = url_for('show_posts_detail',id=post_id)
 
     return jsonify({
         'status':'success',
         'message':'画像が更新されました',
-        'redirect_url':'next_url'
+        'redirect_url':next_url
     }),200
 
 # 投稿削除処理
@@ -146,6 +159,11 @@ def update_images(post_id,image_id):
 @admin_required
 def delete_posts(id):
     post = Post.get_post_by_id(id)
+    images = Image.get_images_by_post_id(id)
+    for image in images:
+        file_path = os.path.join('AppFile',image['image_path'])
+        if os.path.exists(file_path):
+            os.remove(file_path)
     if post is None:
         abort(404,description='指定された投稿が見つかりません')
     Post.delete_posts(id)
@@ -158,10 +176,13 @@ def delete_posts(id):
 @app.route('/api/admin/posts/<int:post_id>/images/<int:image_id>',methods=['DELETE'])
 @admin_required
 def delete_images(post_id,image_id):
-    image = Image.get_images_by_post_id(post_id)
+    image = Image.get_image_by_image_id(image_id)
     if image is None:
-        abort(404)
-    Image.delete_images_by_post_id(post_id)
+        abort(404,description='指定された画像が見つかりません')
+    file_path = os.path.join('AppFile',image['image_path'])
+    if os.path.exists(file_path):
+        os.remove(file_path)
+    Image.delete_image_by_image_id(image_id)
     return jsonify({
         'status':'success',
         'message':'画像を削除しました'
@@ -173,10 +194,6 @@ def delete_images(post_id,image_id):
 @app.route('/threads', methods=['GET'])
 def show_threads():
     threads = Thread.get_all_threads()
-    if threads:
-        return render_template('post/threads.html',threads=threads)
-    else:
-        return render_template('post/threads.html',message='スレッドがありません')
 
 
 
