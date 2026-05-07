@@ -15,9 +15,9 @@
                 <p class="posts-header_subtitle">Search your lost item!</p>
             </div>
         </div>
-
-        <a href="{{ url_for('search_category')" class="category-search-btn" }}">🔍️カテゴリーから探す</a>
-
+        <div class="search-action-area">
+            <a href="{{ url_for('search_category') }}" class="category-search-btn">🔍️カテゴリから探す</a>
+        </div>
         {% if posts and posts|length > 0 %}
         <div class="posts-list">
             {% for post in posts %}
