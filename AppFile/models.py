@@ -213,6 +213,22 @@ class Image:
         finally:
             db_pool.release(conn)
 
+    @classmethod
+    def delete_image_by_image_id(cls,image_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = """
+                DELETE FROM images
+                WHERE id = %s;
+                """
+                cur.execute(sql,(image_id,))
+                conn.commit()
+        except pymysql.Error as e:
+            print(f'サーバー接続上のエラーが発生しています{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
 
 # Threadsクラス
 class Thread:
