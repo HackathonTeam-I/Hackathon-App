@@ -16,12 +16,18 @@
             </div>
         </div>
 
+        <a href="{{ url_for('search_category')" class="category-search-btn" }}">🔍️カテゴリーから探す</a>
+
         {% if posts and posts|length > 0 %}
         <div class="posts-list">
             {% for post in posts %}
-            <a href="/posts/{{ post.id }}" class="post-card">
+            <a href="{{ url_for('show_posts_detail'), id=post.id }}" class="post-card">
                 <div class="post-card_image-box">
+                    {% if post.images and post.images|length > 0 %}
                     <img class="post-card_image" src="{{ post.images[0].image_path }}" alt="{{ post.category.name }}">
+                    {% else %}
+                    <div class="no-image-placeholder">No Image</div>
+                    {% endif %}
                 </div>
 
                 <div class="post-card_content">
