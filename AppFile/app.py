@@ -152,6 +152,11 @@ def update_images(post_id,image_id):
 @admin_required
 def delete_posts(id):
     post = Post.get_post_by_id(id)
+    images = Image.get_images_by_post_id(id)
+    for image in images:
+        file_path = os.path.join('AppFile',image['image_path'])
+        if os.path.exists(file_path):
+            os.remove(file_path)
     if post is None:
         abort(404,description='指定された投稿が見つかりません')
     Post.delete_posts(id)
