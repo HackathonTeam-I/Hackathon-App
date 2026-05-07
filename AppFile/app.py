@@ -62,6 +62,7 @@ def show_posts_detail(id):
 @app.route('/api/admin/posts',methods=['POST'])
 @admin_required
 def create_posts():
+    user_id = session.get('user_id')
     category_id = request.form.get('category_id')
     found_date = request.form.get('found_date')
     found_place = request.form.get('found_place')
@@ -104,10 +105,17 @@ def update_posts(id):
     if post is None:
         abort(404,description='指定された投稿が見つかりません')
 
-    category_id = request.form.get('category_id')
-    found_date = request.form.get('found_date')
-    found_place = request.form.get('found_place')
-    description = request.form.get('description')
+    data = request.get_json()
+    category_id = data.get('category_id')
+    found_date = data.get('found_date')
+    found_place = data.get('found_place')
+    description = data.get('description')
+
+    if not all([category_id,found_date,found_place]):
+        return jsonify({
+            'status':'error',
+            'message':'必須項目を入力して下さい'
+        }),400
 
     Post.update_posts(id,category_id,found_date,found_place,description)
 
@@ -151,6 +159,11 @@ def update_images(post_id,image_id):
 @admin_required
 def delete_posts(id):
     post = Post.get_post_by_id(id)
+    images = Image.get_images_by_post_id(id)
+    for image in images:
+        file_path = os.path.join('AppFile',image['image_path'])
+        if os.path.exists(file_path):
+            os.remove(file_path)
     if post is None:
         abort(404,description='指定された投稿が見つかりません')
     Post.delete_posts(id)
