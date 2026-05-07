@@ -52,7 +52,7 @@
 
     <!--Admin専用機能”新規投稿”-->
     {% if session.get('role') == 'admin' %}
-    <a href="/admin/posts" class="new-post">
+    <a href="{{ url_for('show_admin_posts')}}" class="new-post">
         <div class="post-btn">+</div>
     </a>
     {% endif %}
