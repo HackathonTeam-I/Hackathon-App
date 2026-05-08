@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}カテゴリ一覧 - Find it {% endblock %}
+
+{% block category_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/categories.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="post-category">
+    <header class="category-header">
+        <a href="{{ url_for('show_posts') }}" class="back-button">←</a>
+        <h1 class="page-title">カテゴリから検索</h1>
+    </header>
+
+    <main class="main-category">
+        <!--リンク参照コードは仮決め-->
+        <form action="{{ url_for('show_posts') }}" method="GET" class="category-form">
+            <ul>
+                <li>
+                    <label class="category-item">
+                        <span class="category-name">文具</span>
+                        <input type="radio" name="category_id" value="1">
+                        <span class="custom-checkbox"></span>
+                    </label>
+                </li>
+
+                <li>
+                    <label class="category-item">
+                        <span class="category-name">眼鏡</span>
+                        <input type="radio" name="category_id" value="2">
+                        <span class="custom-checkbox"></span>
+                    </label>
+                </li>
+
+                <li>
+                    <label class="category-item">
+                        <span class="category-name">機械類</span>
+                        <input type="radio" name="category_id" value="3">
+                        <span class="custom-checkbox"></span>
+                    </label>
+                </li>
+
+                <li>
+                    <label class="category-item">
+                        <span class="category-name">ハンカチ</span>
+                        <input type="radio" name="category_id" value="4">
+                        <span class="custom-checkbox"></span>
+                    </label>
+                </li>
+
+                <li>
+                    <label class="category-item">
+                        <span class="category-name">時計</span>
+                        <input type="radio" name="category_id" value="5">
+                        <span class="custom-checkbox"></span>
+                    </label>
+                </li>
+
+                <li>
+                    <label class="category-item">
+                        <span class="category-name">衣類</span>
+                        <input type="radio" name="category_id" value="6">
+                        <span class="custom-checkbox"></span>
+                    </label>
+                </li>
+
+                <li>
+                    <label class="category-item">
+                        <span class="category-name">水筒・弁当箱</span>
+                        <input type="radio" name="category_id" value="7">
+                        <span class="custom-checkbox"></span>
+                    </label>
+                </li>
+
+                <li>
+                    <label class="category-item">
+                        <span class="category-name">小物入れ</span>
+                        <input type="radio" name="category_id" value="8">
+                        <span class="custom-checkbox"></span>
+                    </label>
+                </li>
+
+                <li>
+                    <label class="category-item">
+                        <span class="category-name">医療品</span>
+                        <input type="radio" name="category_id" value="9">
+                        <span class="custom-checkbox"></span>
+                    </label>
+                </li>
+
+                <li>
+                    <label class="category-item">
+                        <span class="category-name">その他</span>
+                        <input type="radio" name="category_id" value="10">
+                        <span class="custom-checkbox"></span>
+                    </label>
+                </li>
+            </ul>
+
+            <button type="submit" class="submit-fab">確定</button>
+        </form>
+
+    </main>
+</div>
+{% endblock %}
