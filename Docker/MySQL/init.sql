@@ -99,7 +99,7 @@ CREATE TABLE notifications (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id BIGINT UNSIGNED NOT NULL,
   post_id BIGINT UNSIGNED NOT NULL,
-  type ENUM('reminder', 'message', 'system') NOT NULL,
+  type ENUM('new_post', 'message', 'system', 'reminder') NOT NULL,
   is_read BOOLEAN DEFAULT FALSE,
   created_at DATETIME (6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   PRIMARY KEY (id),
@@ -126,27 +126,16 @@ VALUES
 INSERT INTO
   categories (name)
 VALUES
-  -- 小物・アクセサリー
+  ('文具'),
+  ('眼鏡'),
+  ('機器類'),
   ('ハンカチ'),
-  ('ポーチ'),
-  ('文房具'),
-  ('イヤホン・ヘッドフォン'),
-  ('メガネ'),
-  ('傘'),
-  -- カード・書類系
-  ('交通系ICカード'),
-  ('名刺入れ'),
-  ('社員証'),
-  ('財布'),
-  -- デジタル機器
-  ('スマートフォン'),
-  ('USBメモリ'),
-  ('電子機器'),
-  -- 食べ物・日用品
-  ('水筒'),
-  ('お弁当'),
-  ('バッグ'),
-  -- その他
+  ('時計'),
+  ('衣類'),
+  ('水筒・弁当箱'),
+  ('小物入れ'),
+  ('医薬品'),
+  ('時計'),
   ('その他');
 
 -- ユーザー情報の登録
@@ -154,8 +143,8 @@ INSERT INTO
   users (name, email, password, department_id, role)
 VALUES
   (
-    '山田太郎',
-    'taro@example.com',
+    'admin',
+    'admin@example.com',
     '937e8d5fbb48bd4949536cd65b8d35c426b80d2f830c5c308e2cdec422ae2244',
     1,
     'admin'
@@ -180,15 +169,22 @@ INSERT INTO
 VALUES
   (
     1,
-    1,
-    '2026-03-05',
+    4,
+    '2026-04-25',
     '2階女性トイレ',
-    '猫の刺繍が施されている'
+    '白地でレースが施されている。Mの刺繍が1か所あり。'
   ),
   (
     1,
-    3,
-    '2026-03-14',
+    8,
+    '2026-04-27',
+    '3F休憩室',
+    '白猫がプリントされた紺色のポーチ。'
+  ),
+  (
+    1,
+    1,
+    '2026-05-08',
     '第1会議室',
-    'ちいかわのイラストが描かれた付箋'
+    '茶色のリングノートとカラフルな正方形の付箋。'
   );
