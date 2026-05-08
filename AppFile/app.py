@@ -62,6 +62,7 @@ def show_posts_detail(id):
 @app.route('/api/admin/posts',methods=['POST'])
 @admin_required
 def create_posts():
+    user_id = session.get('user_id')
     category_id = request.form.get('category_id')
     found_date = request.form.get('found_date')
     found_place = request.form.get('found_place')
@@ -96,6 +97,16 @@ def upload_images(post_id):
     flash('画像を登録しました','success')
     return redirect(url_for('show_posts_detail',id=post_id))
 
+# 編集フォーム画面表示
+@app.route('/admin/posts/<int:id>/edit',methods=['GET'])
+@admin_required
+def show_update_posts(id):
+    post = Post.get_post_by_id(id)
+    if post is None:
+        abort(404,description='指定された投稿がありません')
+    images= Image.get_images_by_post_id(id)
+    return render_template('admin/posts/edit.html',post=post,images=images)
+
 # 投稿更新処理
 @app.route('/api/admin/posts/<int:id>',methods=['PATCH'])
 @admin_required
@@ -104,10 +115,17 @@ def update_posts(id):
     if post is None:
         abort(404,description='指定された投稿が見つかりません')
 
-    category_id = request.form.get('category_id')
-    found_date = request.form.get('found_date')
-    found_place = request.form.get('found_place')
-    description = request.form.get('description')
+    data = request.get_json()
+    category_id = data.get('category_id')
+    found_date = data.get('found_date')
+    found_place = data.get('found_place')
+    description = data.get('description')
+
+    if not all([category_id,found_date,found_place]):
+        return jsonify({
+            'status':'error',
+            'message':'必須項目を入力して下さい'
+        }),400
 
     Post.update_posts(id,category_id,found_date,found_place,description)
 
@@ -123,7 +141,7 @@ def update_posts(id):
 @app.route('/api/admin/posts/<int:post_id>/images/<int:image_id>',methods=['PATCH'])
 @admin_required
 def update_images(post_id,image_id):
-    image = Image.get_images_by_image_id(image_id)
+    image = Image.get_image_by_image_id(image_id)
     if image is None:
         abort(404,description='指定された画像が見つかりません')
     old_path = os.path.join('AppFile',image['image_path'])
@@ -136,7 +154,7 @@ def update_images(post_id,image_id):
     image_path = os.path.join('static/uploads',filename)
     image_file.save(os.path.join('AppFile',image_path))
 
-    Image.update_images_by_image_id(image_id,image_path)
+    Image.update_image_by_image_id(image_id,image_path)
 
     next_url = url_for('show_posts_detail',id=post_id)
 
@@ -151,6 +169,11 @@ def update_images(post_id,image_id):
 @admin_required
 def delete_posts(id):
     post = Post.get_post_by_id(id)
+    images = Image.get_images_by_post_id(id)
+    for image in images:
+        file_path = os.path.join('AppFile',image['image_path'])
+        if os.path.exists(file_path):
+            os.remove(file_path)
     if post is None:
         abort(404,description='指定された投稿が見つかりません')
     Post.delete_posts(id)

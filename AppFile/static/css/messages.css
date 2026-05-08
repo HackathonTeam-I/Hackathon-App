@@ -25,12 +25,13 @@
 
 .chat-messages{
     display: flex;
+    flex-direction: column;
     max-width: 85%;
-    align-items: flex-end;
 }
 
 .message-received{
     align-self: flex-start;
+    flex-direction: row;
 }
 
 .receiver-icon{
@@ -57,15 +58,16 @@
     border-radius: 20px;
 }
 
-.message-time{
+.message-received-time{
     padding: 0px;
     font-size: 16px;
     color: var(--text-main);
 }
 
 .message-sent{
+    display: flex;
     align-self: flex-end;
-    flex-direction :row;
+    flex-direction :row-reverse;
 }
 
 .sender-icon{
@@ -81,9 +83,15 @@
     font-size:16px;
     font-weight: 500px;
     color: var(--text-main);
-    background: F3F4F6;
+    background: #F3F4F6;
     overflow-wrap: anywhere; /*要素の幅が中身に合わせて伸縮するレイアウトで自動改行させる*/
     border-radius: 20px;
+}
+
+.message-sent-time{
+    padding: 0px;
+    font-size: 16px;
+    color: var(--text-main);
 }
 
 .messages-input-area{
