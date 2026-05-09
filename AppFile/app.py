@@ -7,7 +7,7 @@ import uuid
 import re
 import os
 
-from models import Post,Image,Thread,Message
+from models import Post,Image,Category,Thread,Message
 
 # 定数定義　メール形式チェック用の正規表現とセッション有効期間（日数）を定義
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
@@ -198,8 +198,22 @@ def delete_images(post_id,image_id):
         'message':'画像を削除しました'
     }),200
 
+"""
+検索機能
+"""
 
+# 検索画面表示
+@app.route('/categories',methods=['GET'])
+def show_categories():
+    categories = Category.get_all_categories()
+    if categories:
+        return render_template('post/categories.html',categories=categories)
+    else:
+        return render_template('post/categories.html',message='カテゴリーが設定されていません')
 
+"""
+DM機能
+"""
 #DM画面表示
 @app.route('/threads', methods=['GET'])
 def show_threads():

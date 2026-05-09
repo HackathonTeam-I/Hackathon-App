@@ -230,6 +230,26 @@ class Image:
         finally:
             db_pool.release(conn)
 
+# Categoryクラス
+class Category:
+    @classmethod
+    def get_all_categories(cls):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = """
+                SELECT *
+                FROM categories
+                ORDER BY id ASC;
+                """
+                cur.execute(sql)
+                return cur.fetchall()
+        except pymysql.Error as e:
+            print(f'サーバー接続上のエラーが発生しています')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
 # Threadsクラス
 class Thread:
     @classmethod
