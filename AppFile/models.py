@@ -52,6 +52,27 @@ class Post:
             db_pool.release(conn)
 
     @classmethod
+    def get_posts_by_category(cls,category_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = """
+                SELECT *
+                FROM posts as p
+                LEFT JOIN categories as c
+                ON p.category_id = c.id
+                WHERE p.category_id = %s AND p.deleted_at IS NULL;
+                """
+                cur.execute(sql,(category_id,))
+                posts = cur.fetchall()
+            return posts
+        except pymysql.Error as e:
+            print(f'サーバー接続上のエラーが発生しています{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
+    @classmethod
     def create_posts(cls,user_id,category_id,found_date,found_place,description):
         conn = db_pool.get_conn()
         try:
@@ -245,7 +266,7 @@ class Category:
                 cur.execute(sql)
                 return cur.fetchall()
         except pymysql.Error as e:
-            print(f'サーバー接続上のエラーが発生しています')
+            print(f'サーバー接続上のエラーが発生しています：{e}')
             abort(500)
         finally:
             db_pool.release(conn)

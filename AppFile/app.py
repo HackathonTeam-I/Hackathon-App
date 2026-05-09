@@ -41,7 +41,16 @@ def admin_required(f):
 # 投稿一覧表示
 @app.route('/posts',methods=['GET'])
 def show_posts():
-    posts = Post.get_all_posts()
+    # URLのクエリパラメータからcategory_idを取得
+    category_id = request.args.get('category_id')
+
+    # category_idの有無で取得関数を切り替え
+    if category_id:
+        posts = Post.get_posts_by_category(category_id)
+    else:
+        posts = Post.get_all_posts()
+
+    # 各投稿に紐づく画像を取得
     if posts:
         for post in posts:
             post['images'] = Image.get_images_by_post_id(post['id'])
