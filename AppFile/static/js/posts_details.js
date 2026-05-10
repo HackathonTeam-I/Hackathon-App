@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const responce = await fetch(`api/admin/posts/${postId}`, {
                     method: 'DELETE',
                     headers: {
-                        'Content-Type': 'addlication/json'
+                        'Content-Type': 'application/json'
                     }
                 });
 
