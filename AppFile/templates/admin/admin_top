@@ -4,6 +4,7 @@
 
 {% block page_css %}
 <link rel="stylesheet" href="{{url_for('static', filename='css/admin_top.css')}}">
+{% endblock %}
 
 
 {% block content %}
@@ -15,59 +16,73 @@
     <div class="admin-posts">
         <ul>
             <li>
-                <a href="/admin/posts">
-                    <img src="add_square.svg" class="add-square">
-                    <span class="create-posts">新規投稿</span>
-                    <img src="admin-menu.svg" class="admin-menu">
+                <a href="{{ url_for('show_admin_posts')}}">
+                    <img src="{{ url_for('static', filename='images/add_square.svg') }}"
+                         class="add-square" 
+                         alt="プラスマーク">
+                    <span class="menu-text">新規投稿</span>
+                    <img src="admin-menu.svg" class="admin-menu" alt="リンク">
                 </a>
             </li>
             <li>
-                <a href="/posts">
-                    <img src="desk_alt.svg" class="desk-alt">
-                    <span class="show-posts">投稿一覧</span>
-                    <img src="admin-menu.svg" class="admin-menu">
+                <a href="{{ url_for('show_posts')}}">
+                    <img src="{{ url_for('static', filename='images/desk_alt.svg')}}" 
+                         class="desk-alt" 
+                         alt="一覧マーク">
+                    <span class="menu-text">投稿一覧</span>
+                    <img src="{{ url_for('static', filename='images/admin-menu.svg') }}"
+                         class="admin-menu" 
+                         alt="リンク">
                 </a>
             </li>
         </ul>
     </div>
 
-    <div class class="admin-treads">
     <h2 class="admin-top-title">
         DM確認
     </h2>
+    <div class="admin-threads">
         <ul>
             <li>
-                <a href="/threads">
-                    <img src="chat-menu.svg" class="chat-menu">
-                    <span class="threds">DM一覧確認</span>
-                    <img src="admin-menu.svg" class="admin-menu">
+                <a href="{{ url_for('show_threads')}}">
+                    <img src="{{ url_for('static', filename='images/chat-menu.svg')}}" 
+                         class="chat-menu" 
+                         alt="チャットマーク">
+                    <span class="menu-text">DM一覧確認</span>
+                    <img src="admin-menu.svg" class="admin-menu" alt="リンク">
                 </a>
             </li>
         </ul>
     </div>
         
-    <div class="admin-user">
     <h2 class="admin-top-title">
         ユーザー編集
     </h2>
+    <div class="admin-user">
         <ul>
             <li>
-                <a href="/admin/signup">
-                    <img src="user_add.svg" class="user-add">
-                    <span class="create-user">ユーザー登録</span>
-                    <img src="admin-menu.svg" class="admin-menu">
+                <a href="{{ url_for('show_signup')}}">
+                    <img src="{{ url_for('static', filename='images/user_add.svg')}}" 
+                         class="user-add" 
+                         alt="ユーザーマーク">
+                    <span class="menu-text">ユーザー登録</span>
+                    <img src="admin-menu.svg" class="admin-menu" alt="リンク">
                 </a>
             </li>
             <li>
-                <a href="/admin/users">
-                    <img src="setting_line.svg" class="setting-line">
-                    <span class="setting-user">ユーザー編集・削除</span>
-                    <img src="admin-menu.svg" class="admin-menu">
+                <a href="{{ url_for('show_users')}}">
+                    <img src="{{ url_for('static', filename='images/setting_line.svg')}}" 
+                         class="setting-line" 
+                         alt="編集マーク">
+                    <span class="menu-text">ユーザー編集・削除</span>
+                    <img src="admin-menu.svg" class="admin-menu" alt="リンク">
                 </a>
             </li>
         </ul>
     </div>
 </div>
+
+{% endblock %}
             
 
 
