@@ -1,0 +1,49 @@
+.admin-top-contents{
+    width:100%;
+    max-width: 500px;
+    margin:20px;
+    box-sizing:border-box;
+}
+
+.admin-top-title{
+    font-family: 'Sora', sans-serif;
+    font-size:28px;
+    color:var(--text-main);
+    font-weight:700;
+    padding:8px 0px;
+}
+
+.admin-posts{
+    padding:0px;
+}
+
+li{
+    list-style:none;
+    border-bottom: 1px solid var(--r-btn);
+}
+
+.menu-text{
+    font-family: 'Sora', sans-serif;
+    font-size:20px;
+    color:var(--text-main);
+    font-weight:500;
+}
+
+.admin-posts a{
+    display: flex;
+    align-items: center;
+}
+
+.admin-menu{
+    margin-left: auto;
+}
+
+.admin-threads a{
+    display: flex;
+    align-items: center;
+}
+
+.admin-user a{
+    display: flex;
+    align-items: center;
+}
