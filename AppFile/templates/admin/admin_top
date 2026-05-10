@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}管理者TOP画面 - Find it{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{{url_for('static', filename='css/admin_top.css')}}">
+
+
+{% block content %}
+
+<div class="admin-top-contents">
+    <h2 class="admin-top-title">
+        投稿編集
+    </h2>
+    <div class="admin-posts">
+        <ul>
+            <li>
+                <a href="/admin/posts">
+                    <img src="add_square.svg" class="add-square">
+                    <span class="create-posts">新規投稿</span>
+                    <img src="admin-menu.svg" class="admin-menu">
+                </a>
+            </li>
+            <li>
+                <a href="/posts">
+                    <img src="desk_alt.svg" class="desk-alt">
+                    <span class="show-posts">投稿一覧</span>
+                    <img src="admin-menu.svg" class="admin-menu">
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class class="admin-treads">
+    <h2 class="admin-top-title">
+        DM確認
+    </h2>
+        <ul>
+            <li>
+                <a href="/threads">
+                    <img src="chat-menu.svg" class="chat-menu">
+                    <span class="threds">DM一覧確認</span>
+                    <img src="admin-menu.svg" class="admin-menu">
+                </a>
+            </li>
+        </ul>
+    </div>
+        
+    <div class="admin-user">
+    <h2 class="admin-top-title">
+        ユーザー編集
+    </h2>
+        <ul>
+            <li>
+                <a href="/admin/signup">
+                    <img src="user_add.svg" class="user-add">
+                    <span class="create-user">ユーザー登録</span>
+                    <img src="admin-menu.svg" class="admin-menu">
+                </a>
+            </li>
+            <li>
+                <a href="/admin/users">
+                    <img src="setting_line.svg" class="setting-line">
+                    <span class="setting-user">ユーザー編集・削除</span>
+                    <img src="admin-menu.svg" class="admin-menu">
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+            
+
+
+    
