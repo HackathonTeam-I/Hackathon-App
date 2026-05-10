@@ -7,7 +7,7 @@ import uuid
 import re
 import os
 
-from models import Post,Image,Thread,Message
+from models import Post,Image,Category,Thread,Message
 
 # 定数定義　メール形式チェック用の正規表現とセッション有効期間（日数）を定義
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
@@ -41,7 +41,16 @@ def admin_required(f):
 # 投稿一覧表示
 @app.route('/posts',methods=['GET'])
 def show_posts():
-    posts = Post.get_all_posts()
+    # URLのクエリパラメータからcategory_idを取得
+    category_id = request.args.get('category_id')
+
+    # category_idの有無で取得関数を切り替え
+    if category_id:
+        posts = Post.get_posts_by_category(category_id)
+    else:
+        posts = Post.get_all_posts()
+
+    # 各投稿に紐づく画像を取得
     if posts:
         for post in posts:
             post['images'] = Image.get_images_by_post_id(post['id'])
@@ -198,8 +207,22 @@ def delete_images(post_id,image_id):
         'message':'画像を削除しました'
     }),200
 
+"""
+検索機能
+"""
 
+# 検索画面表示
+@app.route('/categories',methods=['GET'])
+def show_categories():
+    categories = Category.get_all_categories()
+    if categories:
+        return render_template('post/categories.html',categories=categories)
+    else:
+        return render_template('post/categories.html',message='カテゴリーが設定されていません')
 
+"""
+DM機能
+"""
 #DM画面表示
 @app.route('/threads', methods=['GET'])
 def show_threads():
