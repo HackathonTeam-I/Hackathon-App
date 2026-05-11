@@ -70,7 +70,7 @@ def show_post_detail(id):
 # 新規投稿処理
 @app.route('/api/admin/posts',methods=['POST'])
 @admin_required
-def create_posts():
+def create_post():
     user_id = session.get('user_id')
     category_id = request.form.get('category_id')
     found_date = request.form.get('found_date')
@@ -80,7 +80,7 @@ def create_posts():
         flash('必須項目を入力して下さい','error')
         return redirect(url_for('show_admin_posts')) #新規投稿画面へ
 
-    Post.create_posts(category_id,found_date,found_place,description)
+    Post.create_post(user_id,category_id,found_date,found_place,description)
     flash('投稿が完了しました','success')
     return redirect(url_for('show_admin_top')) #管理者トップ画面へ
 
@@ -109,7 +109,7 @@ def upload_images(post_id):
 # 編集フォーム画面表示
 @app.route('/admin/posts/<int:id>/edit',methods=['GET'])
 @admin_required
-def show_update_posts(id):
+def show_update_post(id):
     post = Post.get_post_by_id(id)
     if post is None:
         abort(404,description='指定された投稿がありません')
@@ -119,7 +119,7 @@ def show_update_posts(id):
 # 投稿更新処理
 @app.route('/api/admin/posts/<int:id>',methods=['PATCH'])
 @admin_required
-def update_posts(id):
+def update_post(id):
     post = Post.get_post_by_id(id)
     if post is None:
         abort(404,description='指定された投稿が見つかりません')
@@ -136,9 +136,9 @@ def update_posts(id):
             'message':'必須項目を入力して下さい'
         }),400
 
-    Post.update_posts(id,category_id,found_date,found_place,description)
+    Post.update_post(id,category_id,found_date,found_place,description)
 
-    next_url = url_for('show_posts_detail',id=id)  #処理成功後の行き先を指定
+    next_url = url_for('show_post_detail',id=id)  #処理成功後の行き先を指定
 
     return jsonify({
         'status':'success',
@@ -165,7 +165,7 @@ def update_images(post_id,image_id):
 
     Image.update_image_by_image_id(image_id,image_path)
 
-    next_url = url_for('show_posts_detail',id=post_id)
+    next_url = url_for('show_post_detail',id=post_id)
 
     return jsonify({
         'status':'success',
@@ -176,16 +176,17 @@ def update_images(post_id,image_id):
 # 投稿削除処理
 @app.route('/api/admin/posts/<int:id>',methods=['DELETE'])
 @admin_required
-def delete_posts(id):
+def delete_post(id):
     post = Post.get_post_by_id(id)
+    if post is None:
+        abort(404,description='指定された投稿が見つかりません')
     images = Image.get_images_by_post_id(id)
     for image in images:
         file_path = os.path.join('AppFile',image['image_path'])
         if os.path.exists(file_path):
             os.remove(file_path)
-    if post is None:
-        abort(404,description='指定された投稿が見つかりません')
-    Post.delete_posts(id)
+    Post.delete_post(id)
+    Image.delete_images_by_post_id(id)
     return jsonify({
         'status':'success',
         'message':'投稿を削除しました'
