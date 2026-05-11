@@ -74,7 +74,7 @@ class Post:
             db_pool.release(conn)
 
     @classmethod
-    def create_posts(cls,user_id,category_id,found_date,found_place,description):
+    def create_post(cls,user_id,category_id,found_date,found_place,description):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
@@ -91,7 +91,7 @@ class Post:
             db_pool.release(conn)
 
     @classmethod
-    def update_posts(cls,id,category_id,found_date,found_place,description):
+    def update_post(cls,id,category_id,found_date,found_place,description):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
@@ -109,7 +109,7 @@ class Post:
             db_pool.release(conn)
 
     @classmethod
-    def delete_posts(cls,id):
+    def delete_post(cls,id):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
