@@ -20,10 +20,12 @@
             {% if users %}
             {% for user in users %}
             <li class="user-item">
-                <div class="user-icon">
-                    <img src="{{ url_for('static', filename='images/sender-icon.svg') }}">
-                </div>
-                <span class="user-name">{{ user.name }}</span>
+                <a href="{{ url_for('show_edit_user', user_id=user.id) }}" class="user-link-box">
+                    <div class="user-icon">
+                        <img src="{{ url_for('static', filename='images/sender-icon.svg') }}" alt="ユーザアイコン">
+                    </div>
+                    <span class="user-name">{{ user.name }}</span>
+                </a>
             </li>
             {% endfor %}
             {% else %}
