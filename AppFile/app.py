@@ -60,7 +60,7 @@ def show_posts():
 
 # 投稿詳細表示
 @app.route('/posts/<int:id>',methods=['GET'])
-def show_posts_detail(id):
+def show_post_detail(id):
     post = Post.get_post_by_id(id)
     if post is None:
         abort(404, description='指定された投稿が見つかりません')
