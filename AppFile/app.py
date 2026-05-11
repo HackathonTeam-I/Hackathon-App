@@ -80,7 +80,7 @@ def create_post():
         flash('必須項目を入力して下さい','error')
         return redirect(url_for('show_admin_posts')) #新規投稿画面へ
 
-    Post.create_post(category_id,found_date,found_place,description)
+    Post.create_post(user_id,category_id,found_date,found_place,description)
     flash('投稿が完了しました','success')
     return redirect(url_for('show_admin_top')) #管理者トップ画面へ
 
@@ -178,14 +178,15 @@ def update_images(post_id,image_id):
 @admin_required
 def delete_post(id):
     post = Post.get_post_by_id(id)
+    if post is None:
+        abort(404,description='指定された投稿が見つかりません')
     images = Image.get_images_by_post_id(id)
     for image in images:
         file_path = os.path.join('AppFile',image['image_path'])
         if os.path.exists(file_path):
             os.remove(file_path)
-    if post is None:
-        abort(404,description='指定された投稿が見つかりません')
     Post.delete_post(id)
+    Image.delete_images_by_post_id(id)
     return jsonify({
         'status':'success',
         'message':'投稿を削除しました'
