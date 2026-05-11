@@ -17,6 +17,12 @@
         </div>
         <div class="search-action-area">
             <a href="{{ url_for('search_category') }}" class="category-search-btn">🔍️カテゴリから探す</a>
+
+            {% if current_category %}
+            <a href="{{ url_for('show_posts') }}" class="clear-btn">
+                ✕ クリア
+            </a>
+            {% endif %}
         </div>
         {% if posts and posts|length > 0 %}
         <div class="posts-list">
