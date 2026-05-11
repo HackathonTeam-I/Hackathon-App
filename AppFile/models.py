@@ -61,7 +61,8 @@ class Post:
                 FROM posts as p
                 LEFT JOIN categories as c
                 ON p.category_id = c.id
-                WHERE p.category_id = %s AND p.deleted_at IS NULL;
+                WHERE p.category_id = %s AND p.deleted_at IS NULL
+                ORDER BY p.created_at DESC;
                 """
                 cur.execute(sql,(category_id,))
                 posts = cur.fetchall()
