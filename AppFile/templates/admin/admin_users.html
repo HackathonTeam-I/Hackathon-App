@@ -20,7 +20,7 @@
             {% if users %}
             {% for user in users %}
             <li class="user-item">
-                <a href="{{ url_for('show_edit_user', user_id=user.id) }}" class="user-link-box">
+                <a href="{{ url_for('show_edit_user', id=user.id) }}" class="user-link-box">
                     <div class="user-icon">
                         <img src="{{ url_for('static', filename='images/sender-icon.svg') }}" alt="ユーザアイコン">
                     </div>

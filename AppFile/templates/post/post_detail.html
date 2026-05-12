@@ -46,13 +46,13 @@
     <div class="action-btn">
         {% if current_user.role == 'admin' %}
         <div class="admin-actions">
-            <a href="{{ url_for('update_posts', id=post.id) }}" class="action-btn btn-edit">編集</a>
+            <a href="{{ url_for('update_post', id=post.id) }}" class="action-btn btn-edit">編集</a>
             <!--JSでIDを取得できるようにdata-post-idを仕込む-->
             <button id="showDeleteModalBtn" class="action-btn btn-delete" data-post-id="{{ post.id }}">削除</button>
         </div>
         {% else %}
         <div class="user-actions">
-            <a href="{{ url_for('show_messages', userid=post.user_id)}}" class="action-btn btn-dm">DMで申請</a>
+            <a href="{{ url_for('show_messages', admin_id=post.user_id ) }}" class="action-btn btn-dm">DMで申請</a>
         </div>
         {% endif %}
     </div>

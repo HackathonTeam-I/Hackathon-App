@@ -27,7 +27,7 @@
         {% if posts and posts|length > 0 %}
         <div class="posts-list">
             {% for post in posts %}
-            <a href="{{ url_for('show_posts_detail'), id=post.id }}" class="post-card">
+            <a href="{{ url_for('show_post_detail'), id=post.id }}" class="post-card">
                 <div class="post-card_image-box">
                     {% if post.images and post.images|length > 0 %}
                     <img class="post-card_image" src="{{ post.images[0].image_path }}" alt="{{ post.category.name }}">
@@ -58,7 +58,7 @@
 
     <!--Admin専用機能”新規投稿”-->
     {% if session.get('role') == 'admin' %}
-    <a href="{{ url_for('show_admin_posts')}}" class="new-post">
+    <a href="{{ url_for('show_admin_post')}}" class="new-post">
         <div class="post-btn">+</div>
     </a>
     {% endif %}
