@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS categories (
   group_id BIGINT UNSIGNED NOT NULL,
   name VARCHAR(100) NOT NULL UNIQUE,
   PRIMARY KEY(id),
-  KEY idx_group_id(group_id),
+  KEY idx_categories_group_id(group_id),
   CONSTRAINT fk_categories_group FOREIGN KEY(group_id) REFERENCES category_groups(id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS notifications (
   created_at DATETIME (6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   PRIMARY KEY (id),
   KEY idx_notifications_user_id (user_id),
-  KEY idx_messages_post_id (post_id),
+  KEY idx_notifications_post_id (post_id),
   CONSTRAINT fk_notifications_user FOREIGN KEY (user_id) REFERENCES users (id),
   CONSTRAINT fk_notifications_post FOREIGN KEY (post_id) REFERENCES posts (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
