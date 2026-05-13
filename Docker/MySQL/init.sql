@@ -79,27 +79,18 @@ CREATE TABLE IF NOT EXISTS images (
   CONSTRAINT fk_image_post FOREIGN KEY (post_id) REFERENCES posts (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
--- -- ※DMリストテーブル
--- CREATE TABLE IF NOT EXISTS threads (
---   id BIGINT UNSIGNED AUTO_INCREMENT,
---   user_id BIGINT UNSIGNED NOT NULL,
---   created_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6),
---   PRIMARY KEY(id),
---   CONSTRAINT fk_thread_user FOREIGN KEY (user_id) REFERENCES users (id),
---   CONSTRAINT fk_thread_post FOREIGN KEY (post_id) REFERENCES posts (id)
--- ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 -- （７）DM投稿メッセージ用テーブル
 CREATE TABLE IF NOT EXISTS messages (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  thread_id BIGINT UNSIGNED NOT NULL,
+  post_id BIGINT UNSIGNED NOT NULL,
   sender_id BIGINT UNSIGNED NOT NULL,
   content TEXT NOT NULL,
   created_at DATETIME (6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   PRIMARY KEY (id),
-  KEY idx_messages_thread_id (thread_id),
-  KEY idx_messages_sender_id (sender_id),
-  CONSTRAINT fk_messages_thread FOREIGN KEY (thread_id) REFERENCES threads (id),
-  CONSTRAINT fk_messages_user FOREIGN KEY (sender_id) REFERENCES users (id)
+  KEY idx_messages_post (post_id),
+  KEY idx_messages_sender (sender_id),
+  CONSTRAINT fk_messages_post FOREIGN KEY (post_id) REFERENCES posts (id),
+  CONSTRAINT fk_messages_sender FOREIGN KEY (sender_id) REFERENCES users (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 -- （８）通知テーブル
