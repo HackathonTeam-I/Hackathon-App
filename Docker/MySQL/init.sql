@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS departments (
   PRIMARY KEY (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
--- （２）カテゴリーグループテーブル（例：「小物・アクセサリー類」」）
+-- （２）カテゴリーグループテーブル（例：「小物・アクセサリー類」）
 CREATE TABLE IF NOT EXISTS category_groups (
   id BIGINT UNSIGNED AUTO_INCREMENT,
   name VARCHAR(100) NOT NULL UNIQUE,
@@ -47,7 +47,9 @@ CREATE TABLE IF NOT EXISTS users (
   created_at DATETIME (6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   updated_at DATETIME (6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
   PRIMARY KEY (id),
-  UNIQUE KEY uq_users_email (email)
+  UNIQUE KEY uq_users_email (email),
+  KEY idx_users_department(department_id),
+  CONSTRAINT fk_users_department FOREIGN KEY(department_id) REFERENCES departments(id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 -- （５）投稿テーブル
@@ -97,7 +99,7 @@ CREATE TABLE IF NOT EXISTS messages (
 CREATE TABLE IF NOT EXISTS notifications (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id BIGINT UNSIGNED NOT NULL,
-  post_id BIGINT UNSIGNED NOT NULL,
+  post_id BIGINT UNSIGNED DEFAULT NULL,
   type ENUM('new_post', 'message', 'system', 'reminder') NOT NULL,
   is_read BOOLEAN DEFAULT FALSE,
   created_at DATETIME (6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
