@@ -13,6 +13,9 @@ from models import Post,Image,Category,Thread,Message
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
 SESSION_DAYS = 30
 
+# 投稿許可される画像ファイルの拡張子を定義
+ALLOWED_EXTENSIONS = {'jpg','jpeg','png'}
+
 #Flaskアプリの本体を作成
 app = Flask(__name__)
 
@@ -24,6 +27,10 @@ app.permanent_session_lifetime = timedelta(days=SESSION_DAYS)
 
 #悪意あるサイトから勝手にリクエストを送られる攻撃
 csrf = CSRFProtect(app)
+
+# 投稿画像拡張子チェックデコレータ
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.',1)[1].lower() in ALLOWED_EXTENSIONS
 
 # 管理者権限チェック用デコレータ
 def admin_required(f):
@@ -94,6 +101,10 @@ def upload_images(post_id):
         flash('投稿画像を選択して下さい','error')
         return redirect(url_for('show_admin_posts')) #新規投稿画面へ
 
+    if not allowed_file(image_file.filename):
+        flash('jpg/jpeg/png形式のファイルを選択して下さい','error')
+        return redirect(url_for('show_admin_posts'))
+
     # ２：保存するファイル名を生成
     filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
 
@@ -104,7 +115,7 @@ def upload_images(post_id):
     # ４：DBにパスを登録
     Image.create_images(post_id,image_path)
     flash('画像を登録しました','success')
-    return redirect(url_for('show_posts_detail',id=post_id))
+    return redirect(url_for('show_post_detail',id=post_id))
 
 # 編集フォーム画面表示
 @app.route('/admin/posts/<int:id>/edit',methods=['GET'])
@@ -147,23 +158,31 @@ def update_post(id):
     }),200
 
 # 画像更新処理
-@app.route('/api/admin/posts/<int:post_id>/images/<int:image_id>',methods=['PATCH'])
+@app.route('/api/admin/posts/<int:post_id>/images',methods=['PATCH'])
 @admin_required
-def update_images(post_id,image_id):
-    image = Image.get_image_by_image_id(image_id)
-    if image is None:
-        abort(404,description='指定された画像が見つかりません')
-    old_path = os.path.join('AppFile',image['image_path'])
-    if os.path.exists(old_path):
-        os.remove(old_path)
-    image_file = request.files.get('image')
-    if image_file is None:
-        abort(400,description='画像ファイルがありません')
-    filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
-    image_path = os.path.join('static/uploads',filename)
-    image_file.save(os.path.join('AppFile',image_path))
+def update_images(post_id):
+    image_files = request.files.getlist('image') #複数ファイルを受け取る
+    image_ids = request.form.getlist('image_id') #複数image_idを受け取る
 
-    Image.update_image_by_image_id(image_id,image_path)
+    for image_id,image_file in zip(image_ids,image_files):
+        image = Image.get_image_by_image_id(image_id)
+        # 1.DB内に該当する画像が存在するか（存在確認）
+        if image is None:
+            abort(404,description='指定された画像が見つかりません')
+        # 2.リクエストに画像ファイルが添付されているか
+        if image_file is None:
+            abort(400,description='画像ファイルがありません')
+        # 3.画像が指定されたファイル形式か（形式確認）
+        if not allowed_file(image_file.filename):
+            abort(400,description='jpg/jpeg/png形式の画像ファイルを選択して下さい')
+        old_path = os.path.join('AppFile',image['image_path'])
+        if os.path.exists(old_path):
+            os.remove(old_path)
+        filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
+        image_path = os.path.join('static/uploads',filename)
+        image_file.save(os.path.join('AppFile',image_path))
+
+        Image.update_image_by_image_id(image_id,image_path)
 
     next_url = url_for('show_post_detail',id=post_id)
 
