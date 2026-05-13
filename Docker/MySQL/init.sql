@@ -19,14 +19,23 @@ CREATE TABLE IF NOT EXISTS departments (
   PRIMARY KEY (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
--- （２）落とし物・属性テーブル
-CREATE TABLE IF NOT EXISTS categories (
+-- （２）カテゴリーグループテーブル（例：「小物・アクセサリー類」」）
+CREATE TABLE IF NOT EXISTS category_groups (
   id BIGINT UNSIGNED AUTO_INCREMENT,
   name VARCHAR(100) NOT NULL UNIQUE,
   PRIMARY KEY(id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
--- （３）落とし物・属性グループテーブル
+-- （３）カテゴリーテーブル（各グループに属する個別カテゴリー）
+CREATE TABLE IF NOT EXISTS categories (
+  id BIGINT UNSIGNED AUTO_INCREMENT,
+  group_id BIGINT UNSIGNED NOT NULL,
+  name VARCHAR(100) NOT NULL UNIQUE,
+  PRIMARY KEY(id),
+  KEY idx_group_id(group_id),
+  CONSTRAINT fk_categories_group FOREIGN KEY(group_id) REFERENCES category_groups(id)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
 -- （４）登録ユーザーテーブル
 CREATE TABLE IF NOT EXISTS users (
   id BIGINT UNSIGNED AUTO_INCREMENT,
