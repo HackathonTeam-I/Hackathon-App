@@ -13,21 +13,22 @@ FLUSH PRIVILEGES;
 USE FindIt;
 
 -- （１）所属部署テーブル
-CREATE TABLE departments (
+CREATE TABLE IF NOT EXISTS departments (
   id BIGINT UNSIGNED AUTO_INCREMENT,
   name VARCHAR(100) NOT NULL,
   PRIMARY KEY (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 -- （２）落とし物・属性テーブル
-CREATE TABLE categories (
+CREATE TABLE IF NOT EXISTS categories (
   id BIGINT UNSIGNED AUTO_INCREMENT,
   name VARCHAR(100) NOT NULL UNIQUE,
   PRIMARY KEY(id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
--- （３）登録ユーザーテーブル
-CREATE TABLE users (
+-- （３）落とし物・属性グループテーブル
+-- （４）登録ユーザーテーブル
+CREATE TABLE IF NOT EXISTS users (
   id BIGINT UNSIGNED AUTO_INCREMENT,
   name VARCHAR(100) NOT NULL,
   email VARCHAR(255) NOT NULL,
@@ -40,8 +41,8 @@ CREATE TABLE users (
   UNIQUE KEY uq_users_email (email)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
--- （４）投稿テーブル
-CREATE TABLE posts (
+-- （５）投稿テーブル
+CREATE TABLE IF NOT EXISTS posts (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id BIGINT UNSIGNED NOT NULL,
   category_id BIGINT UNSIGNED NOT NULL,
@@ -59,8 +60,8 @@ CREATE TABLE posts (
   CONSTRAINT fk_posts_category FOREIGN KEY (category_id) REFERENCES categories (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
--- （５）投稿写真テーブル
-CREATE TABLE images (
+-- （６）投稿写真テーブル
+CREATE TABLE IF NOT EXISTS images (
   id BIGINT UNSIGNED AUTO_INCREMENT,
   post_id BIGINT UNSIGNED NOT NULL,
   image_path VARCHAR(255) NOT NULL,
@@ -69,19 +70,17 @@ CREATE TABLE images (
   CONSTRAINT fk_image_post FOREIGN KEY (post_id) REFERENCES posts (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
--- （６）DMリストテーブル
-CREATE TABLE threads (
-  id BIGINT UNSIGNED AUTO_INCREMENT,
-  user_id BIGINT UNSIGNED NOT NULL,
-  created_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6),
-  updated_at DATETIME (6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
-  PRIMARY KEY(id),
-  CONSTRAINT fk_thread_user FOREIGN KEY (user_id) REFERENCES users (id),
-  CONSTRAINT fk_thread_post FOREIGN KEY (post_id) REFERENCES posts (id)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
-
+-- -- ※DMリストテーブル
+-- CREATE TABLE IF NOT EXISTS threads (
+--   id BIGINT UNSIGNED AUTO_INCREMENT,
+--   user_id BIGINT UNSIGNED NOT NULL,
+--   created_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6),
+--   PRIMARY KEY(id),
+--   CONSTRAINT fk_thread_user FOREIGN KEY (user_id) REFERENCES users (id),
+--   CONSTRAINT fk_thread_post FOREIGN KEY (post_id) REFERENCES posts (id)
+-- ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 -- （７）DM投稿メッセージ用テーブル
-CREATE TABLE messages (
+CREATE TABLE IF NOT EXISTS messages (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   thread_id BIGINT UNSIGNED NOT NULL,
   sender_id BIGINT UNSIGNED NOT NULL,
@@ -95,7 +94,7 @@ CREATE TABLE messages (
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 -- （８）通知テーブル
-CREATE TABLE notifications (
+CREATE TABLE IF NOT EXISTS notifications (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id BIGINT UNSIGNED NOT NULL,
   post_id BIGINT UNSIGNED NOT NULL,
