@@ -104,7 +104,7 @@ def upload_images(post_id):
     # ４：DBにパスを登録
     Image.create_images(post_id,image_path)
     flash('画像を登録しました','success')
-    return redirect(url_for('show_posts_detail',id=post_id))
+    return redirect(url_for('show_post_detail',id=post_id))
 
 # 編集フォーム画面表示
 @app.route('/admin/posts/<int:id>/edit',methods=['GET'])
@@ -147,23 +147,26 @@ def update_post(id):
     }),200
 
 # 画像更新処理
-@app.route('/api/admin/posts/<int:post_id>/images/<int:image_id>',methods=['PATCH'])
+@app.route('/api/admin/posts/<int:post_id>/images',methods=['PATCH'])
 @admin_required
-def update_images(post_id,image_id):
-    image = Image.get_image_by_image_id(image_id)
-    if image is None:
-        abort(404,description='指定された画像が見つかりません')
-    old_path = os.path.join('AppFile',image['image_path'])
-    if os.path.exists(old_path):
-        os.remove(old_path)
-    image_file = request.files.get('image')
-    if image_file is None:
-        abort(400,description='画像ファイルがありません')
-    filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
-    image_path = os.path.join('static/uploads',filename)
-    image_file.save(os.path.join('AppFile',image_path))
+def update_images(post_id):
+    image_files = request.files.getlist('image') #複数ファイルを受け取る
+    image_ids = request.form.getlist('image_id') #複数image_idを受け取る
 
-    Image.update_image_by_image_id(image_id,image_path)
+    for image_id,image_file in zip(image_ids,image_files):
+        image = Image.get_image_by_image_id(image_id)
+        if image is None:
+            abort(404,description='指定された画像が見つかりません')
+        old_path = os.path.join('AppFile',image['image_path'])
+        if os.path.exists(old_path):
+            os.remove(old_path)
+        if image_file is None:
+            abort(400,description='画像ファイルがありません')
+        filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
+        image_path = os.path.join('static/uploads',filename)
+        image_file.save(os.path.join('AppFile',image_path))
+
+        Image.update_image_by_image_id(image_id,image_path)
 
     next_url = url_for('show_post_detail',id=post_id)
 
