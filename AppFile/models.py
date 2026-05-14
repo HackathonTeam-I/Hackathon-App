@@ -46,6 +46,24 @@ class User:
             db_pool.release(conn)
 
     @classmethod
+    def get_user_by_email(cls,email):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = """
+                SELECT *
+                FROM users
+                WHERE email = %s;
+                """
+                cur.execute(sql,(email,))
+                return cur.fetchone()
+        except pymysql.Error as e:
+            print(f'サーバー接続上のエラーが発生しています{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
+    @classmethod
     def create_user(cls,name,email,department_id,hashed_pw):
         conn = db_pool.get_conn()
         try:

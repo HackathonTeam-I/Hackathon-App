@@ -78,6 +78,12 @@ def register_user():
         flash('正しいメール形式で入力して下さい','error')
         return redirect(url_for('show_signup')) #登録画面に戻す
 
+    # 登録メール情報の重複チェック
+    existing_user = User.get_user_by_email(email)
+    if existing_user:
+        flash('このメールアドレスは既に登録されています','error')
+        return redirect(url_for('show_signup')) #登録画面に戻す
+
     hashed_pw = hashlib.sha256(password.encode()).hexdigest()
     User.create_user(name,email,department_id,hashed_pw)
     flash('ユーザーを登録しました','success')
