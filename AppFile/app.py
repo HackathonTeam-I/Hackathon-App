@@ -7,7 +7,7 @@ import uuid
 import re
 import os
 
-from models import Post,Image,CategoryGroup,Thread,Message
+from models import User,Post,Image,CategoryGroup,Thread,Message
 
 # 定数定義　メール形式チェック用の正規表現とセッション有効期間（日数）を定義
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
@@ -40,6 +40,19 @@ def admin_required(f):
             abort(403)
         return f(*args,**kwargs)
     return decorated_function
+
+"""
+ユーザー登録機能
+"""
+
+# 登録ユーザー一覧表示
+@app.route('/admin/users',methods=['GET'])
+@admin_required
+def show_users():
+    users = User.get_all_users()
+    if not users:
+        return render_template('admin/admin_users.html',message='登録ユーザーが存在しません')
+    return render_template('admin/admin_users.html',users=users)
 
 """
 投稿機能
@@ -259,7 +272,7 @@ def show_thread_detail(thread_id):
     return render_template(
         'messages.html',
         messages=messages,
-        thread_id=thread_id       
+        thread_id=thread_id
         )
 
 """

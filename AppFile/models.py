@@ -5,7 +5,27 @@ from util.DB import DB
 # 初期起動時にコネクションプールを作成して、接続を確立
 db_pool = DB.init_db_pool()
 
-# Postsクラス
+# Userクラス
+class User:
+    @classmethod
+    def get_all_users():
+        conn = db_pool.get_conn(cls)
+        try:
+            with conn.cursor() as cur:
+                sql = """
+                SELECT id,name
+                FROM users
+                ORDER BY id ASC;
+                """
+                cur.execute(sql)
+                conn.fetchall()
+        except pymysql.Error as e:
+            print(f'サーバー接続上のエラーが発生しています{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
+# Postクラス
 class Post:
     @classmethod
     def get_all_posts(cls):
@@ -272,11 +292,11 @@ class Thread:
                 SELECT
                     threads.id,
                     users.name AS sender_name,
-                    MAX(threads.created_at) AS last_message_at                   
+                    MAX(threads.created_at) AS last_message_at
                 FROM messages
                 LEFT JOIN users ON threads.users.id = users.id
                 GROUP BY users.id, users.name
-                ORDER BY last_message_at DESC;               
+                ORDER BY last_message_at DESC;
                 """
                 cur.execute(sql)
                 return cur.fetchall()
