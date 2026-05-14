@@ -260,6 +260,7 @@ class CategoryGroup:
         finally:
             db_pool.release(conn)
 
+# Threadクラス
 class Thread:
     #管理者用DMスレッド一覧
     @classmethod
@@ -284,3 +285,34 @@ class Thread:
             abort(500)
         finally:
             db_pool.release(conn)
+
+
+
+# Messageクラス
+class Message:
+        #管理者用のDMスレッド一覧から対象ユーザーとのメッセージ内容を取得
+        @classmethod
+        def get_messages_by_user_id(cls, thread_id):
+            conn = db_pool.get_conn()
+            try:
+                with conn.cursor(pymysql.cursors.DictCursor) as cur:
+                    sql = """
+                    SELECT
+                        messages.id,
+                        messages.content,
+                        messages.created_at,
+                        messages.sender_id,
+                        users.name AS sender_name
+                    FROM messages
+                    LEFT JOIN users ON messages.sender_id = users.id
+                    WHERE messages.thread_id = %s
+                    ORDER BY messages.created_at ASC;
+                    """
+                    cur.execute(sql, (thread_id,))
+                    messages = cur.fetchall()
+                return messages
+            except pymysql.Error as e:
+                print(f'エラーが発生しています：{e}')
+                abort(500)
+            finally:
+                db_pool.release(conn)
