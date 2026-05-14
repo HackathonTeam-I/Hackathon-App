@@ -234,17 +234,23 @@ class Image:
         finally:
             db_pool.release(conn)
 
-# Categoryクラス
-class Category:
+# Category_groupクラス
+class CategoryGroup:
     @classmethod
-    def get_all_categories(cls):
+    def get_all_category_groups(cls):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
                 sql = """
-                SELECT *
-                FROM categories
-                ORDER BY id ASC;
+                SELECT
+                    cg.id as group_id,
+                    cg.name as group_name,
+                    c.id as category.id,
+                    c.name as category
+                FROM category_groups as cg
+                LEFT JOIN categories as c
+                ON cg.id = c.group_id
+                ORDER BY cg.id ASC,c.id ASC;
                 """
                 cur.execute(sql)
                 return cur.fetchall()
