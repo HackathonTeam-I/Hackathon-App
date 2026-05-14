@@ -9,7 +9,7 @@
 {% block content %}
 <div class="users-page">
     <header class="page-header">
-        <a href="{{ url_for('show_admin_top')}}" class="back-button">
+        <a href="{{ url_for('show_admin_top') }}" class="back-button">
             <img src="{{ url_for('static', filename='images/arrow-left.svg') }}" alt="戻る" class="back-icon">
         </a>
         <h1 class="page-title">ユーザー一覧</h1>
@@ -25,6 +25,7 @@
                         <img src="{{ url_for('static', filename='images/sender-icon.svg') }}" alt="ユーザアイコン">
                     </div>
                     <span class="user-name">{{ user.name }}</span>
+
                 </a>
             </li>
             {% endfor %}
@@ -35,5 +36,5 @@
             {% endif %}
         </ul>
     </main>
-
 </div>
+{% endblock %}

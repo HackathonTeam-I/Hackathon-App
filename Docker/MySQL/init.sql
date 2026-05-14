@@ -13,21 +13,31 @@ FLUSH PRIVILEGES;
 USE FindIt;
 
 -- （１）所属部署テーブル
-CREATE TABLE departments (
+CREATE TABLE IF NOT EXISTS departments (
   id BIGINT UNSIGNED AUTO_INCREMENT,
   name VARCHAR(100) NOT NULL,
   PRIMARY KEY (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
--- （２）落とし物・属性テーブル
-CREATE TABLE categories (
+-- （２）カテゴリーグループテーブル（例：「小物・アクセサリー類」）
+CREATE TABLE IF NOT EXISTS category_groups (
   id BIGINT UNSIGNED AUTO_INCREMENT,
-  name VARCHAR(100) NOT NULL,
+  name VARCHAR(100) NOT NULL UNIQUE,
   PRIMARY KEY(id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
--- （３）登録ユーザーテーブル
-CREATE TABLE users (
+-- （３）カテゴリーテーブル（各グループに属する個別カテゴリー）
+CREATE TABLE IF NOT EXISTS categories (
+  id BIGINT UNSIGNED AUTO_INCREMENT,
+  group_id BIGINT UNSIGNED NOT NULL,
+  name VARCHAR(100) NOT NULL UNIQUE,
+  PRIMARY KEY(id),
+  KEY idx_categories_group_id(group_id),
+  CONSTRAINT fk_categories_group FOREIGN KEY(group_id) REFERENCES category_groups(id)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+-- （４）登録ユーザーテーブル
+CREATE TABLE IF NOT EXISTS users (
   id BIGINT UNSIGNED AUTO_INCREMENT,
   name VARCHAR(100) NOT NULL,
   email VARCHAR(255) NOT NULL,
@@ -37,11 +47,13 @@ CREATE TABLE users (
   created_at DATETIME (6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   updated_at DATETIME (6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
   PRIMARY KEY (id),
-  UNIQUE KEY uq_users_email (email)
+  UNIQUE KEY uq_users_email (email),
+  KEY idx_users_department(department_id),
+  CONSTRAINT fk_users_department FOREIGN KEY(department_id) REFERENCES departments(id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
--- （４）投稿テーブル
-CREATE TABLE posts (
+-- （５）投稿テーブル
+CREATE TABLE IF NOT EXISTS posts (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id BIGINT UNSIGNED NOT NULL,
   category_id BIGINT UNSIGNED NOT NULL,
@@ -59,8 +71,8 @@ CREATE TABLE posts (
   CONSTRAINT fk_posts_category FOREIGN KEY (category_id) REFERENCES categories (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
--- （５）投稿写真テーブル
-CREATE TABLE images (
+-- （６）投稿写真テーブル
+CREATE TABLE IF NOT EXISTS images (
   id BIGINT UNSIGNED AUTO_INCREMENT,
   post_id BIGINT UNSIGNED NOT NULL,
   image_path VARCHAR(255) NOT NULL,
@@ -69,42 +81,44 @@ CREATE TABLE images (
   CONSTRAINT fk_image_post FOREIGN KEY (post_id) REFERENCES posts (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
--- （６）DMリストテーブル
-CREATE TABLE threads (
-  id BIGINT UNSIGNED AUTO_INCREMENT,
+-- （７）DMリストテーブル
+CREATE TABLE IF NOT EXISTS threads (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id BIGINT UNSIGNED NOT NULL,
-  post_id BIGINT UNSIGNED NOT NULL,
   created_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6),
   PRIMARY KEY(id),
-  CONSTRAINT fk_thread_user FOREIGN KEY (user_id) REFERENCES users (id),
-  CONSTRAINT fk_thread_post FOREIGN KEY (post_id) REFERENCES posts (id)
+  KEY idx_threads_user(user_id),
+  CONSTRAINT fk_thread_user FOREIGN KEY (user_id) REFERENCES users (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
--- （７）DM投稿メッセージ用テーブル
-CREATE TABLE messages (
+-- （８）DM投稿メッセージ用テーブル
+CREATE TABLE IF NOT EXISTS messages (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  thread_id BIGINT UNSIGNED NOT NULL,
+  post_id BIGINT UNSIGNED NOT NULL,
   sender_id BIGINT UNSIGNED NOT NULL,
+  thread_id BIGINT UNSIGNED NOT NULL,
   content TEXT NOT NULL,
   created_at DATETIME (6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   PRIMARY KEY (id),
-  KEY idx_messages_thread_id (thread_id),
-  KEY idx_messages_sender_id (sender_id),
-  CONSTRAINT fk_messages_thread FOREIGN KEY (thread_id) REFERENCES threads (id),
-  CONSTRAINT fk_messages_user FOREIGN KEY (sender_id) REFERENCES users (id)
+  KEY idx_messages_post (post_id),
+  KEY idx_messages_sender (sender_id),
+  KEY idx_messages_thread(thread_id),
+  CONSTRAINT fk_messages_post FOREIGN KEY (post_id) REFERENCES posts (id),
+  CONSTRAINT fk_messages_sender FOREIGN KEY (sender_id) REFERENCES users (id),
+  CONSTRAINT fk_messages_thread FOREIGN KEY(thread_id) REFERENCES threads(id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
--- （８）通知テーブル
-CREATE TABLE notifications (
+-- （９）通知テーブル
+CREATE TABLE IF NOT EXISTS notifications (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id BIGINT UNSIGNED NOT NULL,
-  post_id BIGINT UNSIGNED NOT NULL,
+  post_id BIGINT UNSIGNED DEFAULT NULL,
   type ENUM('new_post', 'message', 'system', 'reminder') NOT NULL,
   is_read BOOLEAN DEFAULT FALSE,
   created_at DATETIME (6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   PRIMARY KEY (id),
   KEY idx_notifications_user_id (user_id),
-  KEY idx_messages_post_id (post_id),
+  KEY idx_notifications_post_id (post_id),
   CONSTRAINT fk_notifications_user FOREIGN KEY (user_id) REFERENCES users (id),
   CONSTRAINT fk_notifications_post FOREIGN KEY (post_id) REFERENCES posts (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
@@ -122,34 +136,46 @@ VALUES
   ('カスタマーサポート部'),
   ('経営企画部');
 
--- カテゴリー
+-- カテゴリーグループ
 INSERT INTO
-  categories (name)
+  category_groups(name)
+VALUES
+  ('小物・アクセサリー'),
+  ('カード・書類系'),
+  ('貴重品'),
+  ('デジタル機器'),
+  ('食べ物・日用品'),
+  ('その他');
+
+-- 各カテゴリー内容
+INSERT INTO
+  categories (group_id, name)
 VALUES
   -- 小物・アクセサリー
-  ('ハンカチ'),
-  ('小物入れ'),
-  ('文房具'),
-  ('メガネ'),
-  ('化粧品'),
-  ('傘'),
+  (1, 'ハンカチ'),
+  (1, '小物入れ'),
+  (1, '文房具'),
+  (1, 'メガネ'),
+  (1, '化粧品'),
+  (1, '傘'),
   -- カード・書類系
-  ('カード類'),
+  (2, 'カード類'),
+  (2, '書籍類'),
   -- 貴重品
-  ('財布'),
-  ('時計'),
-  ('鍵'),
+  (3, '財布'),
+  (3, '時計'),
+  (3, '鍵'),
   -- デジタル機器
-  ('スマートフォン'),
-  ('電子機器'),
-  ('イヤホン'),
+  (4, 'スマートフォン'),
+  (4, '電子機器'),
+  (4, 'イヤホン'),
   -- 食べ物・日用品
-  ('水筒・弁当箱'),
-  ('バッグ'),
-  ('医薬品'),
-  ('衣類'),
+  (5, '水筒・弁当箱'),
+  (5, 'バッグ'),
+  (5, '医薬品'),
+  (5, '衣類'),
   -- その他
-  ('その他');
+  (6, 'その他');
 
 -- ユーザー情報の登録
 INSERT INTO

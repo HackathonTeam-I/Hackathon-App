@@ -61,7 +61,8 @@ class Post:
                 FROM posts as p
                 LEFT JOIN categories as c
                 ON p.category_id = c.id
-                WHERE p.category_id = %s AND p.deleted_at IS NULL;
+                WHERE p.category_id = %s AND p.deleted_at IS NULL
+                ORDER BY p.created_at DESC;
                 """
                 cur.execute(sql,(category_id,))
                 posts = cur.fetchall()
@@ -73,7 +74,7 @@ class Post:
             db_pool.release(conn)
 
     @classmethod
-    def create_posts(cls,user_id,category_id,found_date,found_place,description):
+    def create_post(cls,user_id,category_id,found_date,found_place,description):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
@@ -90,7 +91,7 @@ class Post:
             db_pool.release(conn)
 
     @classmethod
-    def update_posts(cls,id,category_id,found_date,found_place,description):
+    def update_post(cls,id,category_id,found_date,found_place,description):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
@@ -108,7 +109,7 @@ class Post:
             db_pool.release(conn)
 
     @classmethod
-    def delete_posts(cls,id):
+    def delete_post(cls,id):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
@@ -182,24 +183,6 @@ class Image:
             db_pool.release(conn)
 
     @classmethod
-    def update_images(cls,id,image_path):
-        conn = db_pool.get_conn()
-        try:
-            with conn.cursor() as cur:
-                sql = """
-                UPDATE images
-                SET image_path = %s
-                WHERE id = %s;
-                """
-                cur.execute(sql,(image_path,id))
-                conn.commit()
-        except pymysql.Error as e:
-            print(f'サーバー接続上のエラーが発生しています{e}')
-            abort(500)
-        finally:
-            db_pool.release(conn)
-
-    @classmethod
     def update_image_by_image_id(cls,id,image_path):
         conn = db_pool.get_conn()
         try:
@@ -251,17 +234,23 @@ class Image:
         finally:
             db_pool.release(conn)
 
-# Categoryクラス
-class Category:
+# Category_groupクラス
+class CategoryGroup:
     @classmethod
-    def get_all_categories(cls):
+    def get_all_category_groups(cls):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
                 sql = """
-                SELECT *
-                FROM categories
-                ORDER BY id ASC;
+                SELECT
+                    cg.id as group_id,
+                    cg.name as group_name,
+                    c.id as category.id,
+                    c.name as category
+                FROM category_groups as cg
+                LEFT JOIN categories as c
+                ON cg.id = c.group_id
+                ORDER BY cg.id ASC,c.id ASC;
                 """
                 cur.execute(sql)
                 return cur.fetchall()
@@ -271,8 +260,8 @@ class Category:
         finally:
             db_pool.release(conn)
 
-# Threadsクラス
 class Thread:
+    #管理者用DMスレッド一覧
     @classmethod
     def get_all_threads(cls):
         conn = db_pool.get_conn()
@@ -281,20 +270,15 @@ class Thread:
                 sql = """
                 SELECT
                     threads.id,
-                    users.name as user_name,
-                    threads.created_at
-                FROM threads
-                LEFT JOIN users ON threads.user_id = users.id
-                ORDER BY threads.created_at DESC;
+                    users.name AS sender_name,
+                    MAX(threads.created_at) AS last_message_at                   
+                FROM messages
+                LEFT JOIN users ON threads.users.id = users.id
+                GROUP BY users.id, users.name
+                ORDER BY last_message_at DESC;               
                 """
                 cur.execute(sql)
-                threads = cur.fetchall()
-
-            #日付フォーマット
-            for thread in threads:
-                if thread['created_at']:
-                    thread['created_at'] = thread['created_at'].strftime('%Y-%m-%d %H:%M')
-            return threads
+                return cur.fetchall()
         except pymysql.Error as e:
             print(f'エラーが発生しています：{e}')
             abort(500)
