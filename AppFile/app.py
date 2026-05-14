@@ -7,7 +7,7 @@ import uuid
 import re
 import os
 
-from models import User,Post,Image,CategoryGroup,Thread,Message
+from models import Department,User,Post,Image,CategoryGroup,Thread,Message
 
 # 定数定義　メール形式チェック用の正規表現とセッション有効期間（日数）を定義
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
@@ -53,6 +53,13 @@ def show_users():
     if not users:
         return render_template('admin/admin_users.html',message='登録ユーザーが存在しません')
     return render_template('admin/admin_users.html',users=users)
+
+# ユーザー登録フォーム表示
+@app.route('/admin/signup',methods=['GET'])
+@admin_required
+def show_signup():
+    departments = Department.get_all_departments()
+    return render_template('admin/admin_signup.html',departments=departments)
 
 """
 投稿機能
