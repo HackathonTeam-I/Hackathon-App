@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}ユーザ一覧 - Find it {% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_users.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="users-page">
+    <header class="page-header">
+        <a href="{{ url_for('show_admin_top') }}" class="back-button">
+            <img src="{{ url_for('static', filename='images/arrow-left.svg') }}" alt="戻る" class="back-icon">
+        </a>
+        <h1 class="page-title">ユーザー一覧</h1>
+    </header>
+
+    <main class="users-main">
+        <ul class="user-list">
+            {% if users %}
+            {% for user in users %}
+            <li class="user-item">
+                <a href="{{ url_for('show_edit_user', id=user.id) }}" class="user-link-box">
+                    <div class="user-icon">
+                        <img src="{{ url_for('static', filename='images/sender-icon.svg') }}" alt="ユーザアイコン">
+                    </div>
+                    <span class="user-name">{{ user.name }}</span>
+
+                </a>
+            </li>
+            {% endfor %}
+            {% else %}
+            <li class="no-users-message">
+                登録されているユーザーがいません
+            </li>
+            {% endif %}
+        </ul>
+    </main>
+</div>
+{% endblock %}

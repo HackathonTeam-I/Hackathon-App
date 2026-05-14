@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}スレッド一覧 - Find it{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user_add.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="users-page">
+    <header class="page-header">
+        <a href="{{ url_for('') }}" class="back-button">
+            <img src="{{ url_for('static', filename='images/arrow-left.svg') }}" alt="戻る" class="back-icon">
+        </a>
+        <h1 class="page-title">DMスレッド一覧</h1>
+    </header>
+
+    <main>
+        <ul class="thread-list">
+            {% if threads %}
+            {% for thread in threads %}
+            <li class="thread-item">
+                <a href="{{ url_for('show_message', thread_id=thread.id) }}" class="thread-link-box">
+                    <div class="user-icon">
+                        <img src="{{ url_for('static', filename='images/sender-icon') }}" alt="ユーザアイコン">
+                    </div>
+
+                    <div class="thread-info">
+                        <span class="thread-name">{{ thread.user.name }}</span>
+                    </div>
+
+                </a>
+            </li>
+            {% endfor %}
+            {% else %}
+            <li class="no-thread-messages">
+                メッセージのやり取りがありません
+            </li>
+            {% endif %}
+        </ul>
+    </main>
+</div>
+{% endblock %}
