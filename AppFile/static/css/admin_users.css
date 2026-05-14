@@ -1,6 +1,7 @@
 .users-page {
     background-color: var(--bc);
     min-height: 100vh;
+    padding-bottom: 40px;
 }
 
 .page-header {
