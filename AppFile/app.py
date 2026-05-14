@@ -7,7 +7,7 @@ import uuid
 import re
 import os
 
-from models import User,Post,Image,CategoryGroup,Thread,Message
+from models import Department,User,Post,Image,CategoryGroup,Thread,Message
 
 # 定数定義　メール形式チェック用の正規表現とセッション有効期間（日数）を定義
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
@@ -53,6 +53,41 @@ def show_users():
     if not users:
         return render_template('admin/admin_users.html',message='登録ユーザーが存在しません')
     return render_template('admin/admin_users.html',users=users)
+
+# ユーザー登録フォーム表示
+@app.route('/admin/signup',methods=['GET'])
+@admin_required
+def show_signup():
+    departments = Department.get_all_departments()
+    return render_template('admin/admin_signup.html',departments=departments)
+
+# 新規ユーザー登録
+@app.route('/admin/signup',methods=['POST'])
+@admin_required
+def register_user():
+    name = request.form.get('name')
+    email = request.form.get('email')
+    department_id = request.form.get('department_id')
+    password = request.form.get('password')
+
+    if not all([name,email,password]):
+        flash('必須項目を入力して下さい','error')
+        return redirect(url_for('show_signup')) #登録画面に戻す
+
+    if not re.match(EMAIL_PATTERN,email):
+        flash('正しいメール形式で入力して下さい','error')
+        return redirect(url_for('show_signup')) #登録画面に戻す
+
+    # 登録メール情報の重複チェック
+    existing_user = User.get_user_by_email(email)
+    if existing_user:
+        flash('このメールアドレスは既に登録されています','error')
+        return redirect(url_for('show_signup')) #登録画面に戻す
+
+    hashed_pw = hashlib.sha256(password.encode()).hexdigest()
+    User.create_user(name,email,department_id,hashed_pw)
+    flash('ユーザーを登録しました','success')
+    return redirect(url_for('show_users'))
 
 """
 投稿機能

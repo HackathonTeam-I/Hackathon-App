@@ -5,6 +5,26 @@ from util.DB import DB
 # 初期起動時にコネクションプールを作成して、接続を確立
 db_pool = DB.init_db_pool()
 
+# Departmentクラス
+class Department:
+    @classmethod
+    def get_all_departments(cls):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = """
+                SELECT *
+                FROM departments
+                ORDER BY id ASC;
+                """
+                cur.execute(sql)
+                return cur.fetchall()
+        except pymysql.Error as e:
+            print(f'サーバー接続上のエラーが発生しています{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
 # Userクラス
 class User:
     @classmethod
@@ -19,6 +39,41 @@ class User:
                 """
                 cur.execute(sql)
                 return cur.fetchall()
+        except pymysql.Error as e:
+            print(f'サーバー接続上のエラーが発生しています{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
+    @classmethod
+    def get_user_by_email(cls,email):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = """
+                SELECT *
+                FROM users
+                WHERE email = %s;
+                """
+                cur.execute(sql,(email,))
+                return cur.fetchone()
+        except pymysql.Error as e:
+            print(f'サーバー接続上のエラーが発生しています{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
+    @classmethod
+    def create_user(cls,name,email,department_id,hashed_pw):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = """
+                INSERT INTO users(name,email,department_id,password)
+                VALUES(%s,%s,%s,%s);
+                """
+                cur.execute(sql,(name,email,department_id,hashed_pw))
+                conn.commit()
         except pymysql.Error as e:
             print(f'サーバー接続上のエラーが発生しています{e}')
             abort(500)
