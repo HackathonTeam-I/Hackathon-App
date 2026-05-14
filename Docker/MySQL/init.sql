@@ -87,6 +87,7 @@ CREATE TABLE IF NOT EXISTS threads (
   user_id BIGINT UNSIGNED NOT NULL,
   created_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6),
   PRIMARY KEY(id),
+  KEY idx_threads_user(user_id),
   CONSTRAINT fk_thread_user FOREIGN KEY (user_id) REFERENCES users (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
