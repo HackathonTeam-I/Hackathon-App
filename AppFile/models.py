@@ -8,8 +8,8 @@ db_pool = DB.init_db_pool()
 # Userクラス
 class User:
     @classmethod
-    def get_all_users():
-        conn = db_pool.get_conn(cls)
+    def get_all_users(cls):
+        conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
                 sql = """
@@ -18,7 +18,7 @@ class User:
                 ORDER BY id ASC;
                 """
                 cur.execute(sql)
-                conn.fetchall()
+                return cur.fetchall()
         except pymysql.Error as e:
             print(f'サーバー接続上のエラーが発生しています{e}')
             abort(500)
