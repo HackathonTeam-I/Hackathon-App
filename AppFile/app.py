@@ -251,6 +251,16 @@ def show_threads():
     return render_template('threads.html', threads=threads)
 
 
+#スレッド画面の表示と取得
+@app.route('/threads/<int:thread_id>', methods=['GET'])
+@admin_required
+def show_thread_detail(thread_id):
+    messages = Message.get_messages_by_thread_id(thread_id)
+    return render_template(
+        'messages.html',
+        messages=messages,
+        thread_id=thread_id       
+        )
 
 """
 プログラム実行
