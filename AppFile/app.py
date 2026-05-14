@@ -234,7 +234,7 @@ def delete_images(post_id,image_id):
 # 検索画面表示
 @app.route('/categories',methods=['GET'])
 def show_categories():
-    categories = CategoryGroup.get_all_category_group()
+    categories = CategoryGroup.get_all_category_groups()
     if categories:
         return render_template('post/categories.html',categories=categories)
     else:
