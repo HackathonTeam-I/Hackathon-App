@@ -61,6 +61,28 @@ def show_signup():
     departments = Department.get_all_departments()
     return render_template('admin/admin_signup.html',departments=departments)
 
+# 新規ユーザー登録
+@app.route('/admin/signup',methods=['POST'])
+@admin_required
+def register_user():
+    name = request.form.get('name')
+    email = request.form.get('email')
+    department_id = request.form.get('department_id')
+    password = request.form.get('password')
+
+    if not all([name,email,password]):
+        flash('必須項目を入力して下さい','error')
+        return redirect(url_for('show_signup')) #登録画面に戻す
+
+    if not re.match(EMAIL_PATTERN,email):
+        flash('正しいメール形式で入力して下さい','error')
+        return redirect(url_for('show_signup')) #登録画面に戻す
+
+    hashed_pw = hashlib.sha256(password.encode()).hexdigest()
+    User.create_user(name,email,department_id,hashed_pw)
+    flash('ユーザーを登録しました','success')
+    return redirect(url_for('show_users'))
+
 """
 投稿機能
 """

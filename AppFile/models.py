@@ -45,6 +45,22 @@ class User:
         finally:
             db_pool.release(conn)
 
+    @classmethod
+    def create_user(cls,name,email,department_id,hashed_pw):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = """
+                INSERT INTO users(name,email,department_id,password)
+                VALUES(%s,%s,%s,%s);
+                """
+                cur.execute(sql,(name,email,department_id,hashed_pw))
+                conn.commit()
+        except pymysql.Error as e:
+            print(f'サーバー接続上のエラーが発生しています{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
 
 # Postクラス
 class Post:
