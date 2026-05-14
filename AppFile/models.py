@@ -260,8 +260,8 @@ class CategoryGroup:
         finally:
             db_pool.release(conn)
 
-# Threadsクラス
 class Thread:
+    #管理者用DMスレッド一覧
     @classmethod
     def get_all_threads(cls):
         conn = db_pool.get_conn()
@@ -270,20 +270,15 @@ class Thread:
                 sql = """
                 SELECT
                     threads.id,
-                    users.name as user_name,
-                    threads.created_at
-                FROM threads
-                LEFT JOIN users ON threads.user_id = users.id
-                ORDER BY threads.created_at DESC;
+                    users.name AS sender_name,
+                    MAX(threads.created_at) AS last_message_at                   
+                FROM messages
+                LEFT JOIN users ON threads.users.id = users.id
+                GROUP BY users.id, users.name
+                ORDER BY last_message_at DESC;               
                 """
                 cur.execute(sql)
-                threads = cur.fetchall()
-
-            #日付フォーマット
-            for thread in threads:
-                if thread['created_at']:
-                    thread['created_at'] = thread['created_at'].strftime('%Y-%m-%d %H:%M')
-            return threads
+                return cur.fetchall()
         except pymysql.Error as e:
             print(f'エラーが発生しています：{e}')
             abort(500)

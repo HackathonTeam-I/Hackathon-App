@@ -243,10 +243,12 @@ def show_categories():
 """
 DM機能
 """
-#DM画面表示
+#DMスレッド一覧画面の表示
 @app.route('/threads', methods=['GET'])
+@admin_required
 def show_threads():
     threads = Thread.get_all_threads()
+    return render_template('threads.html', threads=threads)
 
 
 
