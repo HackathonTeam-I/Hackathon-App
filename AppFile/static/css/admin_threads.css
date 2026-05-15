@@ -1,7 +1,6 @@
-.users-page {
+.threads-page {
     background-color: var(--bc);
     min-height: 100vh;
-    padding-bottom: 40px;
 }
 
 .page-header {
@@ -30,19 +29,19 @@
     margin: 0;
 }
 
-.users-main {
+.threads-main {
     padding: 24px 20px;
     max-width: 600px;
     margin: 0 auto;
 }
 
-.user-list {
+.thread-list {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-.user-item {
+.thread-item {
     background-color: var(--bc);
     margin-bottom: 12px;
     border: 1px solid #e0e0e0;
@@ -52,7 +51,7 @@
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.user-link-box {
+.thread-link-box {
     display: flex;
     align-items: center;
     padding: 16px 20px;
@@ -81,13 +80,13 @@
     object-fit: cover;
 }
 
-.user-name {
+.thread-name {
     font-size: 16px;
     font-weight: 500;
     flex-grow: 1;
 }
 
-.no-user-message {
+.no-thread-message {
     text-align: center;
     padding: 36px 16px;
     color: #888888;
