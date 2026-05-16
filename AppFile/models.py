@@ -402,7 +402,7 @@ class Thread:
 class Message:
         #管理者用のDMスレッド一覧から対象ユーザーとのメッセージ内容を取得
         @classmethod
-        def get_messages_by_user_id(cls, thread_id):
+        def get_messages_by_thread_id(cls, thread_id):
             conn = db_pool.get_conn()
             try:
                 with conn.cursor(pymysql.cursors.DictCursor) as cur:
@@ -426,3 +426,29 @@ class Message:
                 abort(500)
             finally:
                 db_pool.release(conn)
+
+        #メッセージ内容（定型文）を新規作成
+        @classmethod
+        def create_template(cls, thread_id, sender_id, post_id):
+            conn = db_pool.get_conn()
+            try:
+                with conn.cursor() as cur:
+                    sql =  """
+                INSERT INTO messages (
+                    thread_id,
+                    sender_id,
+                    content,
+                    post_id
+                )
+                VALUES (%s, %s, %s, %s);
+                """
+                cur.execute(sql, (
+                    thread_id,
+                    sender_id,
+                    "この落し物は私のものです",
+                    post_id
+                ))
+                conn.commit()
+            finally:
+                db_pool.release(conn)
+

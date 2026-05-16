@@ -310,14 +310,18 @@ def show_thread_detail(thread_id):
         thread_id=thread_id
         )
 
-#「DMで申告」からスレッド作成
-@app.route('/messages/<int:user_id>/request', methods=['GET'])
-def create_thread(user_id):
-    user_id = session.get('user_id')
-    # ログインチェック（任意）
+#「DMで申告」からスレッド➕定型文を作成
+@app.route('/messages/<int:post_id>/request', methods=['GET'])
+def create_thread(post_id):
+    # ログインチェック
     if "user_id" not in session:
        return redirect("/login")
+    user_id = session.get('user_id')
+    # スレッドの作成 or　取得
     thread = Thread.create_thread_by_user_id(user_id)
+    #投稿テンプレート送信
+    Message.create_template(thread["id"], user_id, post_id)
+    #チャット画面へ
     return redirect(f"/messages/{thread['id']}")
 
 """
