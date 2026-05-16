@@ -361,6 +361,41 @@ class Thread:
         finally:
             db_pool.release(conn)
 
+    #user_idに紐づいたスレッド作成 or 取得
+    @classmethod
+    def create_thread_by_user_id(cls, user_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor(pymysql.cursors.DictCursor) as cur:
+
+                # 既存チェック
+                sql = """
+                SELECT id
+                FROM threads
+                WHERE user_id = %s
+                LIMIT 1;
+                """
+                cur.execute(sql, (user_id,))
+                thread = cur.fetchone()
+
+                if thread:
+                    return thread  # 既存スレッドを表示
+
+                # 新規作成
+                sql = """
+                INSERT INTO threads (user_id)
+                VALUES (%s);
+                """
+                cur.execute(sql, (user_id,))
+                conn.commit()
+
+                return {"id": cur.lastrowid}
+
+        except pymysql.Error as e:
+            print(f'エラーが発生しています：{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
 
 
 # Messageクラス
