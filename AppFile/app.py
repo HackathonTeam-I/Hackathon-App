@@ -299,7 +299,7 @@ def show_threads():
     return render_template('threads.html', threads=threads)
 
 
-#スレッド画面の表示と取得
+#管理者用：スレッド画面の表示と取得
 @app.route('/threads/<int:thread_id>', methods=['GET'])
 @admin_required
 def show_thread_detail(thread_id):
@@ -323,6 +323,49 @@ def create_thread(post_id):
     Message.create_template(thread["id"], user_id, post_id)
     #チャット画面へ
     return redirect(f"/messages/{thread['id']}")
+
+#ユーザ用：スレッド画面の表示と取得
+@app.route('/threads/<int:thread_id>', methods=['GET'])
+def show_thread_detail(thread_id):
+    if "user_id" not in session:
+        return redirect("/login")
+    user_id = session["user_id"]
+    # このスレッドが自分のものかチェック
+    thread = Thread.get_thread_by_id(thread_id)
+    # 他人のスレッドは見れない
+    if not thread or thread["user_id"] != user_id:
+        abort(404) 
+    messages = Message.get_messages_by_thread_id(thread_id)
+    return render_template(
+        'messages.html',
+        messages=messages,
+        thread_id=thread_id
+    )
+
+#メッセージ送信
+@app.route('/api/messages/<int:thread_id>', methods=['POST'])
+def create_messages(thread_id):
+    # ログインチェック
+    if "user_id" not in session:
+        return redirect("/login")
+    user_id = session["user_id"]
+    # スレッドの所有者チェック（超重要）
+    thread = Thread.get_thread_by_id(thread_id)
+    if not thread or thread["user_id"] != user_id:
+        abort(403)
+    # フォームからメッセージ取得
+    content = request.form.get("content")
+    # 空チェック
+    if not content or not content.strip():
+        return redirect(f"/threads/{thread_id}")
+
+    # メッセージ保存
+    Message.create_message(
+        thread_id=thread_id,
+        sender_id=user_id,
+        content=content
+    )
+    return redirect(f"/threads/{thread_id}")
 
 """
 プログラム実行
