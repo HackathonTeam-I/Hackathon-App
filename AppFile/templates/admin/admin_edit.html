@@ -48,9 +48,7 @@
 
         <div>
             <label>詳細説明</label>
-            <textarea placeholder="特徴などを記載" name="description">
-                {{ post.description }}
-            </textarea>
+            <textarea placeholder="特徴などを記載" name="description">{{ post.description }}</textarea>
         </div>
 
         <div>
@@ -85,13 +83,19 @@
                 accept="image/*"
                 hidden
             >
-             <!-- 削除ボタン -->
-            <button type="button" 
+             
+            <div class="current-image">
+                <img src="{{ url_for('static', filename=post.image_path) }}"
+                     alt="投稿画像"
+                     class="preview-image">
+        
+            <!-- 削除ボタン -->
+            <button type="button"
                     id="remove-photo-button"
-                    hidden
-            >
-                削除
+                    data-post-id="{{ post.id }}"
+                    data-image-id="{{ image.image_id }}">削除
             </button>
+            </div>
 
         </div>
 
@@ -113,7 +117,7 @@
     // グループの選択が変更（change）されたら発動
     groupSelect.addEventListener('change', function()  {
 
-        //選ばれたグループnoIDを取得(文字列として取得される)
+        //選ばれたグループのIDを取得(文字列として取得される)
         const selectedGroupId = this.value;
 
         //一旦カテゴリの選択肢を空っぽにする
@@ -151,6 +155,8 @@
         categorySelect.value = "{{ post.category_id }}";
     }, 0);
 
+
+    //写真投稿
     const photoInput = document.getElementById("photo");
     const removeButton = document.getElementById("remove-photo-button");
 
@@ -168,6 +174,53 @@
         removeButton.hidden =true;
 
         console.log("画像削除");
+
+    });
+
+    //削除ボタンを押した時
+    const removeButton = document.getElementById("remove-photo-button");
+    //ボタンがクリックされたらこの処理を実行する
+    removeButton.addEventListener("click", async function () {
+
+        const postId = this.dataset.postId;
+        const imageId = this.dataset.imageId;
+
+        //通信失敗時にアプリが止まらないようにする
+        try {
+            //Flask API にアクセス
+            const response = await fetch(
+                `/api/admin/posts/${postId}/images/${imageId}`,
+                {
+                    method: "DELETE",
+                    //CSRF対策
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token() }}"
+                    }
+                }
+            );
+            //Flask が返した JSON を JavaScript のオブジェクトに変換
+            const data = await response.json();
+
+            if (response.ok) {
+
+                alert(data.message);
+
+                //画面から画像を消す
+                document.querySelector(".current-image").remove();
+
+            } else {
+                //Flaskのメッセージを表示
+                alert(data.message || "削除に失敗しました");
+
+            }
+
+         } catch (error) {
+
+            console.error(error);
+            //Flaskのメッセージを表示
+            alert("通信エラーが発生しました");
+
+        }
 
     });
 </script>
