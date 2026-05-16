@@ -310,6 +310,16 @@ def show_thread_detail(thread_id):
         thread_id=thread_id
         )
 
+#「DMで申告」からスレッド作成
+@app.route('/messages/<int:user_id>/request', methods=['GET'])
+def create_thread(user_id):
+    user_id = session.get('user_id')
+    # ログインチェック（任意）
+    if "user_id" not in session:
+       return redirect("/login")
+    thread = Thread.create_thread_by_user_id(user_id)
+    return redirect(f"/messages/{thread['id']}")
+
 """
 プログラム実行
 """
