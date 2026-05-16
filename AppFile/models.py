@@ -427,7 +427,7 @@ class Message:
             finally:
                 db_pool.release(conn)
 
-        #メッセージ内容（定型文）を新規作成
+        #定型文の作成
         @classmethod
         def create_template(cls, thread_id, sender_id, post_id):
             conn = db_pool.get_conn()
@@ -452,3 +452,58 @@ class Message:
             finally:
                 db_pool.release(conn)
 
+        #メッセージ内容を取得
+        @classmethod
+        def get_messages_by_user_id(cls):
+            conn = db_pool.get_conn()
+            try:
+                with conn.cursor() as cur:
+                    sql = """
+                    SELECT
+                        messages.id,
+                        messages.content,
+                        messages.created_at,
+                        messages.sender_id,
+                        users.name AS sender_name
+                    FROM messages
+                    LEFT JOIN users ON messages.sender_id = users.id
+                    WHERE messages.sender_id = %s
+                    ORDER BY messages.created_at ASC;
+                    """
+                    cur.execute(sql, (thread_id,))
+                    messages = cur.fetchone()
+                return messages
+            except pymysql.Error as e:
+                print(f'エラーが発生しています：{e}')
+                abort(500)
+            finally:
+                db_pool.release(conn)
+
+
+        #メッセージ内容を追加
+        @classmethod
+        def create_message(cls, thread_id, sender_id, content):
+            conn = db_pool.get_conn()
+            try:
+                with conn.cursor() as cur:
+                    sql = """
+                    INSERT INTO messages (
+                        thread_id,
+                        sender_id,
+                        content,
+                        post_id
+                    )
+                    VALUES (%s, %s, %s, %s);
+                    """
+                    cur.execute(sql, (
+                        thread_id,
+                        sender_id,
+                        content,
+                        None
+                    ))
+                    conn.commit()
+            except pymysql.Error as e:
+                print(f'エラーが発生しています：{e}')
+                abort(500)
+            finally:
+                db_pool.release(conn)
