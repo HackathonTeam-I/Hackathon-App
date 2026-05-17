@@ -7,7 +7,7 @@ import uuid
 import re
 import os
 
-from models import Department,User,Post,Image,CategoryGroup,Thread,Message
+from models import Department,User,Post,Image,CategoryGroup,Thread,Message,Notification
 
 # 定数定義　メール形式チェック用の正規表現とセッション有効期間（日数）を定義
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
@@ -366,6 +366,19 @@ def create_messages(thread_id):
         content=content
     )
     return redirect(f"/threads/{thread_id}")
+
+"""
+通知機能
+"""
+#通知一覧
+@app.route('/notifications', methods=['GET'])
+def show_notifications():
+    # 通知取得（画像付き）
+    notifications = Notification.get_all_notifications()
+    return render_template(
+        'notifications.html',
+        notifications=notifications
+    )
 
 """
 プログラム実行

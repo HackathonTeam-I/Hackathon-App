@@ -507,3 +507,43 @@ class Message:
                 abort(500)
             finally:
                 db_pool.release(conn)
+
+# Notificationクラス
+class Notification:
+    #通知一覧表示と取得
+    @classmethod
+    def get_all_notifications(cls):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor(pymysql.cursors.DictCursor) as cur:
+                sql = """
+                SELECT
+                    notifications.id,
+                    notifications.type,
+                    notifications.is_read,
+                    notifications.created_at,
+                    notifications.post_id,
+                    posts.description,
+                    posts.found_place,
+                    posts.found_date,
+                    categories.name AS category_name
+                    -- 画像1枚だけ取得
+                    (
+                        SELECT image_path
+                        FROM images
+                        WHERE images.post_id = posts.id
+                        LIMIT 1
+                    ) AS image_path
+
+                FROM notifications
+                LEFT JOIN posts ON notifications.post_id = posts.id
+                LEFT JOIN categories ON posts.category_id = categories.id
+                ORDER BY notifications.created_at ASC;
+                """
+                cur.execute(sql)
+                return cur.fetchall()
+        except pymysql.Error as e:
+            print(f'エラーが発生しています：{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
