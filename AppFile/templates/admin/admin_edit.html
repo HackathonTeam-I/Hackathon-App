@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}新規投稿 - Find it{% endblock %}
+{% block title %}投稿編集 - Find it{% endblock %}
 
 {% block page_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_posts.css' )}}">
@@ -18,7 +18,7 @@
 
 <main class="admin-posts">
     <h2 class="admin-posts-title">
-        新規投稿
+        投稿編集
     </h2>
 
    <form class="posts-form" method="post" enctype="multipart/form-data">
@@ -31,7 +31,11 @@
             <option value="">グループを選択してください</option>
 
             {% for group in groups %}
-            <option value="{{ group.id }}">{{ group.name }}</option>
+            <option 
+            value="{{ group.id }}"
+            {% if group.id == post.group_id %}selected{% endif %}>
+                {{ group.name }}
+            </option>
             {% endfor %}
             </select>
 
@@ -45,20 +49,23 @@
 
         <div>
             <label>詳細説明</label>
-            <textarea
-                placeholder="特徴などを記載"
-                name="description">
-            </textarea>
+            <textarea placeholder="特徴などを記載" name="description">{{ post.description }}</textarea>
         </div>
 
         <div>
             <label for="found_date">日付</label>
-            <input type="date" id="found_date" name="found_date">
+            <input type="date"
+                   id="found_date"
+                   name="found_date"
+                   value="{{ post.found_date.strftime('%Y-%m-%d') }}">
         </div>
 
         <div>
             <label>場所</label>
-            <input type="text" placeholder="発見場所を記載" name="found_place">
+            <input type="text"
+                   placeholder="発見場所を記載"
+                   name="found_place"
+                   value="{{ post.found_place }}">
         </div>
     
         <div class="photo-area">
@@ -77,19 +84,28 @@
                 accept="image/*"
                 hidden
             >
-             <!-- 写真削除ボタン -->
-            <button type="button" 
+             
+            <div class="current-image">
+                <img src="{{ url_for('static', filename=post.image_path) }}"
+                     alt="投稿画像"
+                     class="preview-image">
+        
+            <!-- 写真削除ボタン -->
+            <button type="button"
                     id="remove-photo-button"
-                    hidden
-            >
-                <img class="close-icon" src="{{url_for('static', filename='images/close_round.svg')}}" alt="削除"> 
+                    data-post-id="{{ post.id }}"
+                    data-image-id="{{ image.image_id }}">
+                    <img class="close-icon" src="{{url_for('static', filename='images/close_round.svg')}}" alt="削除"> 
             </button>
+            <!--DELETE時のcsrf対策-->
+            <input type="hidden" id="csrf_token" value="{{ csrf_token() }}">
+            </div>
 
         </div>
 
-        <!--登録ボタン-->
+        <!--更新ボタン-->
         <div class="register-button">
-            <button class="admin-posts-button" type="submit">登録</button>
+            <button class="admin-posts-button" type="submit">更新</button>
         </div>
 
     </form>
@@ -99,5 +115,5 @@
 {% endblock %}
 
 {% block page_js %}
-<script src="{{ url_for('static', filename='js/admin_posts.js') }}"></script>
+<script src="{{ url_for('static', filename='js/admin_edit.js') }}"></script>
 {% endblock %}
