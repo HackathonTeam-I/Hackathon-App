@@ -46,6 +46,29 @@ class User:
             db_pool.release(conn)
 
     @classmethod
+    def get_user_by_id(cls,id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = """
+                SELECT
+                    id,
+                    name,
+                    email,
+                    department_id,
+                    password
+                FROM users
+                WHERE id = %s;
+                """
+                cur.execute(sql,(id,))
+                return cur.fetchone()
+        except pymysql.Error as e:
+            print(f'サーバー接続上のエラーが発生しています{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
+    @classmethod
     def get_user_by_email(cls,email):
         conn = db_pool.get_conn()
         try:
@@ -74,6 +97,50 @@ class User:
                 """
                 cur.execute(sql,(name,email,department_id,hashed_pw))
                 conn.commit()
+        except pymysql.Error as e:
+            print(f'サーバー接続上のエラーが発生しています{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
+    @classmethod
+    def update_user(cls,id,name,email,department_id,hashed_pw):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                if hashed_pw:
+                    sql = """
+                    UPDATE users
+                    set name=%s,email=%s,department_id=%s,password=%s
+                    WHERE id = %s;
+                    """
+                    cur.execute(sql,(name,email,department_id,hashed_pw,id))
+                else:
+                    sql = """
+                    UPDATE users
+                    set name=%s,email=%s,department_id=%s
+                    WHERE id = %s;
+                    """
+                    cur.execute(sql,(name,email,department_id,id))
+                conn.commit()
+        except pymysql.Error as e:
+            print(f'サーバー接続上のエラーが発生しています{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
+    @classmethod
+    def delete_user(cls,id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = """
+                DELETE
+                FROM users
+                WHERE id = %s;
+                """
+                cur.execute(sql,(id,))
+            conn.commit()
         except pymysql.Error as e:
             print(f'サーバー接続上のエラーが発生しています{e}')
             abort(500)

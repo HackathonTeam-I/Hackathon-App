@@ -89,6 +89,66 @@ def register_user():
     flash('ユーザーを登録しました','success')
     return redirect(url_for('show_users'))
 
+# ユーザー編集フォーム表示
+@app.route('/admin/users/<int:id>/edit',methods=['GET'])
+@admin_required
+def show_edit_user(id):
+    user = User.get_user_by_id(id)
+    if user is None:
+        abort(404,description='指定されたユーザーが見つかりません')
+    departments = Department.get_all_departments()
+    return render_template('admin/admin_edit_user.html',user=user,departments=departments)
+
+# ユーザー情報更新
+@app.route('/api/admin/users/<int:id>',methods=['PATCH'])
+@admin_required
+def update_user(id):
+    user = User.get_user_by_id(id)
+    if user is None:
+        abort(404,description='指定されたユーザーが見つかりません')
+    data = request.get_json()
+    name = data.get('name')
+    email = data.get('email')
+    department_id = data.get('department_id')
+    password = data.get('password')
+
+    # 1.必須項目が空欄になっていないか（存在確認）
+    if not all([name,email]):
+        return jsonify({
+            'status':'error',
+            'message':'必須項目を入力して下さい'
+        }),400
+    # 2.メール形式が問題ないか（形式確認）
+    if not re.match(EMAIL_PATTERN,email):
+        return jsonify({
+            'status':'error',
+            'message':'正しいメール形式で入力して下さい'
+        }),400
+
+    hashed_pw = hashlib.sha256(password.encode()).hexdigest() if password else None
+    User.update_user(id,name,email,department_id,hashed_pw)
+
+    next_url = url_for('show_users')
+    return jsonify({
+        'status':'success',
+        'message':'ユーザー情報を更新しました',
+        'redirect_url':next_url
+    }),200
+
+# ユーザー情報削除
+@app.route('/api/admin/users/<int:id>',methods=['DELETE'])
+@admin_required
+def delete_user(id):
+    user = User.get_user_by_id(id)
+    if user is None:
+        abort(404,description='指定されたユーザーが見つかりません')
+    User.delete_user(id)
+    return jsonify({
+        'status':'success',
+        'message':'ユーザーを削除しました'
+    }),200
+
+
 """
 投稿機能
 """
@@ -334,7 +394,7 @@ def show_thread_detail(thread_id):
     thread = Thread.get_thread_by_id(thread_id)
     # 他人のスレッドは見れない
     if not thread or thread["user_id"] != user_id:
-        abort(404) 
+        abort(404)
     messages = Message.get_messages_by_thread_id(thread_id)
     return render_template(
         'messages.html',
