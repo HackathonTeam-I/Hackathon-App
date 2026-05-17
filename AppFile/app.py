@@ -7,7 +7,7 @@ import uuid
 import re
 import os
 
-from models import Department,User,Post,Image,CategoryGroup,Thread,Message
+from models import Department,User,Post,Image,CategoryGroup,Thread,Message,Notification
 
 # 定数定義　メール形式チェック用の正規表現とセッション有効期間（日数）を定義
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
