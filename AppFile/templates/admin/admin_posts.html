@@ -61,8 +61,8 @@
             <input type="text" placeholder="発見場所を記載" name="found_place">
         </div>
     
-        <div class="upload-photo">
-            <div>写真をアップロード</div>
+        <div class="photo-area">
+            <div class="upload-photo">写真をアップロード</div>
             <label for="photo" class="upload-button">
                 <img 
                 src="{{ url_for('static', filename='images/upload_icon.svg')}}"
@@ -82,7 +82,7 @@
                     id="remove-photo-button"
                     hidden
             >
-                削除
+                <img class="close-icon" src="{{url_for('static', filename='images/close_round.svg')}}" alt="削除"> 
             </button>
 
         </div>

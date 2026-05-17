@@ -68,8 +68,8 @@
                    value="{{ post.found_place }}">
         </div>
     
-        <div class="upload-photo">
-            <div>写真をアップロード</div>
+        <div class="photo-area">
+            <div class="upload-photo">写真をアップロード</div>
             <label for="photo" class="upload-button">
                 <img 
                 src="{{ url_for('static', filename='images/upload_icon.svg')}}"
@@ -94,7 +94,8 @@
             <button type="button"
                     id="remove-photo-button"
                     data-post-id="{{ post.id }}"
-                    data-image-id="{{ image.image_id }}">削除
+                    data-image-id="{{ image.image_id }}">
+                    <img class="close-icon" src="{{url_for('static', filename='images/close_round.svg')}}" alt="削除"> 
             </button>
             <!--DELETE時のcsrf対策-->
             <input type="hidden" id="csrf_token" value="{{ csrf_token() }}">
