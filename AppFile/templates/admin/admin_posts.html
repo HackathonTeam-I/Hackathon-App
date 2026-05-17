@@ -7,6 +7,7 @@
 {% endblock %}
 
 {% block content %}
+<!--戻るボタン-->
 <header class="detail-header">
         <a href="{{ url_for('show_posts') }}" class="back-button">
              <img src="{{ url_for('static', filename='images/arrow-left.svg') }}"
@@ -76,7 +77,7 @@
                 accept="image/*"
                 hidden
             >
-             <!-- 削除ボタン -->
+             <!-- 写真削除ボタン -->
             <button type="button" 
                     id="remove-photo-button"
                     hidden
@@ -85,7 +86,8 @@
             </button>
 
         </div>
-
+        
+        <!--登録ボタン-->
         <div class="register-button">
             <button class="admin-posts-button" type="submit">登録</button>
         </div>

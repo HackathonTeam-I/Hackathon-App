@@ -7,6 +7,7 @@
 {% endblock %}
 
 {% block content %}
+<!--戻るボタン-->
 <header class="detail-header">
         <a href="{{ url_for('show_posts') }}" class="back-button">
              <img src="{{ url_for('static', filename='images/arrow-left.svg') }}"
@@ -89,16 +90,19 @@
                      alt="投稿画像"
                      class="preview-image">
         
-            <!-- 削除ボタン -->
+            <!-- 写真削除ボタン -->
             <button type="button"
                     id="remove-photo-button"
                     data-post-id="{{ post.id }}"
                     data-image-id="{{ image.image_id }}">削除
             </button>
+            <!--DELETE時のcsrf対策-->
+            <input type="hidden" id="csrf_token" value="{{ csrf_token() }}">
             </div>
 
         </div>
 
+        <!--更新ボタン-->
         <div class="register-button">
             <button class="admin-posts-button" type="submit">更新</button>
         </div>
@@ -150,15 +154,14 @@
     groupSelect.value = "{{ post.group_id }}";
     //changeイベントを強制実行
     groupSelect.dispatchEvent(new Event('change'));
-    //少し後で実行
-    setTimeout(() => {
-        categorySelect.value = "{{ post.category_id }}";
-    }, 0);
-
+    //カテゴリの初期値をセット
+    categorySelect.value = "{{ post.category_id }}";
+    
 
     //写真投稿
     const photoInput = document.getElementById("photo");
     const removeButton = document.getElementById("remove-photo-button");
+    const csrfToken = document.getElementById("csrf_token").value;
 
     photoInput.addEventListener("change", function(){
         console.log("画像選択");
@@ -166,35 +169,23 @@
         removeButton.hidden = false;
     });
     
-    //削除ボタンを押した時
-    removeButton.addEventListener("click", function(){
 
-        photoInput.value = "";
-        //削除ボタンを非表示
-        removeButton.hidden =true;
-
-        console.log("画像削除");
-
-    });
-
-    //削除ボタンを押した時
-    const removeButton = document.getElementById("remove-photo-button");
-    //ボタンがクリックされたらこの処理を実行する
+    //削除ボタンがクリックされたらこの処理を実行する
     removeButton.addEventListener("click", async function () {
-
+        //HTMLのデータ属性を取得
         const postId = this.dataset.postId;
         const imageId = this.dataset.imageId;
 
         //通信失敗時にアプリが止まらないようにする
         try {
-            //Flask API にアクセス
+            //Flask API にアクセス(非同期通信)
             const response = await fetch(
                 `/api/admin/posts/${postId}/images/${imageId}`,
                 {
                     method: "DELETE",
                     //CSRF対策
                     headers: {
-                        "X-CSRFToken": "{{ csrf_token() }}"
+                        "X-CSRFToken": csrfToken
                     }
                 }
             );
