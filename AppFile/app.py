@@ -368,6 +368,19 @@ def create_messages(thread_id):
     return redirect(f"/threads/{thread_id}")
 
 """
+通知機能
+"""
+#通知一覧
+@app.route('/notifications', methods=['GET'])
+def show_notifications():
+    # 通知取得（画像付き）
+    notifications = Notification.get_all_notifications()
+    return render_template(
+        'notifications.html',
+        notifications=notifications
+    )
+
+"""
 プログラム実行
 """
 if __name__ == '__main__':
