@@ -196,6 +196,12 @@ def create_post():
         return redirect(url_for('show_admin_posts')) #新規投稿画面へ
 
     Post.create_post(user_id,category_id,found_date,found_place,description)
+
+    # 投稿作成＋ID取得
+    post_id = Post.get_post_id_by_user(user_id)
+    # 通知作成
+    Notification.notify_on_post(post_id)
+
     flash('投稿が完了しました','success')
     return redirect(url_for('show_admin_top')) #管理者トップ画面へ
 
