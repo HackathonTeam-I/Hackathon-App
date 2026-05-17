@@ -89,6 +89,16 @@ def register_user():
     flash('ユーザーを登録しました','success')
     return redirect(url_for('show_users'))
 
+# ユーザー編集フォーム表示
+@app.route('/admin/users/<int:id>/edit',methods=['GET'])
+@admin_required
+def show_edit_user(id):
+    user = User.get_user_by_id(id)
+    if user is None:
+        abort(404,description='指定されたユーザーが見つかりません')
+    departments = Department.get_all_departments()
+    return render_template('admin/admin_edit_user.html',user=user,departments=departments)
+
 """
 投稿機能
 """
@@ -334,7 +344,7 @@ def show_thread_detail(thread_id):
     thread = Thread.get_thread_by_id(thread_id)
     # 他人のスレッドは見れない
     if not thread or thread["user_id"] != user_id:
-        abort(404) 
+        abort(404)
     messages = Message.get_messages_by_thread_id(thread_id)
     return render_template(
         'messages.html',
