@@ -112,6 +112,13 @@ def update_user(id):
     department_id = data.get('department_id')
     password = data.get('password')
 
+    # 1.必須項目が空欄になっていないか（存在確認）
+    if not all([name,email]):
+        return jsonify({
+            'status':'error',
+            'message':'必須項目を入力して下さい'
+        }),400
+    # 2.メール形式が問題ないか（形式確認）
     if not re.match(EMAIL_PATTERN,email):
         return jsonify({
             'status','error',
@@ -123,9 +130,9 @@ def update_user(id):
 
     next_url = url_for('show_users')
     return jsonify({
-        'status','success',
-        'message','ユーザー情報を更新しました'
-        'redirect_url',next_url
+        'status':'success',
+        'message':'ユーザー情報を更新しました',
+        'redirect_url':next_url
     }),200
 
 # ユーザー情報削除
