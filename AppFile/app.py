@@ -121,8 +121,8 @@ def update_user(id):
     # 2.メール形式が問題ないか（形式確認）
     if not re.match(EMAIL_PATTERN,email):
         return jsonify({
-            'status','error',
-            'message','正しいメール形式で入力して下さい'
+            'status':'error',
+            'message':'正しいメール形式で入力して下さい'
         }),400
 
     hashed_pw = hashlib.sha256(password.encode()).hexdigest() if password else None

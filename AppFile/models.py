@@ -52,6 +52,7 @@ class User:
             with conn.cursor() as cur:
                 sql = """
                 SELECT
+                    id,
                     name,
                     email,
                     department_id,
@@ -120,6 +121,7 @@ class User:
                     set name=%s,email=%s,department_id=%s
                     WHERE id = %s;
                     """
+                    cur.execute(sql,(name,email,department_id,id))
                 conn.commit()
         except pymysql.Error as e:
             print(f'サーバー接続上のエラーが発生しています{e}')
@@ -137,7 +139,7 @@ class User:
                 FROM users
                 WHERE id = %s;
                 """
-            cur.execute(sql,(id,))
+                cur.execute(sql,(id,))
             conn.commit()
         except pymysql.Error as e:
             print(f'サーバー接続上のエラーが発生しています{e}')
