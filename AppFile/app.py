@@ -128,6 +128,19 @@ def update_user(id):
         'redirect_url',next_url
     }),200
 
+# ユーザー情報削除
+@app.route('/api/admin/users/<int:id>',methods=['DELETE'])
+@admin_required
+def delete_user(id):
+    user = User.get_user_by_id(id)
+    if user is None:
+        abort(404,description='指定されたユーザーが見つかりません')
+    User.delete_user(id)
+    return jsonify({
+        'status':'success',
+        'message':'ユーザーを削除しました'
+    }),200
+
 
 """
 投稿機能
