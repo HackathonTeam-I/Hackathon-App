@@ -99,6 +99,36 @@ def show_edit_user(id):
     departments = Department.get_all_departments()
     return render_template('admin/admin_edit_user.html',user=user,departments=departments)
 
+# ユーザー情報更新
+@app.route('/api/admin/users/<int:id>',methods=['PATCH'])
+@admin_required
+def update_user(id):
+    user = User.get_user_by_id(id)
+    if user is None:
+        abort(404,description='指定されたユーザーが見つかりません')
+    data = request.get_json()
+    name = data.get('name')
+    email = data.get('email')
+    department_id = data.get('department_id')
+    password = data.get('password')
+
+    if not re.match(EMAIL_PATTERN,email):
+        return jsonify({
+            'status','error',
+            'message','正しいメール形式で入力して下さい'
+        }),400
+
+    hashed_pw = hashlib.sha256(password.encode()).hexdigest() if password else None
+    User.update_user(id,name,email,department_id,hashed_pw)
+
+    next_url = url_for('show_users')
+    return jsonify({
+        'status','success',
+        'message','ユーザー情報を更新しました'
+        'redirect_url',next_url
+    }),200
+
+
 """
 投稿機能
 """

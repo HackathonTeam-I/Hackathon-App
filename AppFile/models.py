@@ -102,6 +102,24 @@ class User:
         finally:
             db_pool.release(conn)
 
+    @classmethod
+    def update_user(cls,id,name,email,department_id,hashes_pw):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = """
+                UPDATE users
+                set name=%s,email=%s,department_id=%s,password=%s
+                WHERE id = %s;
+                """
+                cur.execute(sql,(name,email,department_id,hashes_pw,id))
+                conn.commit()
+        except pymysql.Error as e:
+            print(f'サーバー接続上のエラーが発生しています{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
 # Postクラス
 class Post:
     @classmethod
