@@ -1,0 +1,95 @@
+.user-register-page {
+    background-color: var(--bc);
+    min-height: 100vh;
+    padding-bottom: 40px;
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+}
+
+.back-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px;
+    margin: 0 16px 0 -8px;
+}
+
+.back-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.page-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--text-main);
+    margin: 0;
+}
+
+.register-main {
+    padding: 0 24px;
+}
+
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--text-main);
+    margin-bottom: 8px;
+}
+
+.lock-icon {
+    font-size: 14px;
+    color: #888;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    border: 1px solid #cccccc;
+    border-radius: 12px;
+    box-sizing: border-box;
+    background-color: var(--bc);
+}
+
+/*
+.form-group input:focus {
+    border-color: #32CD32;
+}*/
+
+.form-group input::placeholder {
+    color: #999999;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 40px;
+}
+
+.submit-btn {
+    background-color: #28BE96;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 24px;
+    padding: 12px 40px;
+    box-shadow: 0 4px 10px rgba(46, 203, 150, 0.4);
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.2s;
+}
+
+.submit-btn:active {
+    transform: scale(0.95);
+    opacity: 0.9;
+}

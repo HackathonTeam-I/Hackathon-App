@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}ユーザ登録 - Find it {% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user_register.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="user-register-page">
+    <header class="page-header">
+        <a href="{{ url_for('show_admin_top') }}" class="back-button">
+            <img src="{{ url_for('static', filename='images/arrow-left.svg') }}" alt="戻る" class="back-icon">
+        </a>
+        <h1 class="page-title">ユーザー登録</h1>
+    </header>
+
+    <main class="register-main">
+        <form action="{{ url_for('create_signup') }}" method="POST" class="register-form">
+
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group">
+                <label for="name">氏名</label>
+                <input type="text" id="name" name="name" placeholder="氏名を入力してください" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="メールアドレスを入力してください" required>
+            </div>
+
+            <div class="form-group">
+                <label for="department">部署名</label>
+                <input type="text" id="department" name="department" placeholder="部署名を入力してください" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password <img
+                        src="{{ url_for('static', filename='images/lock-icon.svg') }}"></label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="submit-btn">登録</button>
+            </div>
+        </form>
+    </main>
+</div>
+{% endblock %}
