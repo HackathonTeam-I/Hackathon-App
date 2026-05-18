@@ -67,6 +67,10 @@
                    name="found_place"
                    value="{{ post.found_place }}">
         </div>
+
+        {% if post.images %}
+            {% set image = post.images[0] %}
+        {% endif %}
     
         <div class="photo-area">
             <div class="upload-photo">写真をアップロード</div>
