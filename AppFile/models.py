@@ -268,6 +268,24 @@ class Post:
         finally:
             db_pool.release(conn)
 
+    @classmethod
+    def get_post_id_by_user(cls, user_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor(pymysql.cursors.DictCursor) as cur:
+                sql = """
+                SELECT id
+                FROM posts
+                WHERE user_id = %s
+                ORDER BY id DESC
+                LIMIT 1
+                """
+                cur.execute(sql, (user_id,))
+                result = cur.fetchone()
+                return result["id"] if result else None
+        finally:
+            db_pool.release(conn)
+
 # Imageクラス
 class Image:
     @classmethod
@@ -609,6 +627,32 @@ class Notification:
                 """
                 cur.execute(sql)
                 return cur.fetchall()
+        except pymysql.Error as e:
+            print(f'エラーが発生しています：{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
+    #投稿作成時に通知作成
+    @classmethod
+    def notify_on_post(cls, post_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = """
+             INSERT INTO notifications (
+                user_id,
+                post_id,
+                type
+            )
+            VALUES (%s, %s, 'new_post')
+            """
+            # 全ユーザ取得
+            cur.execute("SELECT id FROM users")
+            users = cur.fetchall()
+            for user in users:
+                cur.execute(sql, (user[0], post_id))
+            conn.commit()
         except pymysql.Error as e:
             print(f'エラーが発生しています：{e}')
             abort(500)
