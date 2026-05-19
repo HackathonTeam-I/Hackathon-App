@@ -1,48 +1,48 @@
 {% extends "base.html" %}
 
-{% block title %}ログイン - Find It{% endblock %}
+{% block title %}ログイン - Find it{% endblock %}
 {% block page_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css')}}">
 {% endblock %}
 
 {% block content %}
 <div class="page-auth">
-  <main class="page-auth-main">
-    <div class="wrapper">
-      <div class="card">
-        <div class="card-header">
-          <h2>Welcome to Find it!</h2>
-          <p>Find & Reunite Lost Items Easily</p>
-        </div>
+    <main class="page-auth-main">
+        <div class="wrapper">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Welcome to Find it!</h2>
+                    <p>Find & Reunite Lost Items Easily</p>
+                </div>
 
-        <form class="auth-form" method="post">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <div>
-            <input type="text" placeholder="メールアドレス" name="email" />
-          </div>
+                <form class="auth-form" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div>
+                    <input type="email" placeholder="メールアドレス" name="email" required />
+                </div>
 
-          <div>
-            <input type="password" placeholder="パスワード" name="password" />
-          </div>
+                <div>
+                    <input type="password" placeholder="パスワード" name="password" required/>
+                </div>
 
-          <div class="auth-button-container">
-            <button class="auth-button" type="submit">ログイン</button>
-          </div>
-        </form>
+                <div class="auth-button-container">
+                    <button class="auth-button" type="submit">ログイン</button>
+                </div>
+                </form>
 
-          {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-          <div class="flash-messages">
-            {% for category, message in messages %}
-            <div class="flash flash-{{category}}">
-              {{ message }}
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{category}}">
+                        {{ message }}
+                        </div>
+                    {% end for %} 
+                </div>
+                {% endif %}
+                {% endwith %}
             </div>
-            {% end for %} 
-          </div>
-          {% endif %}
-          {% endwith %}
-      </div>
-    </div>
-  </main>
+         </div>
+    </main>
 </div>
 {% endblock %}
