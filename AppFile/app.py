@@ -42,6 +42,100 @@ def admin_required(f):
     return decorated_function
 
 """
+ログイン機能
+"""
+# ルートページのリダイレクト処理
+@app.route('/', methods=['GET'])
+def index():
+    user_id = session.get('user_id')
+    if user_id is None:
+        return redirect('show_login')
+    return redirect('posts.html')
+
+# ログイン画面
+@app.route('/login', methods=['GET'])
+def show_login():
+    return render_template('login.html')
+
+# ログイン処理
+@app.route('/login', methods=['POST'])
+def process_login():
+    email = request.form.get('email')
+    password = request.form.get('password')
+
+    if not email or not password:
+        flash('入力してください', 'error')
+        return redirect(url_for('show_login'))
+
+    user = User.get_user_by_email(email)
+
+    # 認証チェック
+    if not user or user['password'] != password:
+        flash('メールまたはパスワードが違います', 'error')
+        return redirect(url_for('show_login'))
+
+    # 初回ログイン（未変更）
+    if not user['is_changed_password']:
+        session['tmp_user_id'] = user['id']
+        return redirect(url_for('change_password_view'))
+
+    # 通常ログイン
+    session['user_id'] = user['id']
+    session['role'] = user['role']
+    if user['role'] == 'admin':
+        return redirect(url_for('admin_top'))
+    else:
+        return redirect(url_for('show_posts'))
+
+# パスワード変更画面
+@app.route('/password-reset', methods=['GET'])
+def get_password():
+    if 'tmp_user_id' not in session:
+        return redirect(url_for('show_login'))
+    return render_template('password_reset.html')
+
+# パスワード変更処理
+@app.route('/password-reset', methods=['POST'])
+def update_password():
+    if 'tmp_user_id' not in session:
+        return redirect(url_for('show_login'))
+
+    user_id = session['tmp_user_id']
+
+    new_password = request.form.get('password')
+    confirm_password = request.form.get('confirm_password')
+
+    # バリデーション
+    if not new_password or not confirm_password:
+        flash('入力してください', 'error')
+        return redirect(url_for('change_password_view'))
+
+    if new_password != confirm_password:
+        flash('パスワードが一致しません', 'error')
+        return redirect(url_for('change_password_view'))
+
+    # 更新
+    User.update_password(user_id, new_password)
+
+    # 仮状態解除
+    session.pop('tmp_user_id')
+
+    flash('パスワード変更完了。再ログインしてください', 'success')
+    return redirect(url_for('show_login'))
+
+# 管理者用トップページ
+@app.route('/admin')
+@admin_required
+def admin_top():
+    return render_template('admin_top.html')
+
+# ログアウト
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('show_login'))
+
+"""
 ユーザー登録機能
 """
 
