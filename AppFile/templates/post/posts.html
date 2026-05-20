@@ -27,7 +27,7 @@
         {% if posts and posts|length > 0 %}
         <div class="posts-list">
             {% for post in posts %}
-            <a href="{{ url_for('show_post_detail'), id=post.id }}" class="post-card">
+            <a href="{{ url_for('show_post_detail', id=post.id) }}" class="post-card">
                 <div class="post-card_image-box">
                     {% if post.images and post.images|length > 0 %}
                     <img class="post-card_image" src="{{ post.images[0].image_path }}" alt="{{ post.category.name }}">
@@ -44,7 +44,7 @@
                         <span class="post-card_location">📍 {{ post.found_place }}</span>
                     </div>
 
-                    <p class="posts-card_desc">{{ post.description }}</p>
+                    <p class="post-card_desc">{{ post.description }}</p>
                 </div>
             </a>
             {% endfor %}
