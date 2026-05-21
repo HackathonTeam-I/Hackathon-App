@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}詳細 - Find It{% endblock %}
+{% block title %}詳細 - Find it{% endblock %}
 
 {% block page_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/posts_details.css') }}">
@@ -9,7 +9,9 @@
 {% block content %}
 <div class="detail-post">
     <header class="detail-header">
-        <a href="{{ url_for('show_posts') }}" class="back-button">←</a>
+        <a href="{{ url_for('show_posts') }}" class="back-button">
+            <img src="{{ url_for('static', filename='images/arrow-left.svg') }}" alt="戻る" class="back-icon">
+        </a>
     </header>
 
     <main class="main-detail">
@@ -43,15 +45,15 @@
     </main>
 
     <!--アクションボタン系-->
-    <div class="action-btn">
-        {% if current_user.role == 'admin' %}
+    <div class="action-container">
+        {% if session.get('role') == 'admin' %}
         <div class="admin-actions">
             <a href="{{ url_for('update_post', id=post.id) }}" class="action-btn btn-edit">編集</a>
             <!--JSでIDを取得できるようにdata-post-idを仕込む-->
             <button id="showDeleteModalBtn" class="action-btn btn-delete" data-post-id="{{ post.id }}">削除</button>
         </div>
         {% else %}
-        <div class="user-actions">
+        <div class="user-action">
             <a href="{{ url_for('show_messages', admin_id=post.user_id ) }}" class="action-btn btn-dm">DMで申請</a>
         </div>
         {% endif %}

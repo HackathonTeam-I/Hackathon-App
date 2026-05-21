@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}ユーザ登録 - Find it {% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_user_edit.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="user-edit-page">
+    <header class="page-header">
+        <a href="{{ url_for('show_admin_users') }}" class="back-button">
+            <img src="{{ url_for('static', filename='images/arrow-left.svg') }}" alt="戻る" class="back-icon">
+        </a>
+        <h1 class="page-title">ユーザ編集</h1>
+    </header>
+
+    <main class="edit-main">
+        <form id="editForm" class="edit-form">
+
+            <input type="hidden" id="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" id="userId" value="{{ user.id }}">
+
+            <div class="form-group">
+                <label for="name">氏名</label>
+                <input type="text" id="name" name="name" value="{{ user.name }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" value="{{ user.email }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="department">部署名</label>
+                <input type="text" id="department" name="department" value="{{ user.department }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password <img
+                        src="{{ url_for('static', filename='images/lock-icon.svg') }}"></label>
+                <input type="password" id="password" name="password">
+            </div>
+
+            <div class="form-actions">
+                <button type="button" id="updateBtn" class="btn btn-update">更新</button>
+                <button type="button" id="deleteBtn" class="btn btn-delete">削除</button>
+            </div>
+        </form>
+    </main>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script src="{{ url_for('static', filename='js/admin_user_edit.js') }}"></script>
+{% endblock %}

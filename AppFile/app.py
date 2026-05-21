@@ -459,7 +459,7 @@ def show_threads():
     return render_template('threads.html', threads=threads)
 
 
-#スレッド画面の表示と取得
+#管理者用：スレッド画面の表示と取得
 @app.route('/threads/<int:thread_id>', methods=['GET'])
 def show_thread_detail(thread_id):
     # ログインチェック
@@ -499,6 +499,24 @@ def create_thread(post_id):
     #チャット画面へ
     return redirect(f"/messages/{thread['id']}")
 
+
+#ユーザ用：スレッド画面の表示と取得
+@app.route('/threads/<int:thread_id>', methods=['GET'])
+def show_thread_detail(thread_id):
+    if "user_id" not in session:
+        return redirect("/login")
+    user_id = session["user_id"]
+    # このスレッドが自分のものかチェック
+    thread = Thread.get_thread_by_id(thread_id)
+    # 他人のスレッドは見れない
+    if not thread or thread["user_id"] != user_id:
+        abort(404)
+    messages = Message.get_messages_by_thread_id(thread_id)
+    return render_template(
+        'messages.html',
+        messages=messages,
+        thread_id=thread_id
+    )
 
 #メッセージ送信
 @app.route('/api/messages/<int:thread_id>', methods=['POST'])

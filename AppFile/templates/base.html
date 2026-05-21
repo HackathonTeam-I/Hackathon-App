@@ -6,46 +6,51 @@
     <title>{% block title %}Find It{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" hrel="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/color.css') }}">
     {% block page_css %}{% endblock %}
 </head>
 
 <body>
-    {% include 'common/header.html' %}
+    {# {% include 'common/header.html' %} #}
 
     {% block content %}{% endblock %}
 
-    {% include 'common/fooler.html' %}
+    {% include 'common/footer.html' %}
 
+    {% block bottom_nav %}
     <nav class="bottom-nav">
-        {% if current_user.role == 'admin' %}
+        {% if session.get('role') == 'admin' %}
         <a href="{{ url_for('admin_top') }}" class="bottom-nav_admin">
-            <span class="bottom-nav_icon">⚙️</span>
-            <span class="bottom-nav_text">管理</span>
+            <img src="{{ url_for('static', filename='images/admin-top_icon.svg' ) }}" class="bottom-nav_img"
+                alt="管理者用TOP">
+            <span class="bottom-nav_text">管理者用TOP</span>
         </a>
         {% endif %}
 
         <a href="{{ url_for('home') }}" class="bottom-nav_home">
-            <span class="bottom-nav_icon">🏚️</span>
+            <img src="{{ url_for('static', filename='images/home-icon.svg') }}" class="bottom-nav_img" alt="ホーム">
             <span class="bottom-nav_text">ホーム</span>
         </a>
 
         <a href="{{ url_for('messages') }}" class="bottom-nav_messages">
-            <span class="bottom-nav_icon">📧</span>
+            <img src="{{ url_for('static', filename='images/chat-icon.svg') }}" class="bottom-nav_img" alt="チャット">
             <span class="bottom-nav_text">チャット</span>
         </a>
 
         <a href="{{ url_for('notification') }}" class="bottom-nav_notifi">
-            <span class="bottom-nav_icon">🔔</span>
+            <img src="{{ url_for('static', filename='images/notifi-icon.svg') }}" class="bottom-nav_img" alt="通知">
             <span class="bottom-nav_text">通知</span>
         </a>
 
         <a href="{{ url_for('logout') }}" class="bottom-nav_logout">
-            <span class="bottom-nav_icon">🚪</span>
+            <img src="{{ url_for('static', filename='images/logout-icon.svg') }}" class="bottom-nav_img" alt="ログアウト">
             <span class="bottom-nav_text">ログアウト</span>
         </a>
     </nav>
+    {% endblock %}
+
+    {% block page_js %}{% endblock %}
 </body>
 
 </html>

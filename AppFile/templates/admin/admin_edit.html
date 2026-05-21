@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}新規投稿 - Find it{% endblock %}
+{% block title %}投稿編集 - Find it{% endblock %}
 
 {% block page_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_posts.css' )}}">
@@ -18,7 +18,7 @@
 
 <main class="admin-posts">
     <h2 class="admin-posts-title">
-        新規投稿
+        投稿編集
     </h2>
 
    <form class="posts-form" method="post" enctype="multipart/form-data">
@@ -31,7 +31,11 @@
             <option value="">グループを選択してください</option>
 
             {% for group in groups %}
-            <option value="{{ group.id }}">{{ group.name }}</option>
+            <option 
+            value="{{ group.id }}"
+            {% if group.id == post.group_id %}selected{% endif %}>
+                {{ group.name }}
+            </option>
             {% endfor %}
             </select>
 
@@ -45,22 +49,28 @@
 
         <div>
             <label>詳細説明</label>
-            <textarea
-                placeholder="特徴などを記載"
-                name="description">
-            </textarea>
+            <textarea placeholder="特徴などを記載" name="description">{{ post.description }}</textarea>
         </div>
 
         <div>
             <label for="found_date">日付</label>
-            <input type="date" id="found_date" name="found_date">
+            <input type="date"
+                   id="found_date"
+                   name="found_date"
+                   value="{{ post.found_date.strftime('%Y-%m-%d') }}">
         </div>
 
         <div>
             <label>場所</label>
-            <input type="text" placeholder="発見場所を記載" name="found_place">
+            <input type="text"
+                   placeholder="発見場所を記載"
+                   name="found_place"
+                   value="{{ post.found_place }}">
         </div>
 
+        {% if post.images %}
+            {% set image = post.images[0] %}
+        {% endif %}
     
         <div class="photo-area">
             <div class="upload-photo">写真をアップロード</div>
@@ -78,25 +88,34 @@
                 accept="image/*"
                 hidden
             >
-
-             <!-- 写真削除ボタン -->
-            <button type="button" 
+             
+            <div class="current-image">
+                <img src="{{ url_for('static', filename=post.image_path) }}"
+                     alt="投稿画像"
+                     class="preview-image">
+        
+            <!-- 写真削除ボタン -->
+            <button type="button"
                     id="remove-photo-button"
-                    hidden
-            >
-                <img class="close-icon" src="{{url_for('static', filename='images/close_round.svg')}}" alt="削除"> 
+                    data-post-id="{{ post.id }}"
+                    data-image-id="{{ image.image_id }}">
+                    <img class="close-icon" src="{{url_for('static', filename='images/close_round.svg')}}" alt="削除"> 
             </button>
+            <!--DELETE時のcsrf対策-->
+            <input type="hidden" id="csrf_token" value="{{ csrf_token() }}">
+            </div>
 
         </div>
 
-        <!--登録ボタン-->
+        <!--更新ボタン-->
         <div class="register-button">
-            <button class="admin-posts-button" type="submit">登録</button>
+            <button class="admin-posts-button" type="submit">更新</button>
         </div>
 
     </form>
 
 </main>
+
 
 <script>
     // Pythonの辞書が、そのままJSのオブジェクト（連想配列）になる
@@ -108,7 +127,7 @@
     // グループの選択が変更（change）されたら発動
     groupSelect.addEventListener('change', function()  {
 
-        //選ばれたグループnoIDを取得(文字列として取得される)
+        //選ばれたグループのIDを取得(文字列として取得される)
         const selectedGroupId = this.value;
 
         //一旦カテゴリの選択肢を空っぽにする
@@ -130,15 +149,27 @@
 
             //カテゴリのプルダウンを操作可能（有効化）にする
             categorySelect.disabled = false;
-        } else {
-                //「選択してください」に戻された場合は、再び無効化する
-                categorySelect.innerHTML = '<option value="">先にグループを選択してください</option>';
-                categorySelect.disabled = true;
+        } 
+
+        else {
+            //「選択してください」に戻された場合は、再び無効化する
+            categorySelect.innerHTML = '<option value="">先にグループを選択してください</option>';
+            categorySelect.disabled = true;
         }
     });
 
+    //グループselectの初期値をセット
+    groupSelect.value = "{{ post.group_id }}";
+    //changeイベントを強制実行
+    groupSelect.dispatchEvent(new Event('change'));
+    //カテゴリの初期値をセット
+    categorySelect.value = "{{ post.category_id }}";
+    
+
+    //写真投稿
     const photoInput = document.getElementById("photo");
     const removeButton = document.getElementById("remove-photo-button");
+    const csrfToken = document.getElementById("csrf_token").value;
 
     photoInput.addEventListener("change", function(){
         console.log("画像選択");
@@ -146,16 +177,54 @@
         removeButton.hidden = false;
     });
     
-    //削除ボタンを押した時
-    removeButton.addEventListener("click", function(){
 
-        photoInput.value = "";
-        //削除ボタンを非表示
-        removeButton.hidden =true;
+    //削除ボタンがクリックされたらこの処理を実行する
+    removeButton.addEventListener("click", async function () {
+        //HTMLのデータ属性を取得
+        const postId = this.dataset.postId;
+        const imageId = this.dataset.imageId;
 
-        console.log("画像削除");
+        //通信失敗時にアプリが止まらないようにする
+        try {
+            //Flask API にアクセス(非同期通信)
+            const response = await fetch(
+                 `/api/admin/posts/${postId}/images/${imageId}`,
+                {
+                    method: "DELETE",
+                    //CSRF対策
+                    headers: {
+                        "X-CSRFToken": csrfToken
+                    }
+                }
+            );
+            //Flask が返した JSON を JavaScript のオブジェクトに変換
+            const data = await response.json();
+
+            if (response.ok) {
+
+                alert(data.message);
+
+                //画面から画像を消す
+                document.querySelector(".current-image").remove();
+
+            } 
+            
+            else {
+            //Flaskのメッセージを表示
+            alert(data.message || "削除に失敗しました");
+
+            }
+
+        } catch (error) {
+
+            console.error(error);
+            //Flaskのメッセージを表示
+            alert("通信エラーが発生しました");
+
+        }
 
     });
 </script>
 
 {% endblock %}
+
