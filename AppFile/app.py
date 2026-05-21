@@ -7,7 +7,7 @@ import uuid
 import re
 import os
 
-from models import Department,User,Post,Image,CategoryGroup,Thread,Message
+from models import Department,User,Post,Image,CategoryGroup,Thread,Message,Notification
 
 # 定数定義　メール形式チェック用の正規表現とセッション有効期間（日数）を定義
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
@@ -40,6 +40,100 @@ def admin_required(f):
             abort(403)
         return f(*args,**kwargs)
     return decorated_function
+
+"""
+ログイン機能
+"""
+# ルートページのリダイレクト処理
+@app.route('/', methods=['GET'])
+def index():
+    user_id = session.get('user_id')
+    if user_id is None:
+        return redirect('show_login')
+    return redirect('posts.html')
+
+# ログイン画面
+@app.route('/login', methods=['GET'])
+def show_login():
+    return render_template('login.html')
+
+# ログイン処理
+@app.route('/login', methods=['POST'])
+def process_login():
+    email = request.form.get('email')
+    password = request.form.get('password')
+
+    if not email or not password:
+        flash('入力してください', 'error')
+        return redirect(url_for('show_login'))
+
+    user = User.get_user_by_email(email)
+
+    # 認証チェック
+    if not user or user['password'] != password:
+        flash('メールまたはパスワードが違います', 'error')
+        return redirect(url_for('show_login'))
+
+    # 初回ログイン（未変更）
+    if not user['is_changed_password']:
+        session['tmp_user_id'] = user['id']
+        return redirect(url_for('change_password_view'))
+
+    # 通常ログイン
+    session['user_id'] = user['id']
+    session['role'] = user['role']
+    if user['role'] == 'admin':
+        return redirect(url_for('admin_top'))
+    else:
+        return redirect(url_for('show_posts'))
+
+# パスワード変更画面
+@app.route('/password-reset', methods=['GET'])
+def get_password():
+    if 'tmp_user_id' not in session:
+        return redirect(url_for('show_login'))
+    return render_template('password_reset.html')
+
+# パスワード変更処理
+@app.route('/password-reset', methods=['POST'])
+def update_password():
+    if 'tmp_user_id' not in session:
+        return redirect(url_for('show_login'))
+
+    user_id = session['tmp_user_id']
+
+    new_password = request.form.get('password')
+    confirm_password = request.form.get('confirm_password')
+
+    # バリデーション
+    if not new_password or not confirm_password:
+        flash('入力してください', 'error')
+        return redirect(url_for('change_password_view'))
+
+    if new_password != confirm_password:
+        flash('パスワードが一致しません', 'error')
+        return redirect(url_for('change_password_view'))
+
+    # 更新
+    User.update_password(user_id, new_password)
+
+    # 仮状態解除
+    session.pop('tmp_user_id')
+
+    flash('パスワード変更完了。再ログインしてください', 'success')
+    return redirect(url_for('show_login'))
+
+# 管理者用トップページ
+@app.route('/admin')
+@admin_required
+def admin_top():
+    return render_template('admin_top.html')
+
+# ログアウト
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('show_login'))
 
 """
 ユーザー登録機能
@@ -89,6 +183,66 @@ def register_user():
     flash('ユーザーを登録しました','success')
     return redirect(url_for('show_users'))
 
+# ユーザー編集フォーム表示
+@app.route('/admin/users/<int:id>/edit',methods=['GET'])
+@admin_required
+def show_edit_user(id):
+    user = User.get_user_by_id(id)
+    if user is None:
+        abort(404,description='指定されたユーザーが見つかりません')
+    departments = Department.get_all_departments()
+    return render_template('admin/admin_edit_user.html',user=user,departments=departments)
+
+# ユーザー情報更新
+@app.route('/api/admin/users/<int:id>',methods=['PATCH'])
+@admin_required
+def update_user(id):
+    user = User.get_user_by_id(id)
+    if user is None:
+        abort(404,description='指定されたユーザーが見つかりません')
+    data = request.get_json()
+    name = data.get('name')
+    email = data.get('email')
+    department_id = data.get('department_id')
+    password = data.get('password')
+
+    # 1.必須項目が空欄になっていないか（存在確認）
+    if not all([name,email]):
+        return jsonify({
+            'status':'error',
+            'message':'必須項目を入力して下さい'
+        }),400
+    # 2.メール形式が問題ないか（形式確認）
+    if not re.match(EMAIL_PATTERN,email):
+        return jsonify({
+            'status':'error',
+            'message':'正しいメール形式で入力して下さい'
+        }),400
+
+    hashed_pw = hashlib.sha256(password.encode()).hexdigest() if password else None
+    User.update_user(id,name,email,department_id,hashed_pw)
+
+    next_url = url_for('show_users')
+    return jsonify({
+        'status':'success',
+        'message':'ユーザー情報を更新しました',
+        'redirect_url':next_url
+    }),200
+
+# ユーザー情報削除
+@app.route('/api/admin/users/<int:id>',methods=['DELETE'])
+@admin_required
+def delete_user(id):
+    user = User.get_user_by_id(id)
+    if user is None:
+        abort(404,description='指定されたユーザーが見つかりません')
+    User.delete_user(id)
+    return jsonify({
+        'status':'success',
+        'message':'ユーザーを削除しました'
+    }),200
+
+
 """
 投稿機能
 """
@@ -136,6 +290,12 @@ def create_post():
         return redirect(url_for('show_admin_posts')) #新規投稿画面へ
 
     Post.create_post(user_id,category_id,found_date,found_place,description)
+
+    # 投稿作成＋ID取得
+    post_id = Post.get_post_id_by_user(user_id)
+    # 通知作成
+    Notification.notify_on_post(post_id)
+
     flash('投稿が完了しました','success')
     return redirect(url_for('show_admin_top')) #管理者トップ画面へ
 
@@ -301,14 +461,29 @@ def show_threads():
 
 #スレッド画面の表示と取得
 @app.route('/threads/<int:thread_id>', methods=['GET'])
-@admin_required
 def show_thread_detail(thread_id):
+    # ログインチェック
+    if "user_id" not in session:
+       return redirect("/login")
+    user_id = session.get('user_id')
+    role = session.get('role')
+    #スレット取得
+    thread = Thread.get_thread_by_id(thread_id)
+    # スレッドが存在しない
+    if not thread:
+        abort(404)
+    #一般ユーザだげ所有者チェック
+    if role != 'admin':
+        if not thread or thread['user_id'] != user_id:
+            abort(403)
+    # 管理者、または自分のスレッドならメッセージを取得して表示
     messages = Message.get_messages_by_thread_id(thread_id)
     return render_template(
         'messages.html',
         messages=messages,
-        thread_id=thread_id
-        )
+        thread_id=thread_id,
+        role=role
+    )
 
 #「DMで申告」からスレッド➕定型文を作成
 @app.route('/messages/<int:post_id>/request', methods=['GET'])
@@ -323,6 +498,45 @@ def create_thread(post_id):
     Message.create_template(thread["id"], user_id, post_id)
     #チャット画面へ
     return redirect(f"/messages/{thread['id']}")
+
+
+#メッセージ送信
+@app.route('/api/messages/<int:thread_id>', methods=['POST'])
+def create_messages(thread_id):
+    # ログインチェック
+    if "user_id" not in session:
+        return redirect("/login")
+    user_id = session["user_id"]
+    # スレッドの所有者チェック（超重要）
+    thread = Thread.get_thread_by_id(thread_id)
+    if not thread or thread["user_id"] != user_id:
+        abort(403)
+    # フォームからメッセージ取得
+    content = request.form.get("content")
+    # 空チェック
+    if not content or not content.strip():
+        return redirect(f"/threads/{thread_id}")
+
+    # メッセージ保存
+    Message.create_message(
+        thread_id=thread_id,
+        sender_id=user_id,
+        content=content
+    )
+    return redirect(f"/threads/{thread_id}")
+
+"""
+通知機能
+"""
+#通知一覧
+@app.route('/notifications', methods=['GET'])
+def show_notifications():
+    # 通知取得（画像付き）
+    notifications = Notification.get_all_notifications()
+    return render_template(
+        'notifications.html',
+        notifications=notifications
+    )
 
 """
 プログラム実行
