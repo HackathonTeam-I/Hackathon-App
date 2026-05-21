@@ -424,8 +424,8 @@ class CategoryGroup:
                 SELECT
                     cg.id as group_id,
                     cg.name as group_name,
-                    c.id as category.id,
-                    c.name as category
+                    c.id as category_id,
+                    c.name as category_name
                 FROM category_groups as cg
                 LEFT JOIN categories as c
                 ON cg.id = c.group_id
