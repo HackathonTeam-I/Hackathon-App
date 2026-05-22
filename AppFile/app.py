@@ -1,5 +1,6 @@
 from flask import Flask, jsonify,request, redirect,  render_template, session, flash, abort, url_for
 from flask_wtf.csrf import CSRFProtect
+from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import timedelta
 from functools import wraps
 import hashlib
@@ -49,12 +50,14 @@ def admin_required(f):
 def index():
     user_id = session.get('user_id')
     if user_id is None:
-        return redirect('show_login')
-    return redirect('posts.html')
+        return redirect(url_for('show_login'))
+    return redirect(url_for('show_posts'))
 
 # ログイン画面
 @app.route('/login', methods=['GET'])
 def show_login():
+    if session.get('user_id'):
+        return redirect(url_for('show_posts'))
     return render_template('login.html')
 
 # ログイン処理
@@ -70,16 +73,20 @@ def process_login():
     user = User.get_user_by_email(email)
 
     # 認証チェック
-    if not user or user['password'] != password:
+    if not user or not check_password_hash(user['password'], password):
         flash('メールまたはパスワードが違います', 'error')
         return redirect(url_for('show_login'))
 
     # 初回ログイン（未変更）
     if not user['is_changed_password']:
+        session.clear()
+        session.permanent = True
         session['tmp_user_id'] = user['id']
-        return redirect(url_for('change_password_view'))
+        return redirect(url_for('get_password'))
 
     # 通常ログイン
+    session.clear()
+    session.permanent = True
     session['user_id'] = user['id']
     session['role'] = user['role']
     if user['role'] == 'admin':
@@ -108,17 +115,18 @@ def update_password():
     # バリデーション
     if not new_password or not confirm_password:
         flash('入力してください', 'error')
-        return redirect(url_for('change_password_view'))
+        return redirect(url_for('get_password'))
 
     if new_password != confirm_password:
         flash('パスワードが一致しません', 'error')
-        return redirect(url_for('change_password_view'))
+        return redirect(url_for('get_password'))
 
     # 更新
+    hashed_password = generate_password_hash(new_password)
     User.update_password(user_id, new_password)
 
     # 仮状態解除
-    session.pop('tmp_user_id')
+    session.pop('tmp_user_id', None)
 
     flash('パスワード変更完了。再ログインしてください', 'success')
     return redirect(url_for('show_login'))
