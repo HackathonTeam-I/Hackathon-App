@@ -461,14 +461,29 @@ def show_threads():
 
 #管理者用：スレッド画面の表示と取得
 @app.route('/threads/<int:thread_id>', methods=['GET'])
-@admin_required
 def show_thread_detail(thread_id):
+    # ログインチェック
+    if "user_id" not in session:
+       return redirect("/login")
+    user_id = session.get('user_id')
+    role = session.get('role')
+    #スレット取得
+    thread = Thread.get_thread_by_id(thread_id)
+    # スレッドが存在しない
+    if not thread:
+        abort(404)
+    #一般ユーザだげ所有者チェック
+    if role != 'admin':
+        if not thread or thread['user_id'] != user_id:
+            abort(403)
+    # 管理者、または自分のスレッドならメッセージを取得して表示
     messages = Message.get_messages_by_thread_id(thread_id)
     return render_template(
         'messages.html',
         messages=messages,
-        thread_id=thread_id
-        )
+        thread_id=thread_id,
+        role=role
+    )
 
 #「DMで申告」からスレッド➕定型文を作成
 @app.route('/messages/<int:post_id>/request', methods=['GET'])
@@ -484,23 +499,6 @@ def create_thread(post_id):
     #チャット画面へ
     return redirect(f"/messages/{thread['id']}")
 
-#ユーザ用：スレッド画面の表示と取得
-@app.route('/threads/<int:thread_id>', methods=['GET'])
-def show_thread_detail(thread_id):
-    if "user_id" not in session:
-        return redirect("/login")
-    user_id = session["user_id"]
-    # このスレッドが自分のものかチェック
-    thread = Thread.get_thread_by_id(thread_id)
-    # 他人のスレッドは見れない
-    if not thread or thread["user_id"] != user_id:
-        abort(404)
-    messages = Message.get_messages_by_thread_id(thread_id)
-    return render_template(
-        'messages.html',
-        messages=messages,
-        thread_id=thread_id
-    )
 
 #メッセージ送信
 @app.route('/api/messages/<int:thread_id>', methods=['POST'])

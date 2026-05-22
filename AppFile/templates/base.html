@@ -21,34 +21,41 @@
     {% block bottom_nav %}
     <nav class="bottom-nav">
         {% if session.get('role') == 'admin' %}
-        <a href="{{ url_for('admin_top') }}" class="bottom-nav_admin">
+        <a href="{{ url_for('show_admin_top') }}" class="bottom-nav_admin">
             <img src="{{ url_for('static', filename='images/admin-top_icon.svg' ) }}" class="bottom-nav_img"
                 alt="管理者用TOP">
             <span class="bottom-nav_text">管理者用TOP</span>
         </a>
         {% endif %}
 
-        <a href="{{ url_for('home') }}" class="bottom-nav_home">
+        <a href="{{ url_for('show_posts') }}" class="bottom-nav_home">
             <img src="{{ url_for('static', filename='images/home-icon.svg') }}" class="bottom-nav_img" alt="ホーム">
             <span class="bottom-nav_text">ホーム</span>
         </a>
 
-        <a href="{{ url_for('messages') }}" class="bottom-nav_messages">
-            <img src="{{ url_for('static', filename='images/chat-icon.svg') }}" class="bottom-nav_img" alt="チャット">
-            <span class="bottom-nav_text">チャット</span>
-        </a>
+        {% if session.get('role') == 'admin' %}
+        <a href="{{ url_for('show_threads') }}" class="bottom-nav_messages">
+            {% else %}
+            <a href="{{ url_for('show_thread_detail', id=thread_id) }}" class="bottom-nav_messages">
+                {% endif %}
+                <img src="{{ url_for('static', filename='images/chat-icon.svg') }}" class="bottom-nav_img" alt="チャット">
+                <span class="bottom-nav_text">チャット</span>
+            </a>
 
-        <a href="{{ url_for('notification') }}" class="bottom-nav_notifi">
-            <img src="{{ url_for('static', filename='images/notifi-icon.svg') }}" class="bottom-nav_img" alt="通知">
-            <span class="bottom-nav_text">通知</span>
-        </a>
+            <a href="{{ url_for('notification') }}" class="bottom-nav_notifi">
+                <img src="{{ url_for('static', filename='images/notifi-icon.svg') }}" class="bottom-nav_img" alt="通知">
+                <span class="bottom-nav_text">通知</span>
+            </a>
 
-        <a href="{{ url_for('logout') }}" class="bottom-nav_logout">
-            <img src="{{ url_for('static', filename='images/logout-icon.svg') }}" class="bottom-nav_img" alt="ログアウト">
-            <span class="bottom-nav_text">ログアウト</span>
-        </a>
+            <a href="{{ url_for('logout') }}" class="bottom-nav_logout">
+                <img src="{{ url_for('static', filename='images/logout-icon.svg') }}" class="bottom-nav_img"
+                    alt="ログアウト">
+                <span class="bottom-nav_text">ログアウト</span>
+            </a>
     </nav>
     {% endblock %}
+
+    {% block page_js %}{% endblock %}
 </body>
 
 </html>
