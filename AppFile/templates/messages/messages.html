@@ -27,7 +27,7 @@
         <div class="chat-messages">
             {% for message in messages %}
                 <!--相手からのメッセージ表示（左側）-->
-                {% if message.is_received %}
+                {% if message.sender_id!=session['user_id'] %}
                    <div class="message-received">
                         <div class="message-content-wrapper">
                             <!--相手のアイコン表示-->
@@ -37,7 +37,7 @@
                                 {{message.content}}
                             </div>
                             <!--時間表示-->
-                            <span class="message-received-time">{{message.time.strftime(' %H:%M ')}}</span>
+                            <span class="message-received-time">{{message.created_at.strftime(' %H:%M ')}}</span>
                         </div>
                     </div>
 
@@ -51,7 +51,7 @@
                                 {{message.content}}
                             </div>
                             <!--時間表示-->
-                            <span class="message-sent-time">{{message.time.strftime(' %H:%M ')}}</span>
+                            <span class="message-sent-time">{{message.created_at.strftime(' %H:%M ')}}</span>
                          </div> 
                     </div>
                 {% endif %}
@@ -78,14 +78,17 @@
 </div>
 {% endblock %} 
 
-<!--form送信はJSでfetchでPOST送信-->
+{% block bottom_nav %}
+{% endblock %}
 
+<!--form送信はJSでfetchでPOST送信-->
+{% block page_js %}
 <script>
     const form = document.getElementById("message-form");
     //formが送信ボタンによって送信された際に処理を実行
     form.addEventListener("submit", async(e) => {
         //htmlのform送信をキャンセル
-        e.preventDefault ();
+        e.preventDefault();
 
         //formの中身を取得
         const formData = new FormData(form);
@@ -100,6 +103,5 @@
     })
 
 </script>
-
-{% block bottom_nav %}
 {% endblock %}
+
