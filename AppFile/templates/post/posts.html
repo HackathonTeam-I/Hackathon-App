@@ -16,7 +16,7 @@
             </div>
         </div>
         <div class="search-action-area">
-            <a href="{{ url_for('search_category') }}" class="category-search-btn">🔍️カテゴリから探す</a>
+            <a href="{{ url_for('show_categories') }}" class="category-search-btn">🔍️カテゴリから探す</a>
 
             {% if current_category %}
             <a href="{{ url_for('show_posts') }}" class="clear-btn">
@@ -30,14 +30,14 @@
             <a href="{{ url_for('show_post_detail', id=post.id) }}" class="post-card">
                 <div class="post-card_image-box">
                     {% if post.images and post.images|length > 0 %}
-                    <img class="post-card_image" src="{{ post.images[0].image_path }}" alt="{{ post.category.name }}">
+                    <img class="post-card_image" src="{{ post.images[0].image_path }}" alt="{{ post.category_name }}">
                     {% else %}
                     <div class="no-image-placeholder">No Image</div>
                     {% endif %}
                 </div>
 
                 <div class="post-card_content">
-                    <h2 class="post-card_title">{{ post.category.name }}</h2>
+                    <h2 class="post-card_title">{{ post.category_name }}</h2>
 
                     <div class="post-card_meta">
                         <span class="post-card_date">{{ post.found_date }}</span>
