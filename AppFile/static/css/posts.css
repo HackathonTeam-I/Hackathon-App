@@ -135,13 +135,6 @@
     margin-bottom: 12px;
 }
 
-.post-card_desc {
-    font-size: 14px;
-    color: #555555;
-    margin: 0;
-    line-height: 1.5;
-}
-
 .empty {
     display: flex;
     justify-content: center;
