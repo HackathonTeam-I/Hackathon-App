@@ -19,7 +19,8 @@
 
         {% if notifications %}
         {% for notification in notifications %}
-        <div class="notification-item">
+        <div class="notification-item {% if notification.is_read %}is-read{% endif %}">
+
             <div class="notification-icon">
                 <img src="{{ url_for('static', filename='images/receiver-icon.svg') }}" alt="System">
             </div>
