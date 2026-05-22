@@ -21,8 +21,11 @@
                     <input type="email" placeholder="メールアドレス" name="email" required />
                 </div>
 
-                <div>
+                 <div class ="password-wrapper">
                     <input type="password" placeholder="パスワード" name="password" required/>
+                    <button type="button" class="toggle-password">
+                                <img src="{{url_for('static', filename='images/password-icon.svg')}}">
+                    </button>
                 </div>
 
                 <div class="auth-button-container">
@@ -37,7 +40,7 @@
                         <div class="flash flash-{{category}}">
                         {{ message }}
                         </div>
-                    {% end for %} 
+                    {% endfor %} 
                 </div>
                 {% endif %}
                 {% endwith %}
@@ -46,3 +49,24 @@
     </main>
 </div>
 {% endblock %}
+
+{% block page_js %}
+<script>
+    //HTMLで"toggle-password"クラスの要素を取得
+    const toggleButtons = document.querySelectorAll(".toggle-password");
+    //取得したボタンそれぞれに処理を行う
+    toggleButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+            //HTMLのbuttonの前のinputを取得
+            const input = button.previousElementSibling;
+            //password(hidden)ならtext表示させる
+            if(input.type === "password"){
+                input.type = "text";
+            }else{
+                input.type = "password";
+            }
+        });
+    });
+</script>
+{% endblock %}
+
