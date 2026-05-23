@@ -496,6 +496,7 @@ def show_thread_detail(thread_id):
         messages=messages,
         thread_id=thread_id,
         role=role
+        thread=thread
     )
 
 #「DMで申告」からスレッド➕定型文を作成
