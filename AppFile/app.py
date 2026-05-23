@@ -446,6 +446,20 @@ def show_notifications():
         notifications=notifications
     )
 
+# 通知クリック時
+@app.route('/notifications/<int:notification_id>/read', methods=['GET'])
+def read_notification(notification_id):
+    # ログインチェック
+    if 'user_id' not in session:
+        return redirect(url_for('show_login'))
+    user_id = session['user_id']
+    # 既読に変更
+    Notification.mark_as_read(notification_id, user_id)
+    # 通知情報取得
+    notification = Notification.get_notification_by_id(notification_id)
+    # 投稿詳細へ遷移
+    return redirect(f"/posts/{notification['post_id']}")
+
 """
 プログラム実行
 """
