@@ -658,3 +658,43 @@ class Notification:
             abort(500)
         finally:
             db_pool.release(conn)
+            
+     #通知1件を既読に変更
+    @classmethod
+    def mark_as_read(cls, notification_id, user_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = """
+                UPDATE notifications
+                SET is_read = TRUE
+                WHERE id = %s
+                AND user_id = %s
+                """
+                cur.execute(sql, (notification_id, user_id))
+                conn.commit()
+        except pymysql.Error as e:
+            print(f'エラーが発生しています：{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
+# クリックされた通知情報を取得
+    @classmethod
+    def get_notification_by_id(cls, notification_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor(pymysql.cursors.DictCursor) as cur:
+                sql = """
+                SELECT *
+                FROM notifications
+                WHERE id = %s
+                LIMIT 1
+                """
+                cur.execute(sql, (notification_id,))
+                return cur.fetchone()
+        except pymysql.Error as e:
+            print(f'エラーが発生しています：{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
