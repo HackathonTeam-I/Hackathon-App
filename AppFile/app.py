@@ -58,7 +58,7 @@ def index():
 def show_login():
     if session.get('user_id'):
         return redirect(url_for('show_posts'))
-    return render_template('login.html')
+    return render_template('auth/login.html')
 
 # ログイン処理
 @app.route('/login', methods=['POST'])
