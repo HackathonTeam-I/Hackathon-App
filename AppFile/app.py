@@ -456,10 +456,10 @@ DM機能
 @admin_required
 def show_threads():
     threads = Thread.get_all_threads()
-    return render_template('threads.html', threads=threads)
+    return render_template('/admin/admin_threads.html', threads=threads)
 
 
-#管理者用：スレッド画面の表示と取得
+#スレッド画面の表示と取得
 @app.route('/threads/<int:thread_id>', methods=['GET'])
 def show_thread_detail(thread_id):
     # ログインチェック
@@ -479,7 +479,7 @@ def show_thread_detail(thread_id):
     # 管理者、または自分のスレッドならメッセージを取得して表示
     messages = Message.get_messages_by_thread_id(thread_id)
     return render_template(
-        'messages.html',
+        '/messages/messages.html',
         messages=messages,
         thread_id=thread_id,
         role=role
