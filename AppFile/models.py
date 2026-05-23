@@ -616,7 +616,7 @@ class Message:
 class Notification:
     #通知一覧表示と取得
     @classmethod
-    def get_all_notifications(cls):
+    def get_all_notifications(cls, user_id):
         conn = db_pool.get_conn()
         try:
             with conn.cursor(pymysql.cursors.DictCursor) as cur:
@@ -630,7 +630,7 @@ class Notification:
                     posts.description,
                     posts.found_place,
                     posts.found_date,
-                    categories.name AS category_name
+                    categories.name AS category_name,
                     -- 画像1枚だけ取得
                     (
                         SELECT image_path
@@ -642,9 +642,10 @@ class Notification:
                 FROM notifications
                 LEFT JOIN posts ON notifications.post_id = posts.id
                 LEFT JOIN categories ON posts.category_id = categories.id
+                WHERE notifications.user_id = %s
                 ORDER BY notifications.created_at ASC;
                 """
-                cur.execute(sql)
+                cur.execute(sql, (user_id,))
                 return cur.fetchall()
         except pymysql.Error as e:
             print(f'エラーが発生しています：{e}')
