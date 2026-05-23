@@ -16,9 +16,12 @@
             </div>
         </div>
         <div class="search-action-area">
-            <a href="{{ url_for('show_categories') }}" class="category-search-btn">🔍️カテゴリから探す</a>
+            <a href="{{ url_for('show_categories') }}" class="category-search-btn">
+                <img src="{{ url_for('static', filename='images/search-icon.svg') }}" alt="🔍️" class="search-icon">
+                カテゴリから探す
+            </a>
 
-            {% if current_category %}
+            {% if request.args.get('category_id') %}
             <a href="{{ url_for('show_posts') }}" class="clear-btn">
                 ✕ クリア
             </a>
@@ -30,7 +33,7 @@
             <a href="{{ url_for('show_post_detail', id=post.id) }}" class="post-card">
                 <div class="post-card_image-box">
                     {% if post.images and post.images|length > 0 %}
-                    <img class="post-card_image" src="{{ post.images[0].image_path }}" alt="{{ post.category_name }}">
+                    <img class="post-card_image" src="/{{ post.images[0].image_path }}" alt="{{ post.category_name }}">
                     {% else %}
                     <div class="no-image-placeholder">No Image</div>
                     {% endif %}
@@ -41,7 +44,10 @@
 
                     <div class="post-card_meta">
                         <span class="post-card_date">{{ post.found_date }}</span>
-                        <span class="post-card_location">📍 {{ post.found_place }}</span>
+                        <span class="post-card_location">
+                            <img src="{{ url_for('static', filename='images/post-card_location.svg') }}" alt="📍"
+                                class="location-icon">
+                            {{ post.found_place }}</span>
                     </div>
 
                 </div>

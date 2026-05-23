@@ -33,6 +33,7 @@
             <span class="bottom-nav_text">ホーム</span>
         </a>
 
+        <!--ユーザ用とAdmin用で参照リンクを変更する-->
         {% if session.get('role') == 'admin' %}
         <a href="{{ url_for('show_threads') }}" class="bottom-nav_messages">
             {% else %}
@@ -42,7 +43,7 @@
                 <span class="bottom-nav_text">チャット</span>
             </a>
 
-            <a href="{{ url_for('notification') }}" class="bottom-nav_notifi">
+            <a href="{{ url_for('show_notifications') }}" class="bottom-nav_notifi">
                 <img src="{{ url_for('static', filename='images/notifi-icon.svg') }}" class="bottom-nav_img" alt="通知">
                 <span class="bottom-nav_text">通知</span>
             </a>
