@@ -451,9 +451,10 @@ class Thread:
                 SELECT
                     threads.id,
                     users.name AS sender_name,
-                    MAX(threads.created_at) AS last_message_at
+                    MAX(messages.created_at) AS last_message_at
                 FROM messages
-                LEFT JOIN users ON threads.users.id = users.id
+                LEFT JOIN messages ON threads.id = messages.thread_id
+                LEFT JOIN users ON messages.sender_id = users.id
                 GROUP BY users.id, users.name
                 ORDER BY last_message_at DESC;
                 """
