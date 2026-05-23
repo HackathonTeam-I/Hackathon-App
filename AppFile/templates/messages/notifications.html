@@ -3,7 +3,7 @@
 {% block title %}通知 - Find it {% endblock %}
 
 {% block page_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/notification.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -19,7 +19,8 @@
 
         {% if notifications %}
         {% for notification in notifications %}
-        <div class="notification-item">
+        <div class="notification-item {% if notification.is_read %}is-read{% endif %}">
+
             <div class="notification-icon">
                 <img src="{{ url_for('static', filename='images/receiver-icon.svg') }}" alt="System">
             </div>

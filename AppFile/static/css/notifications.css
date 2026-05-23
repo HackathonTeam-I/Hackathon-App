@@ -42,6 +42,11 @@
     margin-bottom: 30px;
 }
 
+.notification-item.is-read {
+    opacity: 0.55;
+    transition: opacity 0.3s ease;
+}
+
 .notification-icon img {
     width: 48px;
     height: 48px;
@@ -66,6 +71,11 @@
     font-size: 15px;
     font-weight: bold;
     margin-bottom: 12px;
+}
+
+.notification-item.is-read .notification-bubble,
+.notification-item.is-read .post-card-wrapper {
+    background-color: #E5E7EB;
 }
 
 .post-card-link {
@@ -93,6 +103,10 @@
     overflow: hidden;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     padding: 16px;
+}
+
+.notification-item.is_read .post-card {
+    background-color: #F9FAFB;
 }
 
 .post-image-area {
