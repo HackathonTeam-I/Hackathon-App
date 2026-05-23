@@ -30,12 +30,13 @@
                     新しい落とし物が投稿されました。
                 </div>
 
-                <a href="{{ url_for('show_post_detail', id=notification.post_id) }}" class="post-card-link">
+                <a href="{{ url_for('read_notification', notification_id=notification.id) }}" class="post-card-link">
                     <div class="post-card-wrapper">
                         <div class="post-card">
                             <div class="post-image-area">
                                 {% if notification.image_path %}
-                                <img src="/{{ notification.image_path }}" alt="Item">
+                                <img src="{{ url_for('static', filename=notification.image_path.replace('static/', '')) }}"
+                                    alt="Item">
                                 {% else %}
                                 <div class="no-image">画像がありません</div>
                                 {% endif %}
