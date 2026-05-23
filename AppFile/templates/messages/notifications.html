@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}通知 - Find it {% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="notification-page">
+    <header class="page-header">
+        <a href="{{ url_for('show_posts') }}" class="back-button">
+            <img src="{{ url_for('static', filename='images/arrow-left.svg') }}" alt="戻る" class="back-icon">
+        </a>
+        <h1 class="page-title">通知</h1>
+    </header>
+
+    <main class="notification-main">
+
+        {% if notifications %}
+        {% for notification in notifications %}
+        <div class="notification-item {% if notification.is_read %}is-read{% endif %}">
+
+            <div class="notification-icon">
+                <img src="{{ url_for('static', filename='images/receiver-icon.svg') }}" alt="System">
+            </div>
+
+            <div class="notification-content">
+                <div class="notification-bubble">
+                    新しい落とし物が投稿されました。
+                </div>
+
+                <a href="{{ url_for('show_post_detail', id=notification.post_id) }}" class="post-card-link">
+                    <div class="post-card-wrapper">
+                        <div class="post-card">
+                            <div class="post-image-area">
+                                {% if notification.image_path %}
+                                <img src="/{{ notification.image_path }}" alt="Item">
+                                {% else %}
+                                <div class="no-image">画像がありません</div>
+                                {% endif %}
+                            </div>
+                            <div class="post-info">
+                                <h3 class="post-category">{{ notification.category_name }}</h3>
+                                <p class="post-date">{{ notification.found_date }}</p>
+                                <p class="post-location">
+                                    <span class="location-icon">
+                                        <img src="{{ url_for('static', filename='images/post-card_location.svg') }}"
+                                            alt="📍">
+                                    </span>
+                                    {{ notification.found_place }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+                <div class="notification-time">
+                    {{ notification.created_at.strftime('%H:%M') }}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% else %}
+        <div class="no-notifications">
+            <p>現在、通知はありません</p>
+        </div>
+        {% endif %}
+    </main>
+</div>
+{% endblock %}

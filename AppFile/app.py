@@ -1,5 +1,6 @@
 from flask import Flask, jsonify,request, redirect,  render_template, session, flash, abort, url_for
 from flask_wtf.csrf import CSRFProtect
+from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import timedelta
 from functools import wraps
 import hashlib
@@ -40,6 +41,107 @@ def admin_required(f):
             abort(403)
         return f(*args,**kwargs)
     return decorated_function
+
+"""
+ログイン機能
+"""
+# ルートページのリダイレクト処理
+@app.route('/', methods=['GET'])
+def index():
+    user_id = session.get('user_id')
+    if user_id is None:
+        return redirect(url_for('show_login'))
+    return redirect(url_for('show_posts'))
+
+# ログイン画面
+@app.route('/login', methods=['GET'])
+def show_login():
+    if session.get('user_id'):
+        return redirect(url_for('show_posts'))
+    return render_template('auth/login.html')
+
+# ログイン処理
+@app.route('/login', methods=['POST'])
+def process_login():
+    email = request.form.get('email')
+    password = request.form.get('password')
+
+    if not email or not password:
+        flash('入力してください', 'error')
+        return redirect(url_for('show_login'))
+
+    user = User.get_user_by_email(email)
+
+    # 認証チェック
+    if not user or not check_password_hash(user['password'], password):
+        flash('メールまたはパスワードが違います', 'error')
+        return redirect(url_for('show_login'))
+
+    # 初回ログイン（未変更）
+    if not user['is_changed_password']:
+        session.clear()
+        session.permanent = True
+        session['tmp_user_id'] = user['id']
+        return redirect(url_for('get_password'))
+
+    # 通常ログイン
+    session.clear()
+    session.permanent = True
+    session['user_id'] = user['id']
+    session['role'] = user['role']
+    if user['role'] == 'admin':
+        return redirect(url_for('admin_top'))
+    else:
+        return redirect(url_for('show_posts'))
+
+# パスワード変更画面
+@app.route('/password-reset', methods=['GET'])
+def get_password():
+    if 'tmp_user_id' not in session:
+        return redirect(url_for('show_login'))
+    return render_template('password_reset.html')
+
+# パスワード変更処理
+@app.route('/password-reset', methods=['POST'])
+def update_password():
+    if 'tmp_user_id' not in session:
+        return redirect(url_for('show_login'))
+
+    user_id = session['tmp_user_id']
+
+    new_password = request.form.get('password')
+    confirm_password = request.form.get('confirm_password')
+
+    # バリデーション
+    if not new_password or not confirm_password:
+        flash('入力してください', 'error')
+        return redirect(url_for('get_password'))
+
+    if new_password != confirm_password:
+        flash('パスワードが一致しません', 'error')
+        return redirect(url_for('get_password'))
+
+    # 更新
+    hashed_password = generate_password_hash(new_password)
+    User.update_password(user_id, new_password)
+
+    # 仮状態解除
+    session.pop('tmp_user_id', None)
+
+    flash('パスワード変更完了。再ログインしてください', 'success')
+    return redirect(url_for('show_login'))
+
+# 管理者用トップページ
+@app.route('/admin')
+@admin_required
+def admin_top():
+    return render_template('admin_top.html')
+
+# ログアウト
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('show_login'))
 
 """
 ユーザー登録機能
@@ -367,14 +469,29 @@ def show_threads():
 
 #管理者用：スレッド画面の表示と取得
 @app.route('/threads/<int:thread_id>', methods=['GET'])
-@admin_required
 def show_thread_detail(thread_id):
+    # ログインチェック
+    if "user_id" not in session:
+       return redirect("/login")
+    user_id = session.get('user_id')
+    role = session.get('role')
+    #スレット取得
+    thread = Thread.get_thread_by_id(thread_id)
+    # スレッドが存在しない
+    if not thread:
+        abort(404)
+    #一般ユーザだげ所有者チェック
+    if role != 'admin':
+        if not thread or thread['user_id'] != user_id:
+            abort(403)
+    # 管理者、または自分のスレッドならメッセージを取得して表示
     messages = Message.get_messages_by_thread_id(thread_id)
     return render_template(
         'messages.html',
         messages=messages,
-        thread_id=thread_id
-        )
+        thread_id=thread_id,
+        role=role
+    )
 
 #「DMで申告」からスレッド➕定型文を作成
 @app.route('/messages/<int:post_id>/request', methods=['GET'])
@@ -390,23 +507,6 @@ def create_thread(post_id):
     #チャット画面へ
     return redirect(f"/messages/{thread['id']}")
 
-#ユーザ用：スレッド画面の表示と取得
-@app.route('/threads/<int:thread_id>', methods=['GET'])
-def show_thread_detail(thread_id):
-    if "user_id" not in session:
-        return redirect("/login")
-    user_id = session["user_id"]
-    # このスレッドが自分のものかチェック
-    thread = Thread.get_thread_by_id(thread_id)
-    # 他人のスレッドは見れない
-    if not thread or thread["user_id"] != user_id:
-        abort(404)
-    messages = Message.get_messages_by_thread_id(thread_id)
-    return render_template(
-        'messages.html',
-        messages=messages,
-        thread_id=thread_id
-    )
 
 #メッセージ送信
 @app.route('/api/messages/<int:thread_id>', methods=['POST'])

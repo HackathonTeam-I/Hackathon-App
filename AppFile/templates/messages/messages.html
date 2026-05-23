@@ -15,8 +15,8 @@
         <div class="messages-title">
             <!--管理者用と一般ユーザー用で見出し切り替え-->
             {% if session.get('role')== 'admin' %}
-                <!--送信先のユーザー名を見出しとし、ユーザー名は{{receiver}}としてFlask（Python側）から受け取る-->
-                <h2 class="messages-user-title">{{receiver}}</h2>
+                <!--送信先のユーザー名を見出しとする-->
+                <h2 class="messages-user-title">{{user.name}}</h2>
             {% else %}
                 <h2 class="messages-user-title">管理者へDM送信</h2>
             {% endif %}
@@ -27,7 +27,7 @@
         <div class="chat-messages">
             {% for message in messages %}
                 <!--相手からのメッセージ表示（左側）-->
-                {% if message.is_received %}
+                {% if message.sender_id!=session['user_id'] %}
                    <div class="message-received">
                         <div class="message-content-wrapper">
                             <!--相手のアイコン表示-->
@@ -37,7 +37,7 @@
                                 {{message.content}}
                             </div>
                             <!--時間表示-->
-                            <span class="message-received-time">{{message.time.strftime(' %H:%M ')}}</span>
+                            <span class="message-received-time">{{message.created_at.strftime(' %H:%M ')}}</span>
                         </div>
                     </div>
 
@@ -51,7 +51,7 @@
                                 {{message.content}}
                             </div>
                             <!--時間表示-->
-                            <span class="message-sent-time">{{message.time.strftime(' %H:%M ')}}</span>
+                            <span class="message-sent-time">{{message.created_at.strftime(' %H:%M ')}}</span>
                          </div> 
                     </div>
                 {% endif %}
@@ -63,13 +63,45 @@
        
 
         <!--メッセージ入力エリア(actionでFlaskの/api/messages/<userid>へPOST送信)-->
-        <form class="messages-input-area" action="{{ url_for('create_messages', userid=userid) }}" method="POST">
+        <form id="message-form"
+              class="messages-input-area" 
+              action="{{ url_for('create_messages', thread_id=thread_id) }}" 
+              method="POST">
             <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
             <!--空欄時は送信できない、自動入力候補の無効化-->
-            <input type="text" name="message" placeholder="メッセージを入力してください" required autocomplete="off">
+            <input type="text" name="content" placeholder="メッセージを入力してください" required autocomplete="off">
             <button type="submit" class="send-button">
                 <img class="send-icon" src="{{url_for('static', filename='images/send-icon.svg')}}" alt="送信"> 
             </button>
         </form>
     </main>
 </div>
+{% endblock %} 
+
+{% block bottom_nav %}
+{% endblock %}
+
+<!--form送信はJSでfetchでPOST送信-->
+{% block page_js %}
+<script>
+    const form = document.getElementById("message-form");
+    //formが送信ボタンによって送信された際に処理を実行
+    form.addEventListener("submit", async(e) => {
+        //htmlのform送信をキャンセル
+        e.preventDefault();
+
+        //formの中身を取得
+        const formData = new FormData(form);
+        
+        //POSTメソッドでformの中身を送信
+        await fetch(form.action, {
+            method: "POST",
+            body: formData
+        });
+
+        location.reload();
+    })
+
+</script>
+{% endblock %}
+

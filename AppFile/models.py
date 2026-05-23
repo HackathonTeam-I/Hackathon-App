@@ -147,6 +147,25 @@ class User:
         finally:
             db_pool.release(conn)
 
+    @classmethod
+    def update_password(cls, user_id, new_password):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = """
+                UPDATE users
+                SET password = %s,
+                    is_changed_password = 1
+                WHERE id = %s
+                """
+                cur.execute(sql, (new_password, user_id))
+                conn.commit()
+        except pymysql.Error as e:
+            print(f'サーバー接続上のエラーが発生しています:{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
 # Postクラス
 class Post:
     @classmethod
@@ -405,8 +424,8 @@ class CategoryGroup:
                 SELECT
                     cg.id as group_id,
                     cg.name as group_name,
-                    c.id as category.id,
-                    c.name as category
+                    c.id as category_id,
+                    c.name as category_name
                 FROM category_groups as cg
                 LEFT JOIN categories as c
                 ON cg.id = c.group_id
