@@ -49,14 +49,19 @@ def admin_required(f):
 @app.route('/', methods=['GET'])
 def index():
     user_id = session.get('user_id')
+    role = session.get('role')
     if user_id is None:
         return redirect(url_for('show_login'))
+    if role == 'admin':
+        return redirect(url_for('/admin/top'))
     return redirect(url_for('show_posts'))
 
 # ログイン画面
 @app.route('/login', methods=['GET'])
 def show_login():
     if session.get('user_id'):
+        if session.get('role') == 'admin':
+            return redirect(url_for('/admin/top'))
         return redirect(url_for('show_posts'))
     return render_template('auth/login.html')
 
@@ -90,7 +95,7 @@ def process_login():
     session['user_id'] = user['id']
     session['role'] = user['role']
     if user['role'] == 'admin':
-        return redirect(url_for('admin_top'))
+        return redirect(url_for('/admin/top'))
     else:
         return redirect(url_for('show_posts'))
 
@@ -99,7 +104,7 @@ def process_login():
 def get_password():
     if 'tmp_user_id' not in session:
         return redirect(url_for('show_login'))
-    return render_template('password_reset.html')
+    return render_template('/auth/password_reset.html')
 
 # パスワード変更処理
 @app.route('/password-reset', methods=['POST'])
@@ -123,7 +128,7 @@ def update_password():
 
     # 更新
     hashed_password = generate_password_hash(new_password)
-    User.update_password(user_id, new_password)
+    User.update_password(user_id, hashed_password)
 
     # 仮状態解除
     session.pop('tmp_user_id', None)
@@ -132,10 +137,10 @@ def update_password():
     return redirect(url_for('show_login'))
 
 # 管理者用トップページ
-@app.route('/admin')
+@app.route('/admin/top')
 @admin_required
-def admin_top():
-    return render_template('admin_top.html')
+def show_admin_top():
+    return render_template('/admin/admin_top.html')
 
 # ログアウト
 @app.route('/logout')
