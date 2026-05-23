@@ -499,6 +499,9 @@ def show_thread_detail(thread_id):
         thread=thread
     )
 
+"""
+メッセージ機能
+"""
 #「DMで申告」からスレッド➕定型文を作成
 @app.route('/messages/<int:post_id>/request', methods=['GET'])
 def create_thread(post_id):
@@ -511,7 +514,7 @@ def create_thread(post_id):
     #投稿テンプレート送信
     Message.create_template(thread["id"], user_id, post_id)
     #チャット画面へ
-    return redirect(f"/messages/{thread['id']}")
+    return redirect(f"/threads/{thread['id']}")
 
 
 #メッセージ送信
