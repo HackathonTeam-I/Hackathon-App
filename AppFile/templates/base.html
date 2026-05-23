@@ -37,7 +37,7 @@
         {% if session.get('role') == 'admin' %}
         <a href="{{ url_for('show_threads') }}" class="bottom-nav_messages">
             {% else %}
-            <a href="{{ url_for('show_thread_detail', id=thread_id) }}" class="bottom-nav_messages">
+            <a href="{{ url_for('show_thread_detail', thread_id=thread_id) }}" class="bottom-nav_messages">
                 {% endif %}
                 <img src="{{ url_for('static', filename='images/chat-icon.svg') }}" class="bottom-nav_img" alt="チャット">
                 <span class="bottom-nav_text">チャット</span>
