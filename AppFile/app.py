@@ -551,7 +551,7 @@ def show_notifications():
     # 通知取得（画像付き）
     notifications = Notification.get_all_notifications()
     return render_template(
-        'notifications.html',
+        '/messages/notifications.html',
         notifications=notifications
     )
 
