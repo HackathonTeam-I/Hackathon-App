@@ -161,7 +161,7 @@ def show_users():
 @admin_required
 def show_signup():
     departments = Department.get_all_departments()
-    return render_template('admin/admin_signup.html',departments=departments)
+    return render_template('admin/admin_user_register.html',departments=departments)
 
 # 新規ユーザー登録
 @app.route('/admin/signup',methods=['POST'])
