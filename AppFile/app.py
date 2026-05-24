@@ -52,7 +52,7 @@ def index():
     if user_id is None:
         return redirect(url_for('show_login'))
     if role == 'admin':
-        return redirect(url_for('/admin/top'))
+        return redirect(url_for('show_admin_top'))
     return redirect(url_for('show_posts'))
 
 # ログイン画面
@@ -60,7 +60,7 @@ def index():
 def show_login():
     if session.get('user_id'):
         if session.get('role') == 'admin':
-            return redirect(url_for('/admin/top'))
+            return redirect(url_for('show_admin_top'))
         return redirect(url_for('show_posts'))
     return render_template('auth/login.html')
 
@@ -94,7 +94,7 @@ def process_login():
     session['user_id'] = user['id']
     session['role'] = user['role']
     if user['role'] == 'admin':
-        return redirect(url_for('/admin/top'))
+        return redirect(url_for('show_admin_top'))
     else:
         return redirect(url_for('show_posts'))
 
@@ -112,15 +112,13 @@ def update_password():
         return redirect(url_for('show_login'))
 
     user_id = session['tmp_user_id']
-
-    new_password = request.form.get('password')
+    new_password = request.form.get('new_password')
     confirm_password = request.form.get('confirm_password')
 
     # バリデーション
     if not new_password or not confirm_password:
         flash('入力してください', 'error')
         return redirect(url_for('get_password'))
-
     if new_password != confirm_password:
         flash('パスワードが一致しません', 'error')
         return redirect(url_for('get_password'))
@@ -128,10 +126,8 @@ def update_password():
     # 更新
     hashed_password = generate_password_hash(new_password)
     User.update_password(user_id, hashed_password)
-
     # 仮状態解除
     session.pop('tmp_user_id', None)
-
     flash('パスワード変更完了。再ログインしてください', 'success')
     return redirect(url_for('show_login'))
 
