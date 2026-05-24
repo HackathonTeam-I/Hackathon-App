@@ -68,9 +68,7 @@
                    value="{{ post.found_place }}">
         </div>
 
-        {% if post.images %}
-            {% set image = post.images[0] %}
-        {% endif %}
+        
     
         <div class="photo-area">
             <div class="upload-photo">写真をアップロード</div>
@@ -88,22 +86,28 @@
                 accept="image/*"
                 hidden
             >
+
+            {% if images %}
+                {% set image = images[0] %}
              
-            <div class="current-image">
-                <img src="{{ url_for('static', filename=post.image_path) }}"
-                     alt="投稿画像"
-                     class="preview-image">
+                <div class="current-image">
+                    <img src="{{ url_for('static', filename=image.image_path) }}"
+                         alt="投稿画像"
+                         class="preview-image">
         
-            <!-- 写真削除ボタン -->
-            <button type="button"
-                    id="remove-photo-button"
-                    data-post-id="{{ post.id }}"
-                    data-image-id="{{ image.image_id }}">
-                    <img class="close-icon" src="{{url_for('static', filename='images/close_round.svg')}}" alt="削除"> 
-            </button>
+                    <!-- 写真削除ボタン -->
+                    <button type="button"
+                            id="remove-photo-button"
+                            data-post-id="{{ post.id }}"
+                            data-image-id="{{ image.image_id }}">
+                            <img class="close-icon" src="{{url_for('static', filename='images/close_round.svg')}}" alt="削除"> 
+                    </button>
+                </div>
+            {% endif %}
+
             <!--DELETE時のcsrf対策-->
             <input type="hidden" id="csrf_token" value="{{ csrf_token() }}">
-            </div>
+            
 
         </div>
 
@@ -118,7 +122,7 @@
 
 
 <script>
-    // Pythonの辞書が、そのままJSのオブジェクト（連想配列）になる
+    // Pythonの辞書が、そのままJSのオブジェクトになる
     const categoriesData = {{ categories_mapping | tojson }};
 
     const groupSelect = document.getElementById('groupSelect');
@@ -173,57 +177,57 @@
 
     photoInput.addEventListener("change", function(){
         console.log("画像選択");
-        //削除ボタン表示
-        removeButton.hidden = false;
     });
     
 
     //削除ボタンがクリックされたらこの処理を実行する
-    removeButton.addEventListener("click", async function () {
-        //HTMLのデータ属性を取得
-        const postId = this.dataset.postId;
-        const imageId = this.dataset.imageId;
+    if(removeButton){
+        removeButton.addEventListener("click", async function () {
+            //HTMLのデータ属性を取得
+            const postId = this.dataset.postId;
+            const imageId = this.dataset.imageId;
 
-        //通信失敗時にアプリが止まらないようにする
-        try {
-            //Flask API にアクセス(非同期通信)
-            const response = await fetch(
-                 `/api/admin/posts/${postId}/images/${imageId}`,
-                {
-                    method: "DELETE",
-                    //CSRF対策
-                    headers: {
-                        "X-CSRFToken": csrfToken
+            //通信失敗時にアプリが止まらないようにする
+            try {
+                //Flask API にアクセス(非同期通信)
+                const response = await fetch(
+                     `/api/admin/posts/${postId}/images/${imageId}`,
+                    {
+                        method: "DELETE",
+                        //CSRF対策
+                        headers: {
+                            "X-CSRFToken": csrfToken
+                        }
                     }
-                }
-            );
-            //Flask が返した JSON を JavaScript のオブジェクトに変換
-            const data = await response.json();
+                );
+                //Flask が返した JSON を JavaScript のオブジェクトに変換
+                const data = await response.json();
 
-            if (response.ok) {
+                if (response.ok) {
 
-                alert(data.message);
+                    alert(data.message);
 
-                //画面から画像を消す
-                document.querySelector(".current-image").remove();
+                    //画面から画像を消す
+                    document.querySelector(".current-image").remove();
 
-            } 
+                } 
             
-            else {
-            //Flaskのメッセージを表示
-            alert(data.message || "削除に失敗しました");
+                else {
+                //Flaskのメッセージを表示
+                alert(data.message || "削除に失敗しました");
+
+                }
+
+            } catch (error) {
+
+                console.error(error);
+                //Flaskのメッセージを表示
+                alert("通信エラーが発生しました");
 
             }
 
-        } catch (error) {
-
-            console.error(error);
-            //Flaskのメッセージを表示
-            alert("通信エラーが発生しました");
-
-        }
-
-    });
+        });
+    }
 </script>
 
 {% endblock %}
