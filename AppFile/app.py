@@ -3,7 +3,6 @@ from flask_wtf.csrf import CSRFProtect
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import timedelta
 from functools import wraps
-import hashlib
 import uuid
 import re
 import os
@@ -191,7 +190,7 @@ def register_user():
         flash('このメールアドレスは既に登録されています','error')
         return redirect(url_for('show_signup')) #登録画面に戻す
 
-    hashed_pw = hashlib.sha256(password.encode()).hexdigest()
+    hashed_pw = generate_password_hash(password)
     User.create_user(name,email,department_id,hashed_pw)
     flash('ユーザーを登録しました','success')
     return redirect(url_for('show_users'))
@@ -232,7 +231,7 @@ def update_user(id):
             'message':'正しいメール形式で入力して下さい'
         }),400
 
-    hashed_pw = hashlib.sha256(password.encode()).hexdigest() if password else None
+    hashed_pw = generate_password_hash(password) if password else None
     User.update_user(id,name,email,department_id,hashed_pw)
 
     next_url = url_for('show_users')
