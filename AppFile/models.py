@@ -452,7 +452,7 @@ class Thread:
                     threads.id,
                     users.name AS sender_name,
                     MAX(messages.created_at) AS last_message_at
-                FROM messages
+                FROM threads
                 LEFT JOIN messages ON threads.id = messages.thread_id
                 LEFT JOIN users ON messages.sender_id = users.id
                 GROUP BY users.id, users.name
