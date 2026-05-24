@@ -258,6 +258,10 @@ def delete_user(id):
 # 投稿一覧表示
 @app.route('/posts',methods=['GET'])
 def show_posts():
+    # セッションにuser_idが存在しない場合、ログイン画面へリダイレクト
+    if 'user_id' not in session:
+        return redirect(url_for('show_login'))
+
     # URLのクエリパラメータからcategory_idを取得
     category_id = request.args.get('category_id')
 
@@ -278,6 +282,10 @@ def show_posts():
 # 投稿詳細表示
 @app.route('/posts/<int:id>',methods=['GET'])
 def show_post_detail(id):
+    # セッションにuser_idが存在しない場合、ログイン画面へリダイレクト
+    if 'user_id' not in session:
+        return redirect(url_for('show_login'))
+
     post = Post.get_post_by_id(id)
     if post is None:
         abort(404, description='指定された投稿が見つかりません')
