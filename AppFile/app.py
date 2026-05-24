@@ -199,7 +199,7 @@ def show_edit_user(id):
     if user is None:
         abort(404,description='指定されたユーザーが見つかりません')
     departments = Department.get_all_departments()
-    return render_template('admin/admin_edit_user.html',user=user,departments=departments)
+    return render_template('admin/admin_user_edit.html',user=user,departments=departments)
 
 # ユーザー情報更新
 @app.route('/api/admin/users/<int:id>',methods=['PATCH'])
