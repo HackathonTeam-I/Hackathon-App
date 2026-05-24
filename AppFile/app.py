@@ -389,7 +389,7 @@ def show_update_post(id):
     # カテゴリーをグループIDでまとめる
     categories_mapping = {}
     for category in categories:
-        group_id = str(categories['group_id'])
+        group_id = str(category['group_id'])
         if group_id not in categories_mapping:
             categories_mapping[group_id] = []
         categories_mapping[group_id].append({
