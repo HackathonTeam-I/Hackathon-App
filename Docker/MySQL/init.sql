@@ -186,14 +186,14 @@ VALUES
   (
     'admin',
     'admin@example.com',
-    '937e8d5fbb48bd4949536cd65b8d35c426b80d2f830c5c308e2cdec422ae2244',
+    'pbkdf2:sha256:260000$vXRDWc831MxpSPmD$f52f804d469d02d4811572b37cbbb9bb4295e78864f8a7b70a8a65964cae7648',
     1,
     'admin'
   ),
   (
     '鈴木二郎',
     'jiro@example.com',
-    '937e8d5fbb48bd4949536cd65b8d35c426b80d2f830c5c308e2cdec422ae2244',
+    'pbkdf2:sha256:260000$yWso6nEhUwcGqL83$87d4727a2b5b163f2000b2e148f91863694584e78fd71001770c8dc53412be08',
     2,
     'user'
   );
