@@ -19,7 +19,7 @@
         <div class="detail-image-wrapper">
             <button class="slider-arrow left-arrow">〈</button>
             {% if post.images %}
-            <img src="{{ post.images[0].image_path }}" alt="{{ post.category.name}}" class="detail-image">
+            <img src="/{{ post.images[0].image_path }}" alt="{{ post.category_name}}" class="detail-image">
             {% endif %}
             <button class="slider-arrow right-arrow">〉</button>
 
@@ -35,7 +35,7 @@
 
         <!--テキスト情報エリア-->
         <div class="detail-info">
-            <h1 class="detail-title">{{ post.category.name }}</h1>
+            <h1 class="detail-title">{{ post.category_name }}</h1>
             <p class="detail-desc">{{ post.description }}</p>
             <p class="detail-date">{{ post.found_date }}</p>
             <p class="detail-location">
