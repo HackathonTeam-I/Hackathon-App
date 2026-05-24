@@ -284,6 +284,41 @@ def show_post_detail(id):
     images = Image.get_images_by_post_id(post['id'])
     return render_template('post/posts_detail.html',post=post,images=images)
 
+# 新規投稿フォーム表示
+@app.route('/admin/posts',methods=['GET'])
+@admin_required
+def show_admin_posts():
+    # 1.SQLでグループとカテゴリーを一括取得
+    rows = CategoryGroup.get_all_category_groups()
+
+    # 2.セレクトボックスの初期表示（重複除去）
+    groups = []
+    group_ids_seen = set()
+
+    # グループ選択時にカテゴリーの絞り込みを実施
+    categories_mapping = {}
+
+    for row in rows:
+        # グループの重複除去
+        if row['group_id'] not in group_ids_seen:
+            groups.append({
+                'id':row['group_id'],
+                'name':row['group_name']
+            })
+            group_ids_seen.add(row['group_id'])
+
+        # グループを選択したら、カテゴリーを絞り込む
+        group_key = str(row['group_id'])
+        if group_key not in categories_mapping:
+            categories_mapping[group_key] = []
+
+        # 選択したグループに対応するカテゴリーを取得する
+        categories_mapping[group_key].append({
+            'id':row['category_id'],
+            'name':row['category_name']
+        })
+    return render_template('admin/admin_posts.html',groups=groups,categories_mapping=categories_mapping)
+
 # 新規投稿処理
 @app.route('/api/admin/posts',methods=['POST'])
 @admin_required
@@ -295,7 +330,7 @@ def create_post():
     description = request.form.get('description')
     if not all([category_id,found_date,found_place]):
         flash('必須項目を入力して下さい','error')
-        return redirect(url_for('show_admin_posts')) #新規投稿画面へ
+        return redirect(url_for('show_posts')) #新規投稿画面へ
 
     Post.create_post(user_id,category_id,found_date,found_place,description)
 
