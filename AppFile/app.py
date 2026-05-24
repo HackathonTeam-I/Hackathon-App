@@ -384,7 +384,7 @@ def show_update_post(id):
     if post is None:
         abort(404,description='指定された投稿がありません')
     images= Image.get_images_by_post_id(id)
-    return render_template('admin/posts/edit.html',post=post,images=images)
+    return render_template('admin/admin_edit.html',post=post,images=images)
 
 # 投稿更新処理
 @app.route('/api/admin/posts/<int:id>',methods=['PATCH'])
@@ -541,10 +541,10 @@ def show_thread_detail(thread_id):
 def redirect_to_my_chat():
     if "user_id" not in session:
         return redirect(url_for('show_login'))
-    
+
     # 自分のスレッドIDを探す
     thread = Thread.get_thread_by_user_id(session['user_id'])
-    
+
     if thread:
         # スレッドがあれば、本番ルート（/threads/〇〇）へ転送！
         return redirect(url_for('show_thread_detail', thread_id=thread['id']))
