@@ -537,6 +537,21 @@ def show_thread_detail(thread_id):
         thread=thread
     )
 
+@app.route('/my_chat', methods=['GET'])
+def redirect_to_my_chat():
+    if "user_id" not in session:
+        return redirect(url_for('show_login'))
+    
+    # 自分のスレッドIDを探す
+    thread = Thread.get_thread_by_user_id(session['user_id'])
+    
+    if thread:
+        # スレッドがあれば、本番ルート（/threads/〇〇）へ転送！
+        return redirect(url_for('show_thread_detail', thread_id=thread['id']))
+    else:
+        # 無ければ「まだないよ」という空っぽ画面を直接出す（※IDがないので転送できないため）
+        return render_template('messages.html', thread_id=None, messages=[], role=session.get('role'))
+
 """
 メッセージ機能
 """
