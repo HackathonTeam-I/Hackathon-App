@@ -494,7 +494,7 @@ def show_thread_detail(thread_id):
         '/messages/messages.html',
         messages=messages,
         thread_id=thread_id,
-        role=role
+        role=role,
         thread=thread
     )
 
