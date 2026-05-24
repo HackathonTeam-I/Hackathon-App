@@ -52,13 +52,15 @@ class User:
             with conn.cursor() as cur:
                 sql = """
                 SELECT
-                    id,
-                    name,
-                    email,
-                    department_id,
-                    password
+                    users.id,
+                    users.name,
+                    users.email,
+                    users.department_id,
+                    users.password,
+                    departments.name AS department
                 FROM users
-                WHERE id = %s;
+                LEFT JOIN departments ON users.department_id = departments.id
+                WHERE users.id = %s;
                 """
                 cur.execute(sql,(id,))
                 return cur.fetchone()
@@ -679,7 +681,7 @@ class Notification:
             abort(500)
         finally:
             db_pool.release(conn)
-            
+
      #通知1件を既読に変更
     @classmethod
     def mark_as_read(cls, notification_id, user_id):

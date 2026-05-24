@@ -161,7 +161,7 @@ def show_users():
 @admin_required
 def show_signup():
     departments = Department.get_all_departments()
-    return render_template('admin/admin_signup.html',departments=departments)
+    return render_template('admin/admin_user_register.html',departments=departments)
 
 # 新規ユーザー登録
 @app.route('/admin/signup',methods=['POST'])
@@ -199,7 +199,7 @@ def show_edit_user(id):
     if user is None:
         abort(404,description='指定されたユーザーが見つかりません')
     departments = Department.get_all_departments()
-    return render_template('admin/admin_edit_user.html',user=user,departments=departments)
+    return render_template('admin/admin_user_edit.html',user=user,departments=departments)
 
 # ユーザー情報更新
 @app.route('/api/admin/users/<int:id>',methods=['PATCH'])
