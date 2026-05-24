@@ -290,7 +290,7 @@ def show_post_detail(id):
     if post is None:
         abort(404, description='指定された投稿が見つかりません')
     images = Image.get_images_by_post_id(post['id'])
-    return render_template('post/posts_detail.html',post=post,images=images)
+    return render_template('post/post_detail.html',post=post,images=images)
 
 # 新規投稿フォーム表示
 @app.route('/admin/posts',methods=['GET'])
