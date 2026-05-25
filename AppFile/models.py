@@ -693,19 +693,19 @@ class Notification:
         try:
             with conn.cursor() as cur:
                 sql = """
-             INSERT INTO notifications (
-                user_id,
-                post_id,
-                type
-            )
-            VALUES (%s, %s, 'new_post')
-            """
-            # 全ユーザ取得
-            cur.execute("SELECT id FROM users")
-            users = cur.fetchall()
-            for user in users:
-                cur.execute(sql, (user[0], post_id))
-            conn.commit()
+                INSERT INTO notifications (
+                    user_id,
+                    post_id,
+                    type
+                )
+                VALUES (%s, %s, 'new_post')
+                """
+                # 全ユーザ取得
+                cur.execute("SELECT id FROM users")
+                users = cur.fetchall()
+                for user in users:
+                    cur.execute(sql, (user['id'], post_id))
+                conn.commit()
         except pymysql.Error as e:
             print(f'エラーが発生しています：{e}')
             abort(500)
