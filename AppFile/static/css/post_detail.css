@@ -152,13 +152,13 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
-    position: fixed;
+    z-index: 10;
+    position: absolute;
     width: 100vw;
     height: 100vh;
     top: 0;
     left: 0;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(90, 140, 230, 0.85);
 }
 
 .delete-modal.hidden {
@@ -169,7 +169,7 @@
     font-size: 20px;
     font-weight: bold;
     color: var(--text-main);
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .modal-button {
@@ -189,9 +189,9 @@
 }
 
 .btn-yes {
-    background-color: #000080;
+    background-color: #091CAC;
 }
 
 .btn-no {
-    background-color: #666666;
+    background-color: #6C757D;
 }
