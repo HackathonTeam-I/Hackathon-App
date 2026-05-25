@@ -9,6 +9,9 @@ import os
 
 from models import Department,User,Post,Image,CategoryGroup,Thread,Message,Notification
 
+# パスワードバリデーション
+PASSWORD_PATTERN = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}'
+
 # 定数定義　メール形式チェック用の正規表現とセッション有効期間（日数）を定義
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
 SESSION_DAYS = 30
@@ -176,8 +179,14 @@ def register_user():
         flash('必須項目を入力して下さい','error')
         return redirect(url_for('show_signup')) #登録画面に戻す
 
+    # メールアドレスバリデーション
     if not re.match(EMAIL_PATTERN,email):
         flash('正しいメール形式で入力して下さい','error')
+        return redirect(url_for('show_signup')) #登録画面に戻す
+
+    # パスワードバリデーション
+    if not re.match(PASSWORD_PATTERN,password):
+        flash('パスワードは8文字以上で、大文字・小文字・英数字を含めてください','error')
         return redirect(url_for('show_signup')) #登録画面に戻す
 
     # 登録メール情報の重複チェック
@@ -226,6 +235,13 @@ def update_user(id):
             'status':'error',
             'message':'正しいメール形式で入力して下さい'
         }),400
+
+    # パスワードのバリデーション（変更がある場合のみ）
+    if password and not re.match(PASSWORD_PATTERN, password):
+        return jsonify({
+            'status': 'error',
+            'message': 'パスワードは8文字以上で、大文字・小文字・英数字を含めてください'
+        }), 400
 
     hashed_pw = generate_password_hash(password) if password else None
     User.update_user(id,name,email,department_id,hashed_pw)
