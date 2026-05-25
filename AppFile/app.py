@@ -507,7 +507,7 @@ def delete_images(post_id,image_id):
 def show_categories():
     categories = CategoryGroup.get_all_category_groups()
     if categories:
-        return render_template('post/categories.html',categories=categories)
+        return render_template('post/categories.html',groups=categories)
     else:
         return render_template('post/categories.html',message='カテゴリーが設定されていません')
 
