@@ -63,8 +63,10 @@
 
     <!--Admin専用機能”新規投稿”-->
     {% if session.get('role') == 'admin' %}
-    <a href="{{ url_for('show_admin_post')}}" class="new-post">
-        <div class="post-btn">+</div>
+    <a href="{{ url_for('show_admin_posts')}}" class="new-post">
+        <div class="post-btn">
+            <img src="{{ url_for('static', filename='images/plus-button.svg' ) }}">
+        </div>
     </a>
     {% endif %}
 </div>
