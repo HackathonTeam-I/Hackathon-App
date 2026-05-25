@@ -587,7 +587,7 @@ class Message:
 
         #メッセージ内容を取得
         @classmethod
-        def get_messages_by_user_id(cls):
+        def get_messages_by_user_id(cls, thread_id):
             conn = db_pool.get_conn()
             try:
                 with conn.cursor() as cur:
@@ -604,7 +604,7 @@ class Message:
                     ORDER BY messages.created_at ASC;
                     """
                     cur.execute(sql, (thread_id,))
-                    messages = cur.fetchone()
+                    messages = cur.fetchall()
                 return messages
             except pymysql.Error as e:
                 print(f'エラーが発生しています：{e}')
