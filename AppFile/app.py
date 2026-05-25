@@ -574,7 +574,7 @@ def show_thread_detail(thread_id):
         messages=messages,
         thread_id=thread_id,
         role=role,
-        thread=thread
+        user_name=thread['user_name']
     )
 
 @app.route('/my_chat', methods=['GET'])
