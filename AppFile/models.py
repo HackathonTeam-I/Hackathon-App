@@ -434,7 +434,33 @@ class CategoryGroup:
                 ORDER BY cg.id ASC,c.id ASC;
                 """
                 cur.execute(sql)
-                return cur.fetchall()
+                rows = cur.fetchall()
+
+                # 1.空の辞書を用意する
+                groups = {}
+
+                # 2.SQLの結果を1行ずつ処理する
+                for row in rows:
+
+                    # 3.その行のグループIDを取得する
+                    group_id = row['group_id']
+
+                    # group_idが存在しない場合、グループ情報を追加
+                    if group_id not in groups:
+                        groups[group_id] = {
+                            'id': group_id,
+                            'name': row['group_name'],
+                            'categories':[]
+                        }
+                    # category_idが存在する場合、そのグループのcategoriesリストに追加する
+                    if row['category_id']:
+                        groups[group_id]['categories'].append({
+                            'id': row['category_id'],
+                            'name' :row['category_name']
+                        })
+
+                # リスト型に変換して、テンプレートへ渡す
+                return list(groups.values())
         except pymysql.Error as e:
             print(f'サーバー接続上のエラーが発生しています：{e}')
             abort(500)
