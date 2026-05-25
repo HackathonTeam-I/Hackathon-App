@@ -115,18 +115,29 @@ def update_password():
         return redirect(url_for('show_login'))
 
     user_id = session['tmp_user_id']
-    new_password = request.form.get('password')
+    new_password = request.form.get('new_password')
     confirm_password = request.form.get('confirm_password')
 
-    # バリデーション
+    user = User.get_user_by_id(user_id)
+
+    # 未入力チェック
     if not new_password or not confirm_password:
         flash('入力してください', 'error')
         return redirect(url_for('get_password'))
+    # 8文字以上チェック
+    if len(new_password) < 8:
+        flash('8文字以上で入力してください', 'error')
+        return redirect(url_for('get_password'))
+    #現在と同じパスワード禁止
+    if check_password_hash(user['password'], new_password):
+        flash('同じパスワードは使用できません', 'error')
+        return redirect(url_for('get_password'))
+    # パスワード一致チェック
     if new_password != confirm_password:
         flash('パスワードが一致しません', 'error')
         return redirect(url_for('get_password'))
 
-    # 更新
+    # パスワード更新
     hashed_password = generate_password_hash(new_password)
     User.update_password(user_id, hashed_password)
     # 仮状態解除
