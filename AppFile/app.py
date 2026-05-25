@@ -125,8 +125,11 @@ def update_password():
         flash('入力してください', 'error')
         return redirect(url_for('get_password'))
     # 8文字以上チェック
-    if len(new_password) < 8:
-        flash('8文字以上で入力してください', 'error')
+    if not re.match(PASSWORD_PATTERN, new_password):
+        flash(
+            'パスワードは8文字以上・大文字・小文字・数字を含めてください',
+            'error'
+        )
         return redirect(url_for('get_password'))
     #現在と同じパスワード禁止
     if check_password_hash(user['password'], new_password):
