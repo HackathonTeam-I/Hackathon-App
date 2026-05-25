@@ -316,7 +316,10 @@ class Image:
         try:
             with conn.cursor() as cur:
                 sql = """
-                SELECT *
+                SELECT
+                    id as image_id,
+                    post_id,
+                    image_path
                 FROM images
                 WHERE post_id = %s;
                 """
