@@ -430,16 +430,24 @@ def show_update_post(id):
     categories = CategoryGroup.get_all_category_groups()
 
     # カテゴリーをグループIDでまとめる
+    groups = []
     categories_mapping = {}
     for category in categories:
-        group_id = str(category['group_id'])
-        if group_id not in categories_mapping:
-            categories_mapping[group_id] = []
-        categories_mapping[group_id].append({
-            'id':category['category_id'],
-            'name':category['category_name']
+        # グループ情報の整列
+        groups.append({
+            'id': category['id'],
+            'name': category['name']
         })
-    return render_template('admin/admin_edit.html',post=post,images=images,categories_mapping=categories_mapping)
+        # JSで扱えるように、グループIDを文字列に変換する
+        group_id = str(category['id'])
+        categories_mapping[group_id] = []
+        for c in category['categories']:
+            # グループIDに対応するカテゴリーに振り分ける
+            categories_mapping[group_id].append({
+                'id':c['id'],
+                'name':c['name']
+            })
+    return render_template('admin/admin_edit.html',post=post,images=images,groups=groups,categories_mapping=categories_mapping)
 
 # 投稿更新処理
 @app.route('/api/admin/posts/<int:id>',methods=['PATCH'])
