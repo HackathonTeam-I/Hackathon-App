@@ -641,8 +641,11 @@ def create_messages(thread_id):
 #通知一覧
 @app.route('/notifications', methods=['GET'])
 def show_notifications():
+    if 'user_id' not in session:
+        return redirect(url_for('show_login'))
+    user_id = session['user_id']
     # 通知取得（画像付き）
-    notifications = Notification.get_all_notifications()
+    notifications = Notification.get_all_notifications(user_id)
     return render_template(
         '/messages/notifications.html',
         notifications=notifications
