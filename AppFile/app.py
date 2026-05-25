@@ -372,6 +372,21 @@ def create_post():
 
     # 投稿作成＋ID取得
     post_id = Post.get_post_id_by_user(user_id)
+
+    # フォームから画像ファイルを受け取る
+    image_file = request.files.get('image')
+    if image_file and allowed_file(image_file.filename):
+
+        # 1:保有するファイル名を生成
+        filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
+
+        # 2:パスの組み立て
+        image_path = os.path.join('static/uploads',filename)
+        image_file.save(os.path.join(app.root_path,image_path))
+
+        # 3:DBに画像パスを登録
+        Image.create_images(post_id,image_path)
+
     # 通知作成
     Notification.notify_on_post(post_id)
 
@@ -397,7 +412,7 @@ def upload_images(post_id):
 
     # ３：パスの組み立て
     image_path = os.path.join('static/uploads',filename)
-    image_file.save(os.path.join('AppFile',image_path))
+    image_file.save(os.path.join(app.root_path,image_path))
 
     # ４：DBにパスを登録
     Image.create_images(post_id,image_path)
@@ -415,16 +430,24 @@ def show_update_post(id):
     categories = CategoryGroup.get_all_category_groups()
 
     # カテゴリーをグループIDでまとめる
+    groups = []
     categories_mapping = {}
     for category in categories:
-        group_id = str(category['group_id'])
-        if group_id not in categories_mapping:
-            categories_mapping[group_id] = []
-        categories_mapping[group_id].append({
-            'id':category['category_id'],
-            'name':category['category_name']
+        # グループ情報の整列
+        groups.append({
+            'id': category['id'],
+            'name': category['name']
         })
-    return render_template('admin/admin_edit.html',post=post,images=images,categories_mapping=categories_mapping)
+        # JSで扱えるように、グループIDを文字列に変換する
+        group_id = str(category['id'])
+        categories_mapping[group_id] = []
+        for c in category['categories']:
+            # グループIDに対応するカテゴリーに振り分ける
+            categories_mapping[group_id].append({
+                'id':c['id'],
+                'name':c['name']
+            })
+    return render_template('admin/admin_edit.html',post=post,images=images,groups=groups,categories_mapping=categories_mapping)
 
 # 投稿更新処理
 @app.route('/api/admin/posts/<int:id>',methods=['PATCH'])
@@ -474,12 +497,12 @@ def update_images(post_id):
         # 3.画像が指定されたファイル形式か（形式確認）
         if not allowed_file(image_file.filename):
             abort(400,description='jpg/jpeg/png形式の画像ファイルを選択して下さい')
-        old_path = os.path.join('AppFile',image['image_path'])
+        old_path = os.path.join(app.root_path,image['image_path'])
         if os.path.exists(old_path):
             os.remove(old_path)
         filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
         image_path = os.path.join('static/uploads',filename)
-        image_file.save(os.path.join('AppFile',image_path))
+        image_file.save(os.path.join(app.route_path,image_path))
 
         Image.update_image_by_image_id(image_id,image_path)
 
@@ -500,7 +523,7 @@ def delete_post(id):
         abort(404,description='指定された投稿が見つかりません')
     images = Image.get_images_by_post_id(id)
     for image in images:
-        file_path = os.path.join('AppFile',image['image_path'])
+        file_path = os.path.join(app.root_path,image['image_path'])
         if os.path.exists(file_path):
             os.remove(file_path)
     Post.delete_post(id)
@@ -517,7 +540,7 @@ def delete_images(post_id,image_id):
     image = Image.get_image_by_image_id(image_id)
     if image is None:
         abort(404,description='指定された画像が見つかりません')
-    file_path = os.path.join('AppFile',image['image_path'])
+    file_path = os.path.join(app.root_path,image['image_path'])
     if os.path.exists(file_path):
         os.remove(file_path)
     Image.delete_image_by_image_id(image_id)

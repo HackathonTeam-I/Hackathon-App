@@ -200,7 +200,8 @@ class Post:
             with conn.cursor() as cur:
                 sql = """
                 SELECT posts.*,
-                    categories.name as category_name
+                    categories.name as category_name,
+                    categories.group_id as group_id
                 FROM posts
                 LEFT JOIN categories ON posts.category_id = categories.id
                 WHERE posts.id = %s AND deleted_at IS NULL;
@@ -315,7 +316,10 @@ class Image:
         try:
             with conn.cursor() as cur:
                 sql = """
-                SELECT *
+                SELECT
+                    id as image_id,
+                    post_id,
+                    image_path
                 FROM images
                 WHERE post_id = %s;
                 """
