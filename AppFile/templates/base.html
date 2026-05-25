@@ -22,15 +22,13 @@
     <nav class="bottom-nav">
         {% if session.get('role') == 'admin' %}
         <a href="{{ url_for('show_admin_top') }}" class="bottom-nav_admin">
-            <img src="{{ url_for('static', filename='images/admin-top_icon.svg' ) }}" class="bottom-nav_img"
+            <img src="{{ url_for('static', filename='images/admin-top-icon.svg' ) }}" class="bottom-nav-admin_img"
                 alt="管理者用TOP">
-            <span class="bottom-nav_text">管理者用TOP</span>
         </a>
         {% endif %}
 
         <a href="{{ url_for('show_posts') }}" class="bottom-nav_home">
             <img src="{{ url_for('static', filename='images/home-icon.svg') }}" class="bottom-nav_img" alt="ホーム">
-            <span class="bottom-nav_text">ホーム</span>
         </a>
 
         <!--ユーザ用とAdmin用で参照リンクを変更する-->
@@ -40,18 +38,15 @@
             <a href="{{ url_for('redirect_to_my_chat') }}" class="bottom-nav_messages">
                 {% endif %}
                 <img src="{{ url_for('static', filename='images/chat-icon.svg') }}" class="bottom-nav_img" alt="チャット">
-                <span class="bottom-nav_text">チャット</span>
             </a>
 
             <a href="{{ url_for('show_notifications') }}" class="bottom-nav_notifi">
                 <img src="{{ url_for('static', filename='images/notifi-icon.svg') }}" class="bottom-nav_img" alt="通知">
-                <span class="bottom-nav_text">通知</span>
             </a>
 
             <a href="{{ url_for('logout') }}" class="bottom-nav_logout">
-                <img src="{{ url_for('static', filename='images/logout-icon.svg') }}" class="bottom-nav_img"
+                <img src="{{ url_for('static', filename='images/logout-icon.svg') }}" class="bottom-nav-logout_img"
                     alt="ログアウト">
-                <span class="bottom-nav_text">ログアウト</span>
             </a>
     </nav>
     {% endblock %}
