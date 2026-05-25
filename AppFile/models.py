@@ -483,7 +483,7 @@ class Thread:
                 FROM threads
                 LEFT JOIN messages ON threads.id = messages.thread_id
                 LEFT JOIN users ON messages.sender_id = users.id
-                GROUP BY users.id, users.name
+                GROUP BY threads.id, users.id, users.name
                 ORDER BY last_message_at DESC;
                 """
                 cur.execute(sql)
