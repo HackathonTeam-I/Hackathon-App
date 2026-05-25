@@ -299,32 +299,30 @@ def show_admin_posts():
     # 1.SQLでグループとカテゴリーを一括取得
     rows = CategoryGroup.get_all_category_groups()
 
-    # 2.セレクトボックスの初期表示（重複除去）
+    # 2.セレクトボックスの初期表示
     groups = []
-    group_ids_seen = set()
 
     # グループ選択時にカテゴリーの絞り込みを実施
     categories_mapping = {}
 
     for row in rows:
-        # グループの重複除去
-        if row['group_id'] not in group_ids_seen:
-            groups.append({
-                'id':row['group_id'],
-                'name':row['group_name']
-            })
-            group_ids_seen.add(row['group_id'])
+        # グループ情報を追加
+        groups.append({
+            'id':row['id'],
+            'name':row['name']
+        })
 
         # グループを選択したら、カテゴリーを絞り込む
-        group_key = str(row['group_id'])
-        if group_key not in categories_mapping:
-            categories_mapping[group_key] = []
+        group_key = str(row['id'])
+        categories_mapping[group_key] = []
 
-        # 選択したグループに対応するカテゴリーを取得する
-        categories_mapping[group_key].append({
-            'id':row['category_id'],
-            'name':row['category_name']
-        })
+        # 選択したグループに対応するカテゴリーを取得
+        for category in row['categories']:
+            categories_mapping[group_key].append({
+                'id': category['id'],
+                'name': category['name']
+            })
+
     return render_template('admin/admin_posts.html',groups=groups,categories_mapping=categories_mapping)
 
 # 新規投稿処理
