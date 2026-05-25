@@ -115,7 +115,7 @@ def update_password():
         return redirect(url_for('show_login'))
 
     user_id = session['tmp_user_id']
-    new_password = request.form.get('new_password')
+    new_password = request.form.get('password')
     confirm_password = request.form.get('confirm_password')
 
     # バリデーション
