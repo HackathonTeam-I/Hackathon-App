@@ -1,52 +1,73 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+
+    // 1. スライダー機能
+
+    const postImagesDataElement = document.getElementById('postImagesData');
+    const postImages = postImagesDataElement ? JSON.parse(postImagesDataElement.textContent) : [];
+
+    const imageElement = document.querySelector('.detail-image');
+
+    const leftArrow = document.querySelector('.left-arrow');
+    const rightArrow = document.querySelector('.right-arrow');
+
+    let currentIndex = 0;
+
+    // 画像が2枚以上ある時のみクリックイベントを登録
+    if (postImages.length > 1 && imageElement) {
+
+
+        leftArrow?.addEventListener('click', () => {
+            currentIndex = (currentIndex === 0) ? postImages.length - 1 : currentIndex - 1;
+            imageElement.src = `/${postImages[currentIndex]}`;
+        });
+
+        rightArrow?.addEventListener('click', () => {
+            currentIndex = (currentIndex === postImages.length - 1) ? 0 : currentIndex + 1;
+            imageElement.src = `/${postImages[currentIndex]}`;
+        });
+    }
+
+    // 2. モーダル ＆ 削除機能
     const deleteBtn = document.getElementById('showDeleteModalBtn');
     const deleteModal = document.getElementById('deleteModal');
     const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
     const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
 
-    //削除ボタンを押してモーダルが起動
-    if (deleteBtn) {
-        deleteBtn.addEventListener('click', () => {
-            deleteModal.classList.remove('hidden'); //hiddenクラスを削除してモーダルが見えるようにする
-        });
-    }
+    // モーダルの開閉
+    deleteBtn?.addEventListener('click', () => {
+        deleteModal?.classList.remove('hidden');
+    });
 
-    //「いいえ」ボタンを押してモーダルを閉じる
-    if (cancelDeleteBtn) {
-        cancelDeleteBtn.addEventListener('click', () => {
-            deleteModal.classList.add('hidden');
-        });
-    }
+    cancelDeleteBtn?.addEventListener('click', () => {
+        deleteModal?.classList.add('hidden');
+    });
 
-    // 「はい」を押してDELETEリクエストを送信
-    if (confirmDeleteBtn) {
-        confirmDeleteBtn.addEventListener('click', async () => {
+    // 削除の非同期通信
+    confirmDeleteBtn?.addEventListener('click', async () => {
+        const postId = deleteBtn.getAttribute('data-post-id');
+        const csrfToken = deleteBtn.getAttribute('data-csrf-token');
 
-            const postId = deleteBtn.getAttribute('data-post-id');
-
-            try {
-                // Fetch APIでDELETEメソッドを送信
-                const responce = await fetch(`api/admin/posts/${postId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (responce.ok) {
-                    //削除成功により投稿一覧へ遷移する
-                    alert("削除に成功しました");
-                    window.location.href = "/posts";
-                } else {
-                    alert("削除に失敗しました");
+        try {
+            const response = await fetch(`/api/admin/posts/${postId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
                 }
-            } catch (error) {
-                console.error("通信エラー", error);
-                alert("通信エラーが発生しました");
-            } finally {
-                //最期は必ずモーダルを閉じる
-                deleteModal.classList.add('hidden');
+            });
+
+            if (response.ok) {
+                alert("削除に成功しました");
+                window.location.href = deleteBtn.getAttribute('data-redirect-url');
+            } else {
+                deleteModal?.classList.add('hidden');
+                alert("削除に失敗しました");
             }
-        });
-    }
+        } catch (error) {
+            console.error("通信エラー", error);
+            deleteModal?.classList.add('hidden');
+            alert("通信エラーが発生しました");
+        }
+    });
 });

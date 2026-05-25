@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
-{% block title %}詳細 - Find it{% endblock %}
+{% block title %}詳細 - Find It{% endblock %}
 
 {% block page_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/posts_details.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/post_detail.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -17,11 +17,24 @@
     <main class="main-detail">
         <!--画像エリア-->
         <div class="detail-image-wrapper">
-            <button class="slider-arrow left-arrow">〈</button>
-            {% if post.images %}
-            <img src="/{{ post.images[0].image_path }}" alt="{{ post.category_name}}" class="detail-image">
+
+            {% if images %}
+            {% if images|length > 1 %}
+            <button type="button" class="slider-arrow left-arrow">
+                <img src="{{ url_for('static', filename='images/expand_left.svg') }}" alt="〈">
+            </button>
             {% endif %}
-            <button class="slider-arrow right-arrow">〉</button>
+
+            <img src="/{{ images[0].image_path }}" alt="{{ post.category_name}}" class="detail-image">
+
+            {% if images|length > 1 %}
+            <button type="button" class="slider-arrow right-arrow">
+                <img src="{{ url_for('static', filename='images/expand_right.svg' )}}" alt="〉">
+            </button>
+            {% endif %}
+            {% else %}
+            <div class="no-image">画像がありません</div>
+            {% endif %}
 
             <!--削除操作-->
             <div id="deleteModal" class="delete-modal hidden">
@@ -35,11 +48,13 @@
 
         <!--テキスト情報エリア-->
         <div class="detail-info">
-            <h1 class="detail-title">{{ post.category_name }}</h1>
+            <h1 class="detail-title">{{ post.category_name }}</h1> <!--修正点２-->
             <p class="detail-desc">{{ post.description }}</p>
             <p class="detail-date">{{ post.found_date }}</p>
             <p class="detail-location">
-                <span class="location-icon">📍</span> {{ post.found_place}}
+                <img src="{{ url_for('static', filename='images/post-card_location.svg') }}" alt="📍"
+                    class="location-icon">
+                {{ post.found_place}}
             </p>
         </div>
     </main>
@@ -48,13 +63,15 @@
     <div class="action-container">
         {% if session.get('role') == 'admin' %}
         <div class="admin-actions">
-            <a href="{{ url_for('update_post', id=post.id) }}" class="action-btn btn-edit">編集</a>
+            <a href="{{ url_for('show_update_post', id=post.id) }}" class="action-btn btn-edit">編集</a>
             <!--JSでIDを取得できるようにdata-post-idを仕込む-->
-            <button id="showDeleteModalBtn" class="action-btn btn-delete" data-post-id="{{ post.id }}">削除</button>
+            <button id="showDeleteModalBtn" data-redirect-url="{{ url_for('show_posts') }}"
+                class="action-btn btn-delete" data-post-id="{{ post.id }}"
+                data-csrf-token="{{ csrf_token() }}">削除</button>
         </div>
         {% else %}
         <div class="user-action">
-            <a href="{{ url_for('show_messages', admin_id=post.user_id ) }}" class="action-btn btn-dm">DMで申請</a>
+            <a href="{{ url_for('create_thread', post_id=post.id ) }}" class="action-btn btn-dm">DMで申請</a>
         </div>
         {% endif %}
     </div>
@@ -62,5 +79,8 @@
 {% endblock %}
 
 {% block page_js %}
+<script id="postImagesData"
+    type="application/json"> {% if images %}{{ images | map(attribute = 'image_path') | list | tojson | safe }} {% else %} []{% endif %}</script>
+
 <script src="{{ url_for('static', filename='js/post_detail.js') }}"></script>
 {% endblock %}
