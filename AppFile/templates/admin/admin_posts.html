@@ -61,7 +61,7 @@
         <div class="photo-area">
             <div class="upload-photo">写真をアップロード</div>
             <label for="photo" class="upload-button">
-                <img src="{{ url_for('static', filename='images/upload_icon.svg')}}" alt="アップロード" class="upload-icon">
+                <img src="{{ url_for('static', filename='images/upload-icon.svg')}}" alt="アップロード" class="upload-icon">
             </label>
             <input type="file" id="photo" name="image" accept="image/*" hidden>
 
@@ -127,6 +127,23 @@
         console.log("画像選択");
         //削除ボタン表示
         removeButton.hidden = false;
+
+        // 画像プレビュー表示
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                let preview = document.getElementById('preview-image');
+                if (!preview) {
+                    preview = document.createElement('img');
+                    preview.id = 'preview-image';
+                    preview.className = 'preview-image';
+                    photoInput.parentNode.insertBefore(preview, removeButton);
+                }
+                preview.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
     });
 
     //削除ボタンを押した時
@@ -135,6 +152,12 @@
         photoInput.value = "";
         //削除ボタンを非表示
         removeButton.hidden = true;
+
+        // プレビュー画像を削除
+        const preview = document.getElementById('preview-image');
+        if (preview) {
+            preview.remove();
+        }
 
         console.log("画像削除");
 
