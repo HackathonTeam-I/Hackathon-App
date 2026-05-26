@@ -582,7 +582,7 @@ class Message:
                     cur.execute(sql, (
                         thread_id,
                         sender_id,
-                        "この落し物は私のものです",
+                        "この落し物について心当たりがあるため、ご連絡しました。詳細確認をお願いいたします。",
                         post_id
                     ))
                     conn.commit()
