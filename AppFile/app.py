@@ -597,6 +597,14 @@ def show_thread_detail(thread_id):
             abort(403)
     # 管理者、または自分のスレッドならメッセージを取得して表示
     messages = Message.get_messages_by_thread_id(thread_id)
+
+    # JSTへ変換
+    for message in messages:
+        if message['created_at']:
+            message['created_at'] = (
+                message['created_at'] + timedelta(hours=9)
+            )
+
     return render_template(
         '/messages/messages.html',
         messages=messages,
