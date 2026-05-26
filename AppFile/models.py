@@ -571,21 +571,21 @@ class Message:
             try:
                 with conn.cursor() as cur:
                     sql =  """
-                INSERT INTO messages (
-                    thread_id,
-                    sender_id,
-                    content,
-                    post_id
-                )
-                VALUES (%s, %s, %s, %s);
-                """
-                cur.execute(sql, (
-                    thread_id,
-                    sender_id,
-                    "この落し物は私のものです",
-                    post_id
-                ))
-                conn.commit()
+                    INSERT INTO messages (
+                        thread_id,
+                        sender_id,
+                        content,
+                        post_id
+                    )
+                    VALUES (%s, %s, %s, %s);
+                    """
+                    cur.execute(sql, (
+                        thread_id,
+                        sender_id,
+                        "この落し物は私のものです",
+                        post_id
+                    ))
+                    conn.commit()
             finally:
                 db_pool.release(conn)
 
