@@ -16,6 +16,7 @@
 .posts-form > div{
     display: flex;
     flex-direction: column;
+    align-items: center;
 }
 
 label{
@@ -26,7 +27,7 @@ label{
 select{
     font-weight: 400;
     height: 32px;
-    width: 260px;
+    width: 400px;
     padding: 0px 12px 0px 0px;
     border-radius: 8px;
     background-color: var(--form-bg);
@@ -36,7 +37,7 @@ select{
 textarea{
     font-weight: 400;
     height: 80px;
-    width: 260px;
+    width: 400px;
     padding: 0px 12px 0px 0px;
     border-radius: 8px;
     background-color: var(--form-bg);
@@ -46,7 +47,7 @@ textarea{
 input{
     font-weight: 400;
     height: 32px;
-    width: 260px;
+    width: 400px;
     padding: 0px 12px 0px 0px;
     border-radius: 8px;
     background-color: var(--form-bg);
