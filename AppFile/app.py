@@ -611,7 +611,7 @@ def redirect_to_my_chat():
         return redirect(url_for('show_login'))
 
     # 自分のスレッドIDを探す
-    thread = Thread.get_thread_by_user_id(session['user_id'])
+    thread = Thread.create_thread_by_user_id(session['user_id'])
 
     if thread:
         # スレッドがあれば、本番ルート（/threads/〇〇）へ転送！
