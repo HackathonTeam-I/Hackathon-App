@@ -9,11 +9,9 @@
 {% block content %}
 <!--戻るボタン-->
 <header class="detail-header">
-        <a href="{{ url_for('show_posts') }}" class="back-button">
-             <img src="{{ url_for('static', filename='images/arrow-left.svg') }}"
-                  class="arrow-left" 
-                  alt="戻る">
-        </a>
+    <a href="{{ url_for('show_posts') }}" class="back-button">
+        <img src="{{ url_for('static', filename='images/arrow-left.svg') }}" class="arrow-left" alt="戻る">
+    </a>
 </header>
 
 <main class="admin-posts">
@@ -21,33 +19,31 @@
         新規投稿
     </h2>
 
-   <form class="posts-form" method="post" enctype="multipart/form-data">
+    <form class="posts-form" method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token()}}">
         <!-- =====フォームフィールド===== -->
         <div>
             <label>カテゴリグループ</label>
 
             <select id="groupSelect" name="group_id" class="form-select" required>
-            <option value="">グループを選択してください</option>
+                <option value="">グループを選択してください</option>
 
-            {% for group in groups %}
-            <option value="{{ group.id }}">{{ group.name }}</option>
-            {% endfor %}
+                {% for group in groups %}
+                <option value="{{ group.id }}">{{ group.name }}</option>
+                {% endfor %}
             </select>
 
 
             <label>カテゴリ</label>
 
             <select id="categorySelect" name="category_id" class="form-select" disabled>
-            <option value="">先にグループを選択してください</option>
+                <option value="">先にグループを選択してください</option>
             </select>
         </div>
 
         <div>
             <label>詳細説明</label>
-            <textarea
-                placeholder="特徴などを記載"
-                name="description">
+            <textarea placeholder="特徴などを記載" name="description">
             </textarea>
         </div>
 
@@ -61,37 +57,24 @@
             <input type="text" placeholder="発見場所を記載" name="found_place">
         </div>
 
-    
+
         <div class="photo-area">
             <div class="upload-photo">写真をアップロード</div>
             <label for="photo" class="upload-button">
-                <img 
-                src="{{ url_for('static', filename='images/upload_icon.svg')}}"
-                alt="アップロード"
-                class="upload-icon"
-                >
+                <img src="{{ url_for('static', filename='images/upload_icon.svg')}}" alt="アップロード" class="upload-icon">
             </label>
-            <input
-                type="file"
-                id="photo"
-                name="image"
-                accept="image/*"
-                hidden
-            >
+            <input type="file" id="photo" name="image" accept="image/*" hidden>
 
-             <!-- 写真削除ボタン -->
-            <button type="button" 
-                    id="remove-photo-button"
-                    hidden
-            >
-                <img class="close-icon" src="{{url_for('static', filename='images/close_round.svg')}}" alt="削除"> 
+            <!-- 写真削除ボタン -->
+            <button type="button" id="remove-photo-button" hidden>
+                <img class="close-icon" src="{{url_for('static', filename='images/close_round.svg')}}" alt="削除">
             </button>
 
         </div>
 
         <!--登録ボタン-->
         <div class="register-button">
-            <button class="admin-posts-button" type="submit">登録</button>
+            <button class="admin-posts-button" type="submit">投稿</button>
         </div>
 
     </form>
@@ -100,13 +83,13 @@
 
 <script>
     // Pythonの辞書が、そのままJSのオブジェクト（連想配列）になる
-    const categoriesData = {{ categories_mapping | tojson }};
+    const categoriesData = {{ categories_mapping | tojson | safe}};
 
     const groupSelect = document.getElementById('groupSelect');
     const categorySelect = document.getElementById('categorySelect');
 
     // グループの選択が変更（change）されたら発動
-    groupSelect.addEventListener('change', function()  {
+    groupSelect.addEventListener('change', function () {
 
         //選ばれたグループnoIDを取得(文字列として取得される)
         const selectedGroupId = this.value;
@@ -131,27 +114,27 @@
             //カテゴリのプルダウンを操作可能（有効化）にする
             categorySelect.disabled = false;
         } else {
-                //「選択してください」に戻された場合は、再び無効化する
-                categorySelect.innerHTML = '<option value="">先にグループを選択してください</option>';
-                categorySelect.disabled = true;
+            //「選択してください」に戻された場合は、再び無効化する
+            categorySelect.innerHTML = '<option value="">先にグループを選択してください</option>';
+            categorySelect.disabled = true;
         }
     });
 
     const photoInput = document.getElementById("photo");
     const removeButton = document.getElementById("remove-photo-button");
 
-    photoInput.addEventListener("change", function(){
+    photoInput.addEventListener("change", function () {
         console.log("画像選択");
         //削除ボタン表示
         removeButton.hidden = false;
     });
-    
+
     //削除ボタンを押した時
-    removeButton.addEventListener("click", function(){
+    removeButton.addEventListener("click", function () {
 
         photoInput.value = "";
         //削除ボタンを非表示
-        removeButton.hidden =true;
+        removeButton.hidden = true;
 
         console.log("画像削除");
 
