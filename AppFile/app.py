@@ -674,6 +674,14 @@ def show_notifications():
     user_id = session['user_id']
     # 通知取得（画像付き）
     notifications = Notification.get_all_notifications(user_id)
+    
+    # JSTへ変換（+9時間）
+    for notification in notifications:
+        if notification['created_at']:
+            notification['created_at'] = (
+                notification['created_at'] + timedelta(hours=9)
+            )
+
     return render_template(
         'messages/notifications.html',
         notifications=notifications
