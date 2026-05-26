@@ -400,12 +400,16 @@ def upload_images(post_id):
     # １：フォームから画像ファイルを受け取る
     image_file = request.files.get('image')
     if image_file is None:
-        flash('投稿画像を選択して下さい','error')
-        return redirect(url_for('show_admin_posts')) #新規投稿画面へ
+        return jsonify({
+            'status': 'error',
+            'message': '投稿画像を選択して下さい'
+        }),400
 
     if not allowed_file(image_file.filename):
-        flash('jpg/jpeg/png形式のファイルを選択して下さい','error')
-        return redirect(url_for('show_admin_posts'))
+        return jsonify({
+            'status': 'error',
+            'message': 'jpg/jpeg/png形式のファイルを選択して下さい'
+        }),400
 
     # ２：保存するファイル名を生成
     filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
@@ -416,8 +420,9 @@ def upload_images(post_id):
 
     # ４：DBにパスを登録
     Image.create_images(post_id,image_path)
-    flash('画像を登録しました','success')
-    return redirect(url_for('show_post_detail',id=post_id))
+    return jsonify({'status': 'success',
+                    'message': '画像を登録しました'
+                    }),200
 
 # 編集フォーム画面表示
 @app.route('/admin/posts/<int:id>/edit',methods=['GET'])
