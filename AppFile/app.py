@@ -374,18 +374,19 @@ def create_post():
     post_id = Post.get_post_id_by_user(user_id)
 
     # フォームから画像ファイルを受け取る
-    image_file = request.files.getlist('image')
-    if image_file and allowed_file(image_file.filename):
+    image_files = request.files.getlist('image')
+    for image_file in image_files:
+        if image_file and allowed_file(image_file.filename):
 
-        # 1:保有するファイル名を生成
-        filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
+            # 1:保有するファイル名を生成
+            filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
 
-        # 2:パスの組み立て
-        image_path = os.path.join('static/uploads',filename)
-        image_file.save(os.path.join(app.root_path,image_path))
+            # 2:パスの組み立て
+            image_path = os.path.join('static/uploads',filename)
+            image_file.save(os.path.join(app.root_path,image_path))
 
-        # 3:DBに画像パスを登録
-        Image.create_images(post_id,image_path)
+            # 3:DBに画像パスを登録
+            Image.create_images(post_id,image_path)
 
     # 通知作成
     Notification.notify_on_post(post_id)
@@ -507,7 +508,7 @@ def update_images(post_id):
             os.remove(old_path)
         filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
         image_path = os.path.join('static/uploads',filename)
-        image_file.save(os.path.join(app.route_path,image_path))
+        image_file.save(os.path.join(app.root_path,image_path))
 
         Image.update_image_by_image_id(image_id,image_path)
 
