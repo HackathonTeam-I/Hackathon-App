@@ -9,99 +9,91 @@
 <div class="page-messages">
     <main class="messages-container">
         <header class="messages-header">
-            <a href="{{url_for('show_posts')}}" class="back-button">←</a>
+            <a href="{{url_for('show_posts')}}" class="back-button">
+                <img src="{{ url_for('static', filename='images/arrow-left.svg') }}" alt="戻る" class="back-icon">
+            </a>
+
+            {% if session.get('role') == 'admin' %}
+            <h2 class="messages-user-title">{{user_name}}</h2>
+            {% else %}
+            <h2 class="messages-user-title">管理者へDM送信</h2>
+            {% endif %}
         </header>
 
-        <div class="messages-title">
-            <!--管理者用と一般ユーザー用で見出し切り替え-->
-            {% if session.get('role')== 'admin' %}
-                <!--送信先のユーザー名を見出しとする-->
-                <h2 class="messages-user-title">{{user.name}}</h2>
-            {% else %}
-                <h2 class="messages-user-title">管理者へDM送信</h2>
-            {% endif %}
-        </div>
-
-        <!-- メッセージ表示エリア-->
         {% if messages %}
         <div class="chat-messages">
             {% for message in messages %}
-                <!--相手からのメッセージ表示（左側）-->
-                {% if message.sender_id!=session['user_id'] %}
-                   <div class="message-received">
-                        <div class="message-content-wrapper">
-                            <!--相手のアイコン表示-->
-                            <img class="receiver-icon" src="{{url_for('static', filename='images/receiver-icon.svg')}}" alt="receiver"> 
-                            <!--メッセージ本体表示-->
-                            <div class="message-received-body">
-                                {{message.content}}
-                            </div>
-                            <!--時間表示-->
-                            <span class="message-received-time">{{message.created_at.strftime(' %H:%M ')}}</span>
-                        </div>
-                    </div>
 
-                {% else %}
-                    <div class="message-sent">
-                         <div class="message-content-wrapper">
-                            <!--自分のアイコン表示（右側）-->
-                            <img class="sender-icon" src="{{url_for('static', filename='images/sender-icon.svg')}}" alt="sender"> 
-                            <!--メッセージ本体表示-->
-                            <div class="message-sent-body">
-                                {{message.content}}
-                            </div>
-                            <!--時間表示-->
-                            <span class="message-sent-time">{{message.created_at.strftime(' %H:%M ')}}</span>
-                         </div> 
+            {% if message.sender_id != session['user_id'] %}
+            <div class="message-row message-received">
+                <img class="user-icon" src="{{url_for('static', filename='images/receiver-icon.svg')}}" alt="receiver">
+
+                <div class="message-content-wrapper">
+                    <div class="message-body">
+                        {{message.content}}
                     </div>
-                {% endif %}
+                    <span class="message-time">{{message.created_at.strftime('%H:%M')}}</span>
+                </div>
+            </div>
+
+            {% else %}
+            <div class="message-row message-sent">
+                <div class="message-content-wrapper">
+                    <span class="message-time">{{message.created_at.strftime('%H:%M')}}</span>
+                    <div class="message-body">
+                        {{message.content}}
+                    </div>
+                </div>
+
+                <img class="user-icon" src="{{url_for('static', filename='images/sender-icon.svg')}}" alt="sender">
+            </div>
+            {% endif %}
+
             {% endfor %}
         </div>
         {% else %}
-            <p>メッセージがありません。</p>
+        <p class="no-messages">メッセージがありません。</p>
         {% endif %}
-       
 
-        <!--メッセージ入力エリア(actionでFlaskの/api/messages/<userid>へPOST送信)-->
-        <form id="message-form"
-              class="messages-input-area" 
-              action="{{ url_for('create_messages', thread_id=thread_id) }}" 
-              method="POST">
-            <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
-            <!--空欄時は送信できない、自動入力候補の無効化-->
+
+        {% if thread_id %}
+        <form id="message-form" class="messages-input-area"
+            action="{{ url_for('create_messages', thread_id=thread_id) }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
             <input type="text" name="content" placeholder="メッセージを入力してください" required autocomplete="off">
             <button type="submit" class="send-button">
-                <img class="send-icon" src="{{url_for('static', filename='images/send-icon.svg')}}" alt="送信"> 
+                <img class="send-icon" src="{{url_for('static', filename='images/send-icon.svg')}}" alt="送信">
             </button>
         </form>
+        {% endif %}
     </main>
 </div>
-{% endblock %} 
+{% endblock %}
 
 {% block bottom_nav %}
 {% endblock %}
 
-<!--form送信はJSでfetchでPOST送信-->
 {% block page_js %}
 <script>
     const form = document.getElementById("message-form");
     //formが送信ボタンによって送信された際に処理を実行
-    form.addEventListener("submit", async(e) => {
+    form.addEventListener("submit", async (e) => {
         //htmlのform送信をキャンセル
         e.preventDefault();
 
         //formの中身を取得
         const formData = new FormData(form);
-        
+
         //POSTメソッドでformの中身を送信
-        await fetch(form.action, {
+        const response = await fetch(form.action, {
             method: "POST",
             body: formData
         });
 
-        location.reload();
+        if (response.ok || response.redirected) {
+            location.reload();
+        }
     })
-
 </script>
 {% endblock %}
-
