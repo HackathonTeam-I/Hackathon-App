@@ -534,6 +534,33 @@ class Thread:
         finally:
             db_pool.release(conn)
 
+    # thread_idでスレッド取得
+    @classmethod
+    def get_thread_by_id(cls, thread_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor(pymysql.cursors.DictCursor) as cur:
+                sql = """
+                SELECT
+                    threads.id,
+                    threads.user_id,
+                    users.name AS user_name
+                FROM threads
+                LEFT JOIN users
+                    ON threads.user_id = users.id
+                WHERE threads.id = %s
+                LIMIT 1;
+                """
+                cur.execute(sql, (thread_id,))
+                return cur.fetchone()
+
+        except pymysql.Error as e:
+            print(f'エラーが発生しています：{e}')
+            abort(500)
+
+        finally:
+            db_pool.release(conn)
+
 
 # Messageクラス
 class Message:
