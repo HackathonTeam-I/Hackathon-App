@@ -10,7 +10,7 @@ import os
 from models import Department,User,Post,Image,CategoryGroup,Thread,Message,Notification
 
 # パスワードバリデーション
-PASSWORD_PATTERN = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}'
+PASSWORD_PATTERN = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$'
 
 # 定数定義　メール形式チェック用の正規表現とセッション有効期間（日数）を定義
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
@@ -652,7 +652,7 @@ def create_messages(thread_id):
     # ログインチェック
     if "user_id" not in session:
         return redirect("/login")
-    
+
     user_id = session["user_id"]
     role = session.get("role")
 
@@ -697,7 +697,7 @@ def show_notifications():
     user_id = session['user_id']
     # 通知取得（画像付き）
     notifications = Notification.get_all_notifications(user_id)
-    
+
     # JSTへ変換（+9時間）
     for notification in notifications:
         if notification['created_at']:
