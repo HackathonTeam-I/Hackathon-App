@@ -671,6 +671,8 @@ def create_messages(thread_id):
     # フォームからメッセージ取得
     content = request.form.get("content")
 
+    post_id = request.form.get("post_id")
+
     # 空チェック
     if not content or not content.strip():
         return redirect(f"/threads/{thread_id}")
@@ -679,7 +681,8 @@ def create_messages(thread_id):
     Message.create_message(
         thread_id=thread_id,
         sender_id=user_id,
-        content=content
+        content=content,
+        post_id=post_id
     )
     return redirect(f"/threads/{thread_id}")
 
