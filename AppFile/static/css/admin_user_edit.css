@@ -56,6 +56,17 @@
     background-color: var(--bc);
 }
 
+.form-group select {
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    border: 1px solid #cccccc;
+    border-radius: 12px;
+    box-sizing: border-box;
+    background-color: var(--bc);
+    appearance: none;
+}
+
 .form-group input::placeholder {
     color: #999999;
 }
