@@ -31,8 +31,13 @@
             </div>
 
             <div class="form-group">
-                <label for="department">部署名</label>
-                <input type="text" id="department" name="department" placeholder="部署名を入力してください" required>
+                <label for="department_id">部署名</label>
+                <select id="department_id" name="department_id" required>
+                    <option value="">部署を選択してください</option>
+                    {% for department in departments %}
+                    <option value="{{ department.id }}">{{ department.name }}</option>
+                    {% endfor %}
+                </select>
             </div>
 
             <div class="form-group">
