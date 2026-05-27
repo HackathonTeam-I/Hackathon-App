@@ -587,7 +587,7 @@ def show_thread_detail(thread_id):
     user_id = session.get('user_id')
     role = session.get('role')
     #スレット取得
-    thread = Thread.create_thread_by_user_id(thread_id)
+    thread = Thread.get_thread_by_id(thread_id)
     # スレッドが存在しない
     if not thread:
         abort(404)
@@ -606,7 +606,7 @@ def show_thread_detail(thread_id):
             )
 
     return render_template(
-        '/messages/messages.html',
+        'messages/messages.html',
         messages=messages,
         thread_id=thread_id,
         role=role,
@@ -654,7 +654,7 @@ def create_messages(thread_id):
         return redirect("/login")
     user_id = session["user_id"]
     # スレッドの所有者チェック（超重要）
-    thread = Thread.create_thread_by_user_id(thread_id)
+    thread = Thread.get_thread_by_id(thread_id)
     if not thread or thread["user_id"] != user_id:
         abort(403)
     # フォームからメッセージ取得
