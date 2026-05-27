@@ -576,9 +576,25 @@ class Message:
                         messages.content,
                         messages.created_at,
                         messages.sender_id,
-                        users.name AS sender_name
+                        messages.post_id,
+                        users.name AS sender_name,
+                        posts.description,
+                        posts.found_place,
+                        posts.found_date,
+                        categories.name AS category_name,
+
+                        -- 投稿画像1枚取得
+                        (
+                            SELECT image_path
+                            FROM images
+                            WHERE images.post_id = posts.id
+                            LIMIT 1
+                        ) AS image_path
+
                     FROM messages
                     LEFT JOIN users ON messages.sender_id = users.id
+                    LEFT JOIN posts ON messages.post_id = posts.id
+                    LEFT JOIN categories ON posts.category_id = categories.id
                     WHERE messages.thread_id = %s
                     ORDER BY messages.created_at ASC;
                     """
@@ -646,7 +662,7 @@ class Message:
 
         #メッセージ内容を追加
         @classmethod
-        def create_message(cls, thread_id, sender_id, content):
+        def create_message(cls, thread_id, sender_id, content, post_id=None):
             conn = db_pool.get_conn()
             try:
                 with conn.cursor() as cur:
@@ -654,14 +670,16 @@ class Message:
                     INSERT INTO messages (
                         thread_id,
                         sender_id,
-                        content
+                        content,
+                        post_id
                     )
-                    VALUES (%s, %s, %s);
+                    VALUES (%s, %s, %s, %s);
                     """
                     cur.execute(sql, (
                         thread_id,
                         sender_id,
-                        content
+                        content,
+                        post_id
                     ))
                     conn.commit()
             except pymysql.Error as e:
