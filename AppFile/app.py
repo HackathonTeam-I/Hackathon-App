@@ -382,7 +382,7 @@ def create_post():
             filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
 
             # 2:パスの組み立て
-            image_path = os.path.join('static/uploads',filename)
+            image_path = os.path.join('uploads',filename)
             image_file.save(os.path.join(app.root_path,image_path))
 
             # 3:DBに画像パスを登録
@@ -416,7 +416,7 @@ def upload_images(post_id):
     filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
 
     # ３：パスの組み立て
-    image_path = os.path.join('static/uploads',filename)
+    image_path = os.path.join('uploads',filename)
     image_file.save(os.path.join(app.root_path,image_path))
 
     # ４：DBにパスを登録
@@ -507,7 +507,7 @@ def update_images(post_id):
         if os.path.exists(old_path):
             os.remove(old_path)
         filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
-        image_path = os.path.join('static/uploads',filename)
+        image_path = os.path.join('uploads',filename)
         image_file.save(os.path.join(app.root_path,image_path))
 
         Image.update_image_by_image_id(image_id,image_path)
