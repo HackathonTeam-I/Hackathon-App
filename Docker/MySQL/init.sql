@@ -233,7 +233,7 @@ VALUES
 INSERT INTO
   images (post_id, image_path)
 VALUES
-  (1, 'static/uploads/handkerchief.png'),
-  (2, 'static/uploads/pouch.jpg'),
-  (3, 'static/uploads/stationery1.jpg'),
-  (3, 'static/uploads/stationery2.jpg');
+  (1, 'uploads/handkerchief.png'),
+  (2, 'uploads/pouch.jpg'),
+  (3, 'uploads/stationery1.jpg'),
+  (3, 'uploads/stationery2.jpg');
