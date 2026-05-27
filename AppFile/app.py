@@ -652,13 +652,25 @@ def create_messages(thread_id):
     # ログインチェック
     if "user_id" not in session:
         return redirect("/login")
+    
     user_id = session["user_id"]
+    role = session.get("role")
+
     # スレッドの所有者チェック（超重要）
     thread = Thread.get_thread_by_id(thread_id)
-    if not thread or thread["user_id"] != user_id:
-        abort(403)
+
+    # スレッド存在チェック
+    if not thread:
+        abort(404)
+
+    # 一般ユーザーだけ所有者チェック
+    if role != "admin":
+        if thread["user_id"] != user_id:
+            abort(403)
+
     # フォームからメッセージ取得
     content = request.form.get("content")
+
     # 空チェック
     if not content or not content.strip():
         return redirect(f"/threads/{thread_id}")

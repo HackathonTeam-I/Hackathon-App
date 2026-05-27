@@ -654,16 +654,14 @@ class Message:
                     INSERT INTO messages (
                         thread_id,
                         sender_id,
-                        content,
-                        post_id
+                        content
                     )
-                    VALUES (%s, %s, %s, %s);
+                    VALUES (%s, %s, %s);
                     """
                     cur.execute(sql, (
                         thread_id,
                         sender_id,
-                        content,
-                        None
+                        content
                     ))
                     conn.commit()
             except pymysql.Error as e:
