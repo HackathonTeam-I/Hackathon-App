@@ -391,7 +391,7 @@ def create_post():
     Notification.notify_on_post(post_id)
 
     flash('投稿が完了しました','success')
-    return redirect(url_for('show_admin_top')) #管理者トップ画面へ
+    return redirect(url_for('show_posts')) #投稿一覧へ
 
 # 画像追加処理
 @app.route('/api/admin/posts/<int:post_id>/images',methods=['POST'])
