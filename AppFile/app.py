@@ -366,7 +366,7 @@ def create_post():
     description = request.form.get('description')
     if not all([category_id,found_date,found_place]):
         flash('必須項目を入力して下さい','error')
-        return redirect(url_for('show_posts')) #新規投稿画面へ
+        return redirect(url_for('show_admin_posts')) #投稿編集ホームへ
 
     Post.create_post(user_id,category_id,found_date,found_place,description)
 
@@ -374,7 +374,7 @@ def create_post():
     post_id = Post.get_post_id_by_user(user_id)
 
     # フォームから画像ファイルを受け取る
-    image_file = request.files.get('image')
+    image_file = request.files.getlist('image')
     if image_file and allowed_file(image_file.filename):
 
         # 1:保有するファイル名を生成
