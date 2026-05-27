@@ -626,7 +626,7 @@ def redirect_to_my_chat():
         return redirect(url_for('show_thread_detail', thread_id=thread['id']))
     else:
         # 無ければ「まだないよ」という空っぽ画面を直接出す（※IDがないので転送できないため）
-        return render_template('messages.html', thread_id=None, messages=[], role=session.get('role'))
+        return render_template('messages/messages.html', thread_id=None, messages=[], role=session.get('role'))
 
 """
 メッセージ機能
