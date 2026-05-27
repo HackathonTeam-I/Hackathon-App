@@ -1,83 +1,163 @@
-.admin-posts-title{
-    font-family: 'Sora', sans-serif;
-    font-size:28px;
-    color:var(--text-main);
-    font-weight:700;
-    padding:8px 40px;
+/* 1. ヘッダーを横並び・縦中央揃えにする */
+.post-header {
+    width: 400px;
+    margin: 30px auto 20px auto;
+    /* フォームの幅に合わせ、中央寄せ */
+    display: flex;
+    align-items: center;
+    padding: 0;
 }
 
-.posts-form{
-    font-family: 'Sora', sans-serif;
-    font-size:20px;
-    color:var(--text-main);
-    margin:40px;
+/* 2. 戻るボタンの配置と余白（参考コードを適用） */
+.back-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px;
+    margin: 0 16px 0 -8px;
+    /* タイトルとの間に隙間を空ける */
+    text-decoration: none;
 }
 
-.posts-form > div{
+/* 3. 矢印アイコンのサイズ指定（参考コードの.back-iconに相当） */
+.arrow-left {
+    width: 24px;
+    height: 24px;
+}
+
+/* 4. タイトルの余白をリセットしてズレを防ぐ */
+.admin-posts-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 28px;
+    color: var(--text-main);
+    font-weight: 700;
+    margin: 0;
+    /* 下の余白を消して縦ラインを揃える */
+    text-align: left;
+}
+
+/* メインコンテンツ枠 */
+.main-admin-posts {
+    width: 400px;
+    margin: 0 auto;
+}
+
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    padding: 8px 16px 8px 0;
+    margin: 0;
+}
+
+.posts-form {
+    font-family: 'Sora', sans-serif;
+    font-size: 20px;
+    color: var(--text-main);
+    width: 100%;
+    margin: 0 0 40px 0;
+}
+
+.posts-form>div {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    width: 100%;
 }
 
-label{
+label {
     font-weight: 600;
-    padding:8px 0px;
+    padding: 8px 0px;
 }
 
-select{
+select,
+input {
     font-weight: 400;
     height: 32px;
-    width: 400px;
-    padding: 0px 12px 0px 0px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0px 12px;
     border-radius: 8px;
     background-color: var(--form-bg);
     box-shadow: inset 0 4px 4px rgba(0, 0, 0, 0.25);
+    border: none;
 }
 
-textarea{
+textarea {
     font-weight: 400;
     height: 80px;
-    width: 400px;
-    padding: 0px 12px 0px 0px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 12px;
     border-radius: 8px;
     background-color: var(--form-bg);
     box-shadow: inset 0 4px 4px rgba(0, 0, 0, 0.25);
+    border: none;
+    resize: none;
 }
 
-input{
-    font-weight: 400;
-    height: 32px;
-    width: 400px;
-    padding: 0px 12px 0px 0px;
-    border-radius: 8px;
-    background-color: var(--form-bg);
-    box-shadow: inset 0 4px 4px rgba(0, 0, 0, 0.25);
+.photo-area {
+    display: block;
 }
 
-.photo-area{
-    display: flex;  
-}
-
-.upload-photo{
+.upload-photo {
     font-weight: 600;
-    padding:8px 0px;
+    padding: 8px 0px;
+    display: inline-block;
+    vertical-align: middle;
 }
 
-#remove-photo-button{
-    background: transparent;
-    border:none;
-    padding: 0;
+.upload-button {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 8px;
     cursor: pointer;
 }
 
-.register-button{
-    margin: 140px  40px 20px 300px;
+#preview-area {
+    position: relative;
+    margin-top: 16px;
+    width: 260px;
 }
 
-.admin-posts-button{
-    font-size:24px;
+#preview-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.preview-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#remove-photo-button {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    z-index: 10;
+}
+
+.register-button {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: flex-end !important;
+    width: 100%;
+    margin-top: 40px;
+}
+
+.admin-posts-button {
+    font-size: 24px;
     color: var(--logo-top);
-    background-color:var(--regi-btn);
+    background-color: var(--regi-btn);
     height: 64px;
     width: 164px;
     border-radius: 20px;
