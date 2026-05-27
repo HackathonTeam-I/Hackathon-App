@@ -10,7 +10,7 @@ import os
 from models import Department,User,Post,Image,CategoryGroup,Thread,Message,Notification
 
 # パスワードバリデーション
-PASSWORD_PATTERN = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}'
+PASSWORD_PATTERN = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$'
 
 # 定数定義　メール形式チェック用の正規表現とセッション有効期間（日数）を定義
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
@@ -118,15 +118,29 @@ def update_password():
     new_password = request.form.get('new_password')
     confirm_password = request.form.get('confirm_password')
 
-    # バリデーション
+    user = User.get_user_by_id(user_id)
+
+    # 未入力チェック
     if not new_password or not confirm_password:
         flash('入力してください', 'error')
         return redirect(url_for('get_password'))
+    # 8文字以上チェック
+    if not re.match(PASSWORD_PATTERN, new_password):
+        flash(
+            'パスワードは8文字以上・大文字・小文字・数字を含めてください',
+            'error'
+        )
+        return redirect(url_for('get_password'))
+    #現在と同じパスワード禁止
+    if check_password_hash(user['password'], new_password):
+        flash('同じパスワードは使用できません', 'error')
+        return redirect(url_for('get_password'))
+    # パスワード一致チェック
     if new_password != confirm_password:
         flash('パスワードが一致しません', 'error')
         return redirect(url_for('get_password'))
 
-    # 更新
+    # パスワード更新
     hashed_password = generate_password_hash(new_password)
     User.update_password(user_id, hashed_password)
     # 仮状態解除
@@ -352,17 +366,33 @@ def create_post():
     description = request.form.get('description')
     if not all([category_id,found_date,found_place]):
         flash('必須項目を入力して下さい','error')
-        return redirect(url_for('show_posts')) #新規投稿画面へ
+        return redirect(url_for('show_admin_posts')) #投稿編集ホームへ
 
     Post.create_post(user_id,category_id,found_date,found_place,description)
 
     # 投稿作成＋ID取得
     post_id = Post.get_post_id_by_user(user_id)
+
+    # フォームから画像ファイルを受け取る
+    image_files = request.files.getlist('image')
+    for image_file in image_files:
+        if image_file and allowed_file(image_file.filename):
+
+            # 1:保有するファイル名を生成
+            filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
+
+            # 2:パスの組み立て
+            image_path = os.path.join('static/uploads',filename)
+            image_file.save(os.path.join(app.root_path,image_path))
+
+            # 3:DBに画像パスを登録
+            Image.create_images(post_id,image_path)
+
     # 通知作成
     Notification.notify_on_post(post_id)
 
     flash('投稿が完了しました','success')
-    return redirect(url_for('show_admin_top')) #管理者トップ画面へ
+    return redirect(url_for('show_posts')) #投稿一覧へ
 
 # 画像追加処理
 @app.route('/api/admin/posts/<int:post_id>/images',methods=['POST'])
@@ -371,24 +401,29 @@ def upload_images(post_id):
     # １：フォームから画像ファイルを受け取る
     image_file = request.files.get('image')
     if image_file is None:
-        flash('投稿画像を選択して下さい','error')
-        return redirect(url_for('show_admin_posts')) #新規投稿画面へ
+        return jsonify({
+            'status': 'error',
+            'message': '投稿画像を選択して下さい'
+        }),400
 
     if not allowed_file(image_file.filename):
-        flash('jpg/jpeg/png形式のファイルを選択して下さい','error')
-        return redirect(url_for('show_admin_posts'))
+        return jsonify({
+            'status': 'error',
+            'message': 'jpg/jpeg/png形式のファイルを選択して下さい'
+        }),400
 
     # ２：保存するファイル名を生成
     filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
 
     # ３：パスの組み立て
     image_path = os.path.join('static/uploads',filename)
-    image_file.save(os.path.join('AppFile',image_path))
+    image_file.save(os.path.join(app.root_path,image_path))
 
     # ４：DBにパスを登録
     Image.create_images(post_id,image_path)
-    flash('画像を登録しました','success')
-    return redirect(url_for('show_post_detail',id=post_id))
+    return jsonify({'status': 'success',
+                    'message': '画像を登録しました'
+                    }),200
 
 # 編集フォーム画面表示
 @app.route('/admin/posts/<int:id>/edit',methods=['GET'])
@@ -401,16 +436,24 @@ def show_update_post(id):
     categories = CategoryGroup.get_all_category_groups()
 
     # カテゴリーをグループIDでまとめる
+    groups = []
     categories_mapping = {}
     for category in categories:
-        group_id = str(category['group_id'])
-        if group_id not in categories_mapping:
-            categories_mapping[group_id] = []
-        categories_mapping[group_id].append({
-            'id':category['category_id'],
-            'name':category['category_name']
+        # グループ情報の整列
+        groups.append({
+            'id': category['id'],
+            'name': category['name']
         })
-    return render_template('admin/admin_edit.html',post=post,images=images,categories_mapping=categories_mapping)
+        # JSで扱えるように、グループIDを文字列に変換する
+        group_id = str(category['id'])
+        categories_mapping[group_id] = []
+        for c in category['categories']:
+            # グループIDに対応するカテゴリーに振り分ける
+            categories_mapping[group_id].append({
+                'id':c['id'],
+                'name':c['name']
+            })
+    return render_template('admin/admin_edit.html',post=post,images=images,groups=groups,categories_mapping=categories_mapping)
 
 # 投稿更新処理
 @app.route('/api/admin/posts/<int:id>',methods=['PATCH'])
@@ -460,12 +503,12 @@ def update_images(post_id):
         # 3.画像が指定されたファイル形式か（形式確認）
         if not allowed_file(image_file.filename):
             abort(400,description='jpg/jpeg/png形式の画像ファイルを選択して下さい')
-        old_path = os.path.join('AppFile',image['image_path'])
+        old_path = os.path.join(app.root_path,image['image_path'])
         if os.path.exists(old_path):
             os.remove(old_path)
         filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
         image_path = os.path.join('static/uploads',filename)
-        image_file.save(os.path.join('AppFile',image_path))
+        image_file.save(os.path.join(app.root_path,image_path))
 
         Image.update_image_by_image_id(image_id,image_path)
 
@@ -486,7 +529,7 @@ def delete_post(id):
         abort(404,description='指定された投稿が見つかりません')
     images = Image.get_images_by_post_id(id)
     for image in images:
-        file_path = os.path.join('AppFile',image['image_path'])
+        file_path = os.path.join(app.root_path,image['image_path'])
         if os.path.exists(file_path):
             os.remove(file_path)
     Post.delete_post(id)
@@ -503,7 +546,7 @@ def delete_images(post_id,image_id):
     image = Image.get_image_by_image_id(image_id)
     if image is None:
         abort(404,description='指定された画像が見つかりません')
-    file_path = os.path.join('AppFile',image['image_path'])
+    file_path = os.path.join(app.root_path,image['image_path'])
     if os.path.exists(file_path):
         os.remove(file_path)
     Image.delete_image_by_image_id(image_id)
@@ -555,12 +598,20 @@ def show_thread_detail(thread_id):
             abort(403)
     # 管理者、または自分のスレッドならメッセージを取得して表示
     messages = Message.get_messages_by_thread_id(thread_id)
+
+    # JSTへ変換
+    for message in messages:
+        if message['created_at']:
+            message['created_at'] = (
+                message['created_at'] + timedelta(hours=9)
+            )
+
     return render_template(
-        '/messages/messages.html',
+        'messages/messages.html',
         messages=messages,
         thread_id=thread_id,
         role=role,
-        thread=thread
+        user_name=thread['user_name']
     )
 
 @app.route('/my_chat', methods=['GET'])
@@ -569,14 +620,14 @@ def redirect_to_my_chat():
         return redirect(url_for('show_login'))
 
     # 自分のスレッドIDを探す
-    thread = Thread.get_thread_by_user_id(session['user_id'])
+    thread = Thread.create_thread_by_user_id(session['user_id'])
 
     if thread:
         # スレッドがあれば、本番ルート（/threads/〇〇）へ転送！
         return redirect(url_for('show_thread_detail', thread_id=thread['id']))
     else:
         # 無ければ「まだないよ」という空っぽ画面を直接出す（※IDがないので転送できないため）
-        return render_template('messages.html', thread_id=None, messages=[], role=session.get('role'))
+        return render_template('messages/messages.html', thread_id=None, messages=[], role=session.get('role'))
 
 """
 メッセージ機能
@@ -602,13 +653,24 @@ def create_messages(thread_id):
     # ログインチェック
     if "user_id" not in session:
         return redirect("/login")
+
     user_id = session["user_id"]
-    # スレッドの所有者チェック（超重要）
+    role = session.get("role")
+
+    # スレッドの所有者チェック
     thread = Thread.get_thread_by_id(thread_id)
-    if not thread or thread["user_id"] != user_id:
+    if not thread:
+        abort(404)
+
+    # 一般ユーザーだけ所有者チェック
+    if role != 'admin' and thread["user_id"] != user_id:
         abort(403)
+
     # フォームからメッセージ取得
     content = request.form.get("content")
+
+    post_id = request.form.get("post_id")
+
     # 空チェック
     if not content or not content.strip():
         return redirect(f"/threads/{thread_id}")
@@ -617,7 +679,8 @@ def create_messages(thread_id):
     Message.create_message(
         thread_id=thread_id,
         sender_id=user_id,
-        content=content
+        content=content,
+        post_id=post_id
     )
     return redirect(f"/threads/{thread_id}")
 
@@ -627,10 +690,21 @@ def create_messages(thread_id):
 #通知一覧
 @app.route('/notifications', methods=['GET'])
 def show_notifications():
+    if 'user_id' not in session:
+        return redirect(url_for('show_login'))
+    user_id = session['user_id']
     # 通知取得（画像付き）
-    notifications = Notification.get_all_notifications()
+    notifications = Notification.get_all_notifications(user_id)
+
+    # JSTへ変換（+9時間）
+    for notification in notifications:
+        if notification['created_at']:
+            notification['created_at'] = (
+                notification['created_at'] + timedelta(hours=9)
+            )
+
     return render_template(
-        '/messages/notifications.html',
+        'messages/notifications.html',
         notifications=notifications
     )
 

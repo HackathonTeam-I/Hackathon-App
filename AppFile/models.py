@@ -200,7 +200,8 @@ class Post:
             with conn.cursor() as cur:
                 sql = """
                 SELECT posts.*,
-                    categories.name as category_name
+                    categories.name as category_name,
+                    categories.group_id as group_id
                 FROM posts
                 LEFT JOIN categories ON posts.category_id = categories.id
                 WHERE posts.id = %s AND deleted_at IS NULL;
@@ -315,7 +316,10 @@ class Image:
         try:
             with conn.cursor() as cur:
                 sql = """
-                SELECT *
+                SELECT
+                    id as image_id,
+                    post_id,
+                    image_path
                 FROM images
                 WHERE post_id = %s;
                 """
@@ -530,6 +534,33 @@ class Thread:
         finally:
             db_pool.release(conn)
 
+    # thread_idでスレッド取得
+    @classmethod
+    def get_thread_by_id(cls, thread_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor(pymysql.cursors.DictCursor) as cur:
+                sql = """
+                SELECT
+                    threads.id,
+                    threads.user_id,
+                    users.name AS user_name
+                FROM threads
+                LEFT JOIN users
+                    ON threads.user_id = users.id
+                WHERE threads.id = %s
+                LIMIT 1;
+                """
+                cur.execute(sql, (thread_id,))
+                return cur.fetchone()
+
+        except pymysql.Error as e:
+            print(f'エラーが発生しています：{e}')
+            abort(500)
+
+        finally:
+            db_pool.release(conn)
+
 
 # Messageクラス
 class Message:
@@ -545,9 +576,25 @@ class Message:
                         messages.content,
                         messages.created_at,
                         messages.sender_id,
-                        users.name AS sender_name
+                        messages.post_id,
+                        users.name AS sender_name,
+                        posts.description,
+                        posts.found_place,
+                        posts.found_date,
+                        categories.name AS category_name,
+
+                        -- 投稿画像1枚取得
+                        (
+                            SELECT image_path
+                            FROM images
+                            WHERE images.post_id = posts.id
+                            LIMIT 1
+                        ) AS image_path
+
                     FROM messages
                     LEFT JOIN users ON messages.sender_id = users.id
+                    LEFT JOIN posts ON messages.post_id = posts.id
+                    LEFT JOIN categories ON posts.category_id = categories.id
                     WHERE messages.thread_id = %s
                     ORDER BY messages.created_at ASC;
                     """
@@ -567,27 +614,27 @@ class Message:
             try:
                 with conn.cursor() as cur:
                     sql =  """
-                INSERT INTO messages (
-                    thread_id,
-                    sender_id,
-                    content,
-                    post_id
-                )
-                VALUES (%s, %s, %s, %s);
-                """
-                cur.execute(sql, (
-                    thread_id,
-                    sender_id,
-                    "この落し物は私のものです",
-                    post_id
-                ))
-                conn.commit()
+                    INSERT INTO messages (
+                        thread_id,
+                        sender_id,
+                        content,
+                        post_id
+                    )
+                    VALUES (%s, %s, %s, %s);
+                    """
+                    cur.execute(sql, (
+                        thread_id,
+                        sender_id,
+                        "この落し物について心当たりがあるため、ご連絡しました。詳細確認をお願いいたします。",
+                        post_id
+                    ))
+                    conn.commit()
             finally:
                 db_pool.release(conn)
 
         #メッセージ内容を取得
         @classmethod
-        def get_messages_by_user_id(cls):
+        def get_messages_by_user_id(cls, thread_id):
             conn = db_pool.get_conn()
             try:
                 with conn.cursor() as cur:
@@ -604,7 +651,7 @@ class Message:
                     ORDER BY messages.created_at ASC;
                     """
                     cur.execute(sql, (thread_id,))
-                    messages = cur.fetchone()
+                    messages = cur.fetchall()
                 return messages
             except pymysql.Error as e:
                 print(f'エラーが発生しています：{e}')
@@ -615,7 +662,7 @@ class Message:
 
         #メッセージ内容を追加
         @classmethod
-        def create_message(cls, thread_id, sender_id, content):
+        def create_message(cls, thread_id, sender_id, content, post_id=None):
             conn = db_pool.get_conn()
             try:
                 with conn.cursor() as cur:
@@ -632,7 +679,7 @@ class Message:
                         thread_id,
                         sender_id,
                         content,
-                        None
+                        post_id
                     ))
                     conn.commit()
             except pymysql.Error as e:
@@ -689,19 +736,19 @@ class Notification:
         try:
             with conn.cursor() as cur:
                 sql = """
-             INSERT INTO notifications (
-                user_id,
-                post_id,
-                type
-            )
-            VALUES (%s, %s, 'new_post')
-            """
-            # 全ユーザ取得
-            cur.execute("SELECT id FROM users")
-            users = cur.fetchall()
-            for user in users:
-                cur.execute(sql, (user[0], post_id))
-            conn.commit()
+                INSERT INTO notifications (
+                    user_id,
+                    post_id,
+                    type
+                )
+                VALUES (%s, %s, 'new_post')
+                """
+                # 全ユーザ取得
+                cur.execute("SELECT id FROM users")
+                users = cur.fetchall()
+                for user in users:
+                    cur.execute(sql, (user['id'], post_id))
+                conn.commit()
         except pymysql.Error as e:
             print(f'エラーが発生しています：{e}')
             abort(500)

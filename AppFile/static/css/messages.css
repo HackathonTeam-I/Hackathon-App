@@ -1,132 +1,193 @@
-.page-messages{
+.page-messages {
     background: var(--bc);
+    height: 100vh;
+    /* 100vhで画面高さを確保 */
     display: flex;
     flex-direction: column;
-    overflow-y: auto;  
+    /* overflow-y: auto; ここは削除し、チャットエリアでスクロールさせます */
 }
 
-.back-button{
-    font-size: 24px;
-    font-weight: bold;
-    color: var(--text-main);
+.messages-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.messages-header {
+    display: flex;
+    align-items: center;
+    /* 縦のラインを中央でピッタリ揃える */
+    padding: 16px 20px;
+    /* 上下左右の余白（画面端にくっつかないように） */
+    gap: 16px;
+    /* 矢印とタイトルの間の隙間 */
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-decoration: none;
 }
 
-.messages-title{
-    margin: 0px 40px;
+.back-icon {
+    width: 24px;
+    height: 24px;
 }
 
-.messages-user-title{
+.messages-user-title {
+    margin: 0;
     padding: 0px;
-    font-size: 28px;
+    font-size: 24px;
     color: var(--text-main);
-    font-weight: 700px;   
+    font-weight: bold;
 }
 
-.chat-messages{
+.chat-messages {
     display: flex;
     flex-direction: column;
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 16px;
+    gap: 16px;
+    align-items: flex-start;
+    /* 基本は左寄せ */
+}
+
+/* 共通：メッセージ1行の塊 */
+.message-row {
+    display: flex;
+    align-items: flex-start;
+    /* アイコンと吹き出しの上端を揃える */
     max-width: 85%;
 }
 
-.message-received{
-    align-self: flex-start;
-    flex-direction: row;
-}
-
-.receiver-icon{
-    width: 50px;
-    aspect-ratio: 1 / 1; /*正方形*/
+/* 共通：丸型アイコン */
+.user-icon {
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
-    object-fit: cover; /*アイコンの歪み防止、中央で切り抜き*/
-    margin: 12px;
+    object-fit: cover;
+    flex-shrink: 0;
+    /* 画面が狭くなってもアイコンが潰れないように固定 */
 }
 
-.message-content-wrapper{
+/* 共通：吹き出しと時間のセット */
+.message-content-wrapper {
     display: flex;
     align-items: flex-end;
-    gap: 6px;
+    /* 時間を吹き出しの下端に揃える */
+    gap: 8px;
+    /* 吹き出しと時間の間の隙間 */
 }
 
-.message-received-body{
-    padding: 8px 16px;
-    font-size:16px;
-    font-weight: 500px;
-    color: var(--logo-top);
-    background: var(--bg);
-    overflow-wrap: anywhere; /*要素の幅が中身に合わせて伸縮するレイアウトで自動改行させる*/
-    border-radius: 20px;
-}
-
-.message-received-time{
-    padding: 0px;
+/* 共通：吹き出しの基本装飾 */
+.message-body {
+    padding: 10px 16px;
     font-size: 16px;
-    color: var(--text-main);
+    font-weight: 500;
+    overflow-wrap: anywhere;
+    border-radius: 20px;
+    line-height: 1.4;
 }
 
-.message-sent{
-    display: flex;
-    align-self: flex-end;
-    flex-direction :row-reverse;
+/* 共通：時間 */
+.message-time {
+    font-size: 11px;
+    color: #888888;
+    white-space: nowrap;
+    margin-bottom: 2px;
+    /* 下揃えの微調整 */
 }
 
-.sender-icon{
-    width: 50px;
-    aspect-ratio: 1 / 1; /*正方形*/
-    border-radius: 50%;
-    object-fit: cover; /*アイコンの歪み防止、中央で切り抜き*/
-    margin: 12px;
+.message-received {
+    align-self: flex-start;
+    /* 左端に寄せる */
 }
 
-.message-sent-body{
-    padding: 8px 16px;
-    font-size:16px;
-    font-weight: 500px;
-    color: var(--text-main);
+.message-received .user-icon {
+    margin-right: 12px;
+    /* アイコンの右側に隙間を開けて吹き出しを配置 */
+}
+
+.message-received .message-body {
+    color: #000000;
     background: #F3F4F6;
-    overflow-wrap: anywhere; /*要素の幅が中身に合わせて伸縮するレイアウトで自動改行させる*/
-    border-radius: 20px;
+    /* 薄いグレーの吹き出し */
 }
 
-.message-sent-time{
-    padding: 0px;
-    font-size: 16px;
+.message-sent {
+    align-self: flex-end;
+    /* 右端に寄せる */
+}
+
+.message-sent .user-icon {
+    margin-left: 12px;
+    /* アイコンの左側に隙間を開けて吹き出しを配置 */
+}
+
+.message-sent .message-body {
+    color: #FFFFFF;
+    background: #0099FF;
+    /* 綺麗な青色の吹き出し */
+}
+
+.no-messages {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    font-weight: 500;
     color: var(--text-main);
+    opacity: 0.5;
+    margin: 0;
 }
 
-.messages-input-area{
+.messages-input-area {
     position: relative;
     width: 100%;
-    max-width: 400px;
+    flex-shrink: 0;
+    /* メッセージが増えてもこのエリアが縮まないように保護 */
+    padding: 16px;
+    /* 画面端にくっつかないように余白 */
+    box-sizing: border-box;
 }
 
-.messages-input-area input{
+.messages-input-area input {
     border-radius: 20px;
     width: 100%;
-    height: 72px;
+    height: 60px;
+    /* 少しスマートな高さに変更 */
     padding: 8px 76px 8px 16px;
-    cursor: pointer;
-    outline:1px solid transparent;
-    font-size:16px;
-    font-weight:500;
-    box-sizing:border-box;
+    cursor: text;
+    /* 入力欄なのでtextカーソルに変更 */
+    outline: 1px solid transparent;
+    font-size: 16px;
+    font-weight: 500;
+    box-sizing: border-box;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    /* 少し浮かせて境界を見やすく */
 }
 
-.messages-input-area input:focus{
-    background-color: var(--bc);;
-    outline:1px solid #000000;
+.messages-input-area input:focus {
+    background-color: var(--bc);
+    outline: 1px solid #000000;
     transition: outline 0.3s;
 }
 
-.send-button{
+.send-button {
     position: absolute;
-    right: 8px;
+    right: 24px;
+    /* 親のpaddingに合わせて調整 */
     top: 50%;
     transform: translateY(-50%);
-    width: 72px;
-    height: 72px;
+    width: 44px;
+    /* アイコンサイズに合わせて縮小 */
+    height: 44px;
     border: none;
     background: transparent;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-

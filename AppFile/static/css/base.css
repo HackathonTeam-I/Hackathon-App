@@ -47,17 +47,34 @@ footer {
 }
 
 .bottom-nav a {
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    width: 48px;
     text-decoration: none;
     color: #ffffff;
+    white-space: nowrap;
 }
 
 .bottom-nav_img {
-    width: 16px;
-    height: 16px;
+    width: 36px;
+    height: 36px;
+    margin-bottom: 4px;
+    filter: brightness(0) invert(1);
+}
+
+.bottom-nav-admin_img {
+    width: 52px;
+    height: 52px;
+    margin-bottom: 4px;
+    filter: brightness(0) invert(1);
+}
+
+.bottom-nav-logout_img {
+    width: 48px;
+    height: 48px;
     margin-bottom: 4px;
     filter: brightness(0) invert(1);
 }
