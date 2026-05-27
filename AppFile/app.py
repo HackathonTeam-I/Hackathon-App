@@ -656,17 +656,14 @@ def create_messages(thread_id):
     user_id = session["user_id"]
     role = session.get("role")
 
-    # スレッドの所有者チェック（超重要）
+    # スレッドの所有者チェック
     thread = Thread.get_thread_by_id(thread_id)
-
-    # スレッド存在チェック
     if not thread:
         abort(404)
 
     # 一般ユーザーだけ所有者チェック
-    if role != "admin":
-        if thread["user_id"] != user_id:
-            abort(403)
+    if role != 'admin' and thread["user_id"] != user_id:
+        abort(403)
 
     # フォームからメッセージ取得
     content = request.form.get("content")
