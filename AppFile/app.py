@@ -383,7 +383,7 @@ def create_post():
 
             # 2:パスの組み立て
             image_path = os.path.join('uploads',filename)
-            image_file.save(os.path.join(app.root_path,image_path))
+            image_file.save(os.path.join(app.root_path,'static',image_path))
 
             # 3:DBに画像パスを登録
             Image.create_images(post_id,image_path)
@@ -417,7 +417,7 @@ def upload_images(post_id):
 
     # ３：パスの組み立て
     image_path = os.path.join('uploads',filename)
-    image_file.save(os.path.join(app.root_path,image_path))
+    image_file.save(os.path.join(app.root_path,'static',image_path))
 
     # ４：DBにパスを登録
     Image.create_images(post_id,image_path)
@@ -503,12 +503,12 @@ def update_images(post_id):
         # 3.画像が指定されたファイル形式か（形式確認）
         if not allowed_file(image_file.filename):
             abort(400,description='jpg/jpeg/png形式の画像ファイルを選択して下さい')
-        old_path = os.path.join(app.root_path,image['image_path'])
+        old_path = os.path.join(app.root_path,'static',image['image_path'])
         if os.path.exists(old_path):
             os.remove(old_path)
         filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
         image_path = os.path.join('uploads',filename)
-        image_file.save(os.path.join(app.root_path,image_path))
+        image_file.save(os.path.join(app.root_path,'static',image_path))
 
         Image.update_image_by_image_id(image_id,image_path)
 
@@ -529,7 +529,7 @@ def delete_post(id):
         abort(404,description='指定された投稿が見つかりません')
     images = Image.get_images_by_post_id(id)
     for image in images:
-        file_path = os.path.join(app.root_path,image['image_path'])
+        file_path = os.path.join(app.root_path,'static',image['image_path'])
         if os.path.exists(file_path):
             os.remove(file_path)
     Post.delete_post(id)
@@ -546,7 +546,7 @@ def delete_images(post_id,image_id):
     image = Image.get_image_by_image_id(image_id)
     if image is None:
         abort(404,description='指定された画像が見つかりません')
-    file_path = os.path.join(app.root_path,image['image_path'])
+    file_path = os.path.join(app.root_path,'static',image['image_path'])
     if os.path.exists(file_path):
         os.remove(file_path)
     Image.delete_image_by_image_id(image_id)
