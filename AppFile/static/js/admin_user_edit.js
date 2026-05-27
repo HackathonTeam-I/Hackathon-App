@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const updateData = {
             name: document.getElementById('name').value,
             email: document.getElementById('email').value,
-            department: document.getElementById('department').value,
+            department: document.getElementById('department_id').value,
         };
 
         //パスワードは変更があったときのみ
