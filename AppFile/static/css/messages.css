@@ -89,6 +89,23 @@
     overflow-wrap: anywhere;
     border-radius: 20px;
     line-height: 1.4;
+    white-space:pre-wrap;
+}
+
+.post-card-image{
+    width:100%;
+    height:auto;
+}
+
+.post-card-location{
+    display:flex;
+    align-items:center;
+    gap:4px;
+}
+
+.location-icon{
+    width:14px;
+    height:14px;
 }
 
 /* 共通：時間 */

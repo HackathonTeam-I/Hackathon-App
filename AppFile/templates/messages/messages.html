@@ -31,6 +31,37 @@
                 <div class="message-content-wrapper">
                     <div class="message-body">
                         {{message.content}}
+                        {% if message.post_id %}
+                        <div class="post-card">
+                            {% if message.image_path %}
+                            <img src="{{ url_for('static', filename=message.image_path) }}" alt="投稿画像" class="post-card-image">
+                            {% endif %}
+                            <div class="post-card-info">
+                                {% if message.category_name %}
+                                <span class="post-card-category">
+                                    {{ message.category_name }}
+                                </span>
+                                {% endif %}
+                                {% if message.found_place %}
+                                <span class="post-card-location">
+                                    <img src="{{ url_for('static', filename='images/post-card_location.svg') }}" 
+                                         alt="📍"
+                                         class="location-icon"
+                                    >
+                                     {{ message.found_place }}
+                                </span>
+                                {% endif %}
+                                {% if message.found_date %}
+                                <p>
+                                    {{ message.found_date }}
+                                </p>
+                                {% endif %}
+                                {% if message.description %}
+                                <p>{{ message.description }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                     <span class="message-time">{{message.created_at.strftime('%H:%M')}}</span>
                 </div>
@@ -42,6 +73,30 @@
                     <span class="message-time">{{message.created_at.strftime('%H:%M')}}</span>
                     <div class="message-body">
                         {{message.content}}
+                        {% if message.post_id %}
+                        <div class="post-card">
+                            {% if message.image_path %}
+                            <img src="{{ url_for('static', filename=message.image_path) }}" alt="投稿画像" class="post-card-image">
+                            {% endif %}
+                            <div class="post-card-info">
+                                {% if message.category_name %}<span class="post-card-category">{{ message.category_name }}</span>{% endif %}
+                               {% if message.found_place %}
+                                <span class="post-card-location">
+                                    <img src="{{ url_for('static', filename='images/post-card_location.svg') }}" alt="📍">
+                                     {{ message.found_place }}
+                                </span>
+                                {% endif %}
+                                {% if message.found_date %}
+                                <p>
+                                    {{ message.found_date }}
+                                </p>
+                                {% endif %}
+                                {% if message.description %}
+                                <p>{{ message.description }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -78,7 +133,8 @@
 <script>
     const form = document.getElementById("message-form");
     //formが送信ボタンによって送信された際に処理を実行
-    form.addEventListener("submit", async (e) => {
+    if(form){
+        form.addEventListener("submit", async (e) => {
         //htmlのform送信をキャンセル
         e.preventDefault();
 
@@ -94,6 +150,7 @@
         if (response.ok || response.redirected) {
             location.reload();
         }
-    })
+        });
+    }
 </script>
 {% endblock %}
