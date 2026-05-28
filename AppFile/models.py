@@ -667,6 +667,31 @@ class Message:
             finally:
                 db_pool.release(conn)
 
+        # 同じ投稿の定型文が既に存在するか確認
+        @classmethod
+        def exists_post_message(cls, thread_id, post_id):
+            conn = db_pool.get_conn()
+
+            try:
+                with conn.cursor() as cur:
+                    sql = """
+                    SELECT id
+                    FROM messages
+                    WHERE thread_id = %s
+                    AND post_id = %s
+                    LIMIT 1;
+                    """
+
+                    cur.execute(sql, (thread_id, post_id))
+
+                    return cur.fetchone() is not None
+
+            except pymysql.Error as e:
+                print(f'エラーが発生しています：{e}')
+                abort(500)
+
+            finally:
+                db_pool.release(conn)
 
         #メッセージ内容を追加
         @classmethod
