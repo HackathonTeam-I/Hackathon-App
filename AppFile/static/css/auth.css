@@ -1,5 +1,9 @@
+.page-auth{
+    background: #00A6FF;
+    min-height:100vh;
+}
+
 .page-auth-main{
-    background: var(--bg);
     display: flex;
     align-items: center;
     justify-content: center;
