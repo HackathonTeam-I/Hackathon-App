@@ -1,7 +1,8 @@
 .admin-top-contents{
     width:100%;
-    max-width: 500px;
-    margin:20px;
+    max-width:800px;
+    margin:20px 0;
+    padding:0 16px;
     box-sizing:border-box;
 }
 
@@ -17,7 +18,19 @@
     padding:0px;
 }
 
-li{
+.admin-posts a,
+.admin-threads a,
+.admin-user a{
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    padding:4px 8px;
+    gap: 4px;
+}
+
+.admin-posts li,
+.admin-threads li,
+.admin-user li{
     list-style:none;
     border-bottom: 1px solid var(--r-btn);
 }
@@ -29,21 +42,8 @@ li{
     font-weight:500;
 }
 
-.admin-posts a{
-    display: flex;
-    align-items: center;
-}
-
 .admin-menu{
     margin-left: auto;
 }
 
-.admin-threads a{
-    display: flex;
-    align-items: center;
-}
 
-.admin-user a{
-    display: flex;
-    align-items: center;
-}
