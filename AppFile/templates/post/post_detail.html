@@ -9,7 +9,8 @@
 {% block content %}
 <div class="detail-post">
     <header class="detail-header">
-        <a href="{{ url_for('show_posts') }}" class="back-button">
+        <a href="{{ url_for('show_posts',category_id=category_id) if category_id else url_for('show_posts') }}" class="back-button">
+
             <img src="{{ url_for('static', filename='images/arrow-left.svg') }}" alt="戻る" class="back-icon">
         </a>
     </header>
@@ -65,9 +66,7 @@
         <div class="admin-actions">
             <a href="{{ url_for('show_update_post', id=post.id) }}" class="action-btn btn-edit">編集</a>
             <!--JSでIDを取得できるようにdata-post-idを仕込む-->
-            <button id="showDeleteModalBtn" data-redirect-url="{{ url_for('show_posts') }}"
-                class="action-btn btn-delete" data-post-id="{{ post.id }}"
-                data-csrf-token="{{ csrf_token() }}">削除</button>
+            <button id="showDeleteModalBtn" data-redirect-url="{{ url_for('show_posts',category_id=category_id) if category_id else url_for('show_posts')}}" class="action-btn btn-delete" data-post-id="{{ post.id }}" data-csrf-token="{{ csrf_token() }}">削除</button>
         </div>
         {% else %}
         <div class="user-action">
