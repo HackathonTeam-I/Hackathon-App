@@ -1,82 +1,86 @@
-.page-auth{
-    background: #00A6FF;
-    min-height:100vh;
+body {
+    padding-bottom: 0;
 }
 
-.page-auth-main{
+.page-auth {
+    background: #00A6FF;
+    min-height: 100vh;
+}
+
+.page-auth-main {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding:24px 40px;
+    padding: 24px 40px;
 }
 
-.wrapper{
+.wrapper {
     width: 90%;
     max-width: 500px;
     margin: 0 auto;
 }
 
 
-.card-header{
-    text-align:center;
-    margin-bottom:24px;
-}
-
-h2{
-    color: var(--logo-top);
-    font-size:36px;
-    font-weight:700;
-    text-align:center;
-    margin-bottom:12px;
-    text-shadow:0px 4px 4px rgba(0, 0, 0, 0.25);
-}
-
-p{
-    color: var(--logo-top);
-    font-size:20px;
-    font-weight:400;
+.card-header {
     text-align: center;
-    margin-bottom:36px;
+    margin-bottom: 24px;
+}
+
+h2 {
+    color: var(--logo-top);
+    font-size: 36px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 12px;
     text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 }
 
-.auth-form{
+p {
+    color: var(--logo-top);
+    font-size: 20px;
+    font-weight: 400;
+    text-align: center;
+    margin-bottom: 36px;
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.auth-form {
     display: flex;
-    flex-direction:column;
+    flex-direction: column;
     align-items: center;
     gap: 35px;
 }
 
-.auth-form label{
-    color:var(--logo-top);
-    display:block;
-    margin-bottom:8px;
+.auth-form label {
+    color: var(--logo-top);
+    display: block;
+    margin-bottom: 8px;
 }
 
 
 .auth-form input[type="email"],
 .auth-form input[type="password"],
-.auth-form input[type="text"]{
+.auth-form input[type="text"] {
     border-radius: 9999px;
     width: 330px;
     height: 44px;
     padding: 0px 16px;
     cursor: pointer;
-    outline:1px solid transparent;
-    font-size:16px;
-    font-weight:400;
-    box-sizing:border-box;
-    }
+    outline: 1px solid transparent;
+    font-size: 16px;
+    font-weight: 400;
+    box-sizing: border-box;
+}
 
 .auth-form input[type="email"]:focus,
 .auth-form input[type="password"]:focus,
-.auth-form input[type="text"]:focus{
+.auth-form input[type="text"]:focus {
     background-color: var(--form-bg);
-    outline:1px solid #000000;
-    transition: outline 0.3s;   
+    outline: 1px solid #000000;
+    transition: outline 0.3s;
 }
 
-.auth-button{
+.auth-button {
     background: var(--r-btn);
     color: var(--logo-top);
     border-radius: 9999px;
@@ -84,22 +88,22 @@ p{
     height: 44px;
     padding: 0px 16px;
     cursor: pointer;
-    outline:1px solid transparent;
-    font-size:16px;
-    font-weight:400;
-    box-sizing:border-box;
+    outline: 1px solid transparent;
+    font-size: 16px;
+    font-weight: 400;
+    box-sizing: border-box;
 }
 
-.password-wrapper{
+.password-wrapper {
     position: relative;
     width: 330px;
 }
 
-.password-wrapper input{
+.password-wrapper input {
     padding-right: 50px;
 }
 
-.toggle-password{
+.toggle-password {
     position: absolute;
     right: 14px;
     bottom: 10px;
