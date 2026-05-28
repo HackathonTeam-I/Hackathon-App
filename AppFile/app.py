@@ -369,7 +369,10 @@ def create_post():
     description = request.form.get('description')
     if not all([category_id,found_date,found_place]):
         flash('必須項目を入力して下さい','error')
-        return redirect(url_for('show_admin_posts')) #投稿編集ホームへ
+        return jsonify({
+            'status': 'error',
+            'message': '必須項目を入力して下さい'
+        }),400
 
     Post.create_post(user_id,category_id,found_date,found_place,description)
 
