@@ -515,8 +515,12 @@ class Thread:
                 cur.execute(sql, (user_id,))
                 thread = cur.fetchone()
 
+                # 既存スレッドがある場合
                 if thread:
-                    return thread  # 既存スレッドを表示
+                    return {
+                        "id": thread["id"],
+                        "is_new": False
+                    }
 
                 # 新規作成
                 sql = """
@@ -526,7 +530,11 @@ class Thread:
                 cur.execute(sql, (user_id,))
                 conn.commit()
 
-                return {"id": cur.lastrowid}
+
+                return {
+                    "id": cur.lastrowid,
+                    "is_new": True
+                }
 
         except pymysql.Error as e:
             print(f'エラーが発生しています：{e}')

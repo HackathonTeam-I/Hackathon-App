@@ -641,8 +641,15 @@ def create_thread(post_id):
     user_id = session.get('user_id')
     # スレッドの作成 or　取得
     thread = Thread.create_thread_by_user_id(user_id)
-    #投稿テンプレート送信
-    Message.create_template(thread["id"], user_id, post_id)
+
+    # 新規作成時だけ定型文送信
+    if thread["is_new"]:
+        Message.create_template(
+            thread["id"],
+            user_id,
+            post_id
+        )
+        
     #チャット画面へ
     return redirect(f"/threads/{thread['id']}")
 
