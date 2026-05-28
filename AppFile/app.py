@@ -641,9 +641,13 @@ def create_thread(post_id):
     user_id = session.get('user_id')
     # スレッドの作成 or　取得
     thread = Thread.create_thread_by_user_id(user_id)
+    # 同じ投稿メッセージがまだ無い場合だけ送信
+    exists = Message.exists_post_message(
+        thread["id"],
+        post_id
+    )
 
-    # 新規作成時だけ定型文送信
-    if thread["is_new"]:
+    if not exists:
         Message.create_template(
             thread["id"],
             user_id,
