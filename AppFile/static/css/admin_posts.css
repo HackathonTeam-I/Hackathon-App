@@ -32,11 +32,10 @@
     color: var(--text-main);
     font-weight: 700;
     margin: 0;
-    /* 下の余白を消して縦ラインを揃える */
     text-align: left;
 }
 
-/* メインコンテンツ枠 */
+/* メインコンテンツ枠（変更なし） */
 .main-admin-posts {
     width: 400px;
     margin: 0 auto;
@@ -115,6 +114,12 @@ textarea {
     cursor: pointer;
 }
 
+.current-image {
+    position: relative;
+    display: inline-block;
+    margin-top: 16px;
+}
+
 #preview-area {
     position: relative;
     margin-top: 16px;
@@ -125,6 +130,7 @@ textarea {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
+    align-items: flex-start;
 }
 
 .preview-image {
@@ -132,6 +138,8 @@ textarea {
     height: 80px;
     object-fit: cover;
     border-radius: 8px;
+    display: block;
+    max-width: 100%;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
