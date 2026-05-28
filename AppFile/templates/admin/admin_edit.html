@@ -7,78 +7,84 @@
 {% endblock %}
 
 {% block content %}
-<header class="detail-header">
-    <a href="{{ url_for('show_posts') }}" class="back-button">
-        <img src="{{ url_for('static', filename='images/arrow-left.svg') }}" class="arrow-left" alt="戻る">
-    </a>
-</header>
+<div class="admin_posts">
+    <header class="post-header">
+        <a href="{{ url_for('show_posts') }}" class="back-button">
+            <img src="{{ url_for('static', filename='images/arrow-left.svg') }}" class="arrow-left" alt="戻る">
+        </a>
+        <h2 class="admin-posts-title">投稿編集</h2>
+    </header>
 
-<main class="admin-posts">
-    <h2 class="admin-posts-title">
-        投稿編集
-    </h2>
+    <main class="main-admin-posts">
 
-    <form id="update-form" class="posts-form" enctype="multipart/form-data">
-        <input type="hidden" id="csrf_token" name="csrf_token" value="{{ csrf_token()}}">
-        <div>
-            <label>カテゴリグループ</label>
+        <form id="update-form" class="posts-form" enctype="multipart/form-data">
+            <input type="hidden" id="csrf_token" name="csrf_token" value="{{ csrf_token()}}">
+            <div>
+                <label>カテゴリグループ</label>
 
-            <select id="groupSelect" name="group_id" class="form-select" required>
-                <option value="">グループを選択してください</option>
-                {% for group in groups %}
-                <option value="{{ group.id }}" {% if group.id==post.group_id %}selected{% endif %}>
-                    {{ group.name }}
-                </option>
-                {% endfor %}
-            </select>
+                <select id="groupSelect" name="group_id" class="form-select" required>
+                    <option value="">グループを選択してください</option>
+                    {% for group in groups %}
+                    <option value="{{ group.id }}" {% if group.id==post.group_id %}selected{% endif %}>
+                        {{ group.name }}
+                    </option>
+                    {% endfor %}
+                </select>
 
-            <label>カテゴリ</label>
+                <label>カテゴリ</label>
 
-            <select id="categorySelect" name="category_id" class="form-select" disabled>
-                <option value="">先にグループを選択してください</option>
-            </select>
-        </div>
-
-        <div>
-            <label>詳細説明</label>
-            <textarea placeholder="特徴などを記載" name="description">{{ post.description }}</textarea>
-        </div>
-
-        <div>
-            <label for="found_date">日付</label>
-            <input type="date" id="found_date" name="found_date" value="{{ post.found_date.strftime('%Y-%m-%d') }}">
-        </div>
-
-        <div>
-            <label>場所</label>
-            <input type="text" placeholder="発見場所を記載" name="found_place" value="{{ post.found_place }}">
-        </div>
-
-        <div class="photo-area">
-            <div class="upload-photo">写真をアップロード</div>
-            <label for="photo" class="upload-button">
-                <img src="{{ url_for('static', filename='images/upload-icon.svg')}}" alt="アップロード" class="upload-icon">
-            </label>
-            <input type="file" id="photo" name="image" accept="image/*" hidden>
-
-            {% if images %}
-            {% set image = images[0] %}
-            <div class="current-image">
-                <img src="{{ url_for('static', filename=image.image_path.replace('static/','')) }}" alt="投稿画像"　class="preview-image"> 
-
-                <button type="button" id="remove-photo-button" data-post-id="{{ post.id }}"
-                    data-image-id="{{ image.id }}">
-                    <img class="close-icon" src="{{url_for('static', filename='images/close_round.svg')}}" alt="削除">
-                </button>
+                <select id="categorySelect" name="category_id" class="form-select" disabled>
+                    <option value="">先にグループを選択してください</option>
+                </select>
             </div>
-            {% endif %}
-        </div>
 
-        <div class="register-button">
-            <button class="admin-posts-button" type="submit">更新</button>
-        </div>
-    </form>
-</main>
+            <div>
+                <label>詳細説明</label>
+                <textarea id="description" placeholder="特徴などを記載" name="description">{{ post.description }}</textarea>
+            </div>
+
+            <div>
+                <label for="found_date">日付</label>
+                <input type="date" id="found_date" name="found_date" value="{{ post.found_date.strftime('%Y-%m-%d') }}">
+            </div>
+
+            <div>
+                <label>場所</label>
+                <input type="text" id="found_place" placeholder="発見場所を記載" name="found_place"
+                    value="{{ post.found_place }}">
+            </div>
+
+            <div class="photo-area">
+                <div class="upload-photo">写真をアップロード</div>
+                <label for="photo" class="upload-button">
+                    <img src="{{ url_for('static', filename='images/upload-icon.svg')}}" alt="アップロード"
+                        class="upload-icon">
+                </label>
+                <input type="file" id="photo" name="image" accept="image/*" hidden multiple>
+
+                <div id="preview-container">
+                    {% if images %}
+                    {% for image in images %}
+                    <div class="current-image" style="margin-top: 0;">
+                        <img src="{{ url_for('static', filename=image.image_path.replace('static/','')) }}" alt="投稿画像"
+                            class="preview-image">
+                        <button type="button" id="remove-photo-button" data-post-id="{{ post.id }}"
+                            data-image-id="{{ image.id }}">
+                            <img class="close-icon" src="{{url_for('static', filename='images/close_round.svg')}}"
+                                alt="削除">
+                        </button>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="register-button">
+                <button class="admin-posts-button" type="submit">更新</button>
+            </div>
+        </form>
+    </main>
+</div>
 {% endblock %}
 
 {% block page_js %}
@@ -117,14 +123,22 @@
     categorySelect.value = "{{ post.category_id }}";
 
     // 2. 画像の「状態管理」変数の定義
-    let isImageDeletedPending = false; // 既存画像を削除する予定かどうかのフラグ
-    let newImageFilePending = null;    // 新しくアップロードする画像ファイルオブジェクト
-    let originalImageId = null;        // 既存画像のIDを保持する変数
+    let isImageDeletedPending = false;
+    let newImageFilesPending = [];
+    let originalImageId = null;
 
     // 既存画像がある場合、HTMLのデータ属性から画像IDを取得しておく
     const removeButton = document.getElementById("remove-photo-button");
     if (removeButton) {
         originalImageId = removeButton.dataset.imageId;
+
+        removeButton.addEventListener("click", function () {
+            isImageDeletedPending = true;
+            const currentImageDiv = this.closest(".current-image");
+            if (currentImageDiv) {
+                currentImageDiv.style.display = "none";
+            }
+        });
     }
 
     // 3. 写真選択時のプレビュー処理（保留処理）
@@ -132,46 +146,47 @@
     const photoArea = document.querySelector(".photo-area");
 
     photoInput.addEventListener("change", function (e) {
-        const file = e.target.files[0];
-        if (file) {
-            newImageFilePending = file; // ファイルをメモリ上に保留
-            const previewUrl = URL.createObjectURL(file);
+        const files = e.target.files;
+        if (files && files.length > 0) {
 
-            let currentImageDiv = document.querySelector(".current-image");
-            if (currentImageDiv) {
-                // 既存の表示領域がある場合は、画像を差し替えて表示を確実に出す
-                currentImageDiv.style.display = "block";
-                currentImageDiv.querySelector(".preview-image").src = previewUrl;
-            } else {
-                // 最初から画像がない投稿だった場合は、新しくプレビュー枠を作成
+
+            const newFiles = Array.from(files);
+
+            newFiles.forEach(file => {
+                newImageFilesPending.push(file);
+
+                const previewUrl = URL.createObjectURL(file);
                 const div = document.createElement("div");
                 div.className = "current-image";
+                div.style.marginTop = "0"; // 既存画像と高さを合わせる
+
+
                 div.innerHTML = `
-                <img src="${previewUrl}" alt="プレビュー画像" class="preview-image">
-                <p style="text-align:center; font-size:12px; color:#ff4500; margin:4px 0 0 0;">※更新ボタンを押すと保存されます</p>
-            `;
-                photoArea.appendChild(div);
-            }
+                    <img src="${previewUrl}" alt="プレビュー画像" class="preview-image">
+                    <button type="button" class="remove-new-photo-button" style="background: transparent; border: none; padding: 0; cursor: pointer; position: absolute; top: -10px; right: -10px; z-index: 10;">
+                        <img class="close-icon" src="{{url_for('static', filename='images/close_round.svg')}}" alt="削除">
+                    </button>
+                `;
+
+
+                const removeBtn = div.querySelector('.remove-new-photo-button');
+                removeBtn.addEventListener('click', function () {
+                    // 送信待ちの配列から、この特定のファイルだけを除外する
+                    newImageFilesPending = newImageFilesPending.filter(f => f !== file);
+                    // 画面からプレビューを削除する
+                    div.remove();
+                });
+
+                const previewContainer = document.getElementById("preview-container");
+                if (previewContainer) {
+                    previewContainer.appendChild(div);
+                }
+            });
+
+            // 連続して同じ画像を追加・削除できるように、inputの中身をリセット
+            photoInput.value = "";
         }
     });
-
-
-    // 4. 既存画像の削除ボタン処理（保留処理）
-    if (removeButton) {
-        removeButton.addEventListener("click", function () {
-            // 即座にフェッチ通信はせず、フラグの変更と画面操作だけを行う
-            isImageDeletedPending = true;
-            newImageFilePending = null; // もし選択中の新画像があればクリアする
-            photoInput.value = ""; // インプットの選択状態もリセット
-
-            // 画面上から画像領域を非表示にする
-            const currentImageDiv = document.querySelector(".current-image");
-            if (currentImageDiv) {
-                currentImageDiv.style.display = "none";
-            }
-        });
-    }
-
 
     // 5. 更新ボタン押下時の一括同期処理
     document.getElementById('update-form').addEventListener('submit', async function (e) {
@@ -181,8 +196,8 @@
         const textFormData = {
             category_id: categorySelect.value,
             found_date: document.getElementById('found_date').value,
-            found_place: document.getElementsByName('found_place')[0].value,
-            description: document.getElementsByName('description')[0].value
+            found_place: document.getElementById('found_place').value,
+            description: document.getElementById('description').value
         };
 
         try {
@@ -217,9 +232,12 @@
             }
 
             // ③ 新しい画像ファイルが保留されている場合、追加APIを実行（POST）
-            if (newImageFilePending) {
+            if (newImageFilesPending.length > 0) {
                 const imageFormData = new FormData();
-                imageFormData.append("image", newImageFilePending);
+
+                newImageFilesPending.forEach(file => {
+                    imageFormData.append("image", file);
+                });
 
                 const imageResponse = await fetch(`/api/admin/posts/${postId}/images`, {
                     method: 'POST',
