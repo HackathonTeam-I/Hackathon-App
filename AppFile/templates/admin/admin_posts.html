@@ -16,8 +16,6 @@
     </header>
 
     <main class="main-admin-posts">
-
-
         <form class="posts-form" action="{{ url_for('create_post') }}" method="post" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="{{ csrf_token()}}">
             <div>
@@ -53,31 +51,26 @@
             <div class="photo-area">
                 <div class="upload-photo">写真をアップロード</div>
                 <label for="photo" class="upload-button">
-                    <img src="{{ url_for('static', filename='images/upload-icon.svg')}}" alt="アップロード"
-                        class="upload-icon">
+                    <img src="{{ url_for('static', filename='images/upload-icon.svg')}}" alt="アップロード" class="upload-icon">
                 </label>
                 <input type="file" id="photo" name="image" accept="image/*" hidden multiple>
-
-                <div id="preview-area" hidden>
-                    <div id="preview-container"></div>
-                    <button type="button" id="remove-photo-button">
-                        <img class="close-icon" src="{{url_for('static', filename='images/close_round.svg')}}" alt="削除">
-                    </button>
-                </div>
+                <!-- 古いpreview-area削除、preview-containerのみに統一 -->
+                <div id="preview-container"></div>
             </div>
 
             <div class="register-button">
-                <button class="admin-posts-button" type="submit">登録</button>
+                <button class="admin-posts-button" type="submit">投稿</button>
             </div>
         </form>
+    </main>
 </div>
-</main>
 
 <script>
     const categoriesData = {{ categories_mapping | tojson | safe }};
     const groupSelect = document.getElementById('groupSelect');
     const categorySelect = document.getElementById('categorySelect');
 
+    // カテゴリの連動プルダウン
     groupSelect.addEventListener('change', function () {
         const selectedGroupId = this.value;
         categorySelect.innerHTML = '<option value="">カテゴリを選択してください</option>';
@@ -100,38 +93,49 @@
     });
 
     const photoInput = document.getElementById("photo");
-    const removeButton = document.getElementById("remove-photo-button");
-    const previewArea = document.getElementById("preview-area");
     const previewContainer = document.getElementById("preview-container");
 
     let accumulatedFiles = [];
 
+    // 画像選択時：個別プレビューと削除ボタンを生成
     photoInput.addEventListener("change", function () {
         const files = Array.from(this.files);
         if (files.length === 0) return;
 
         files.forEach(file => {
             accumulatedFiles.push(file);
+
             const reader = new FileReader();
             reader.onload = function (e) {
+                const div = document.createElement("div");
+                div.className = "current-image";
+
                 const img = document.createElement("img");
                 img.src = e.target.result;
                 img.classList.add("preview-image");
-                previewContainer.appendChild(img);
+
+                const removeBtn = document.createElement("button");
+                removeBtn.type = "button";
+                removeBtn.className = "remove-photo-button";
+                removeBtn.innerHTML = `<img class="close-icon" src="/static/images/close_round.svg" alt="削除">`;
+
+                // 該当画像のみ削除
+                removeBtn.addEventListener("click", function () {
+                    accumulatedFiles = accumulatedFiles.filter(f => f !== file);
+                    div.remove();
+                });
+
+                div.appendChild(img);
+                div.appendChild(removeBtn);
+                previewContainer.appendChild(div);
             };
             reader.readAsDataURL(file);
         });
 
-        previewArea.hidden = false;
         photoInput.value = "";
     });
 
-    removeButton.addEventListener("click", function () {
-        accumulatedFiles = [];
-        previewContainer.innerHTML = "";
-        previewArea.hidden = true;
-    });
-
+    // submit処理：accumulatedFilesをFormDataに詰めて送信
     document.querySelector('.posts-form').addEventListener('submit', async function (e) {
         e.preventDefault();
 
