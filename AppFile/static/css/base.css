@@ -78,3 +78,22 @@ footer {
     margin-bottom: 4px;
     filter: brightness(0) invert(1);
 }
+
+.flash-message {
+    padding: 12px 16px;
+    margin: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.flash-error {
+    background-color: #fdecea;
+    color: #c0392b;
+    border: 1px solid #e74c3c;
+}
+
+.flash-success {
+    background-color: #eafaf1;
+    color: #1e8449;
+    border: 1px solid #27ae60;
+}
