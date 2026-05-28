@@ -182,7 +182,7 @@ class Post:
                 FROM posts
                 LEFT JOIN categories ON posts.category_id = categories.id
                 WHERE deleted_at IS NULL
-                ORDER BY created_at DESC;
+                ORDER BY found_date DESC;
                 """
                 cur.execute(sql)
                 posts = cur.fetchall()
@@ -226,7 +226,7 @@ class Post:
                 LEFT JOIN categories as c
                 ON p.category_id = c.id
                 WHERE p.category_id = %s AND p.deleted_at IS NULL
-                ORDER BY p.created_at DESC;
+                ORDER BY p.found_date DESC;
                 """
                 cur.execute(sql,(category_id,))
                 posts = cur.fetchall()
