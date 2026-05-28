@@ -19,12 +19,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         leftArrow?.addEventListener('click', () => {
             currentIndex = (currentIndex === 0) ? postImages.length - 1 : currentIndex - 1;
-            imageElement.src = `/${postImages[currentIndex]}`;
+            imageElement.src = `/static/${postImages[currentIndex]}`;
         });
 
         rightArrow?.addEventListener('click', () => {
             currentIndex = (currentIndex === postImages.length - 1) ? 0 : currentIndex + 1;
-            imageElement.src = `/${postImages[currentIndex]}`;
+            imageElement.src = `/static/${postImages[currentIndex]}`;
         });
     }
 
