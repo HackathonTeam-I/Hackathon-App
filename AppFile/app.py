@@ -320,7 +320,10 @@ def show_post_detail(id):
     if post is None:
         abort(404, description='指定された投稿が見つかりません')
     images = Image.get_images_by_post_id(post['id'])
-    return render_template('post/post_detail.html',post=post,images=images)
+
+    category_id = request.args.get('category_id')
+
+    return render_template('post/post_detail.html',post=post,images=images,category_id=category_id)
 
 # 新規投稿フォーム表示
 @app.route('/admin/posts',methods=['GET'])
@@ -653,7 +656,7 @@ def create_thread(post_id):
             user_id,
             post_id
         )
-        
+
     #チャット画面へ
     return redirect(f"/threads/{thread['id']}")
 
