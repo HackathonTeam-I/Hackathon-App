@@ -394,7 +394,6 @@ def create_post():
     # 通知作成
     Notification.notify_on_post(post_id)
 
-    flash('投稿が完了しました','success')
     return redirect(url_for('show_posts')) #投稿一覧へ
 
 # 画像追加処理
