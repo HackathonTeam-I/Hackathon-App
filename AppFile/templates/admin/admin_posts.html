@@ -16,6 +16,7 @@
     </header>
 
     <main class="main-admin-posts">
+        <div id="flash-area" class="flash-message" hidden></div>
         <form class="posts-form" action="{{ url_for('create_post') }}" method="post" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="{{ csrf_token()}}">
             <div>
@@ -149,6 +150,15 @@
             method: 'POST',
             body: formData
         });
+
+        if (!response.ok) {
+            const data = await response.json();
+            const flashArea = document.getElementById('flash-area');
+            flashArea.textContent = data.message;
+            flashArea.className = 'flash-message flash-error';
+            flashArea.hidden = false;
+            return;
+        }
 
         if (response.redirected) {
             window.location.href = response.url;
