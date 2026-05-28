@@ -33,7 +33,7 @@
             <a href="{{ url_for('show_post_detail', id=post.id) }}" class="post-card">
                 <div class="post-card_image-box">
                     {% if post.images and post.images|length > 0 %}
-                    <img class="post-card_image" src="/{{ post.images[0].image_path }}" alt="{{ post.category_name }}">
+                    <img class="post-card_image" src="{{ url_for('static', filename=post.images[0].image_path) }}" alt="{{ post.category_name }}">
                     {% else %}
                     <div class="no-image-placeholder">No Image</div>
                     {% endif %}
