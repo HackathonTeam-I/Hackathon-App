@@ -110,7 +110,8 @@
 .post-card_image-box {
     position: relative;
     width: 100%;
-    aspect-ratio: 1 / 1;
+    height: 300px;
+    overflow: hidden;
     background-color: #eee;
 }
 
