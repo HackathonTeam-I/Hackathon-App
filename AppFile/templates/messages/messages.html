@@ -29,8 +29,42 @@
                 <img class="user-icon" src="{{url_for('static', filename='images/receiver-icon.svg')}}" alt="receiver">
 
                 <div class="message-content-wrapper">
-                    <div class="message-body">
-                        {{message.content}}
+                    <div class="message-bubbles-column">
+                        <div class="message-body">
+                            {{message.content}}
+                        </div>
+
+                        {% if message.post_id %}
+                        <a href="{{ url_for('show_post_detail', id=message.post_id) }}" class="post-card-link">
+                            <div class="post-card-wrapper">
+                                <div class="post-card">
+                                    <div class="post-image-area">
+                                        {% if message.image_path %}
+                                        <img src="{{ url_for('static', filename=message.image_path) }}" alt="投稿画像"
+                                            class="post-card-image">
+                                        {% else %}
+                                        <div class="no-image">画像なし</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="post-card-info">
+                                        {% if message.category_name %}
+                                        <span class="post-card-category">{{ message.category_name }}</span>
+                                        {% endif %}
+                                        {% if message.found_date %}
+                                        <p class="post-date">{{ message.found_date }}</p>
+                                        {% endif %}
+                                        {% if message.found_place %}
+                                        <span class="post-card-location">
+                                            <img src="{{ url_for('static', filename='images/post-card_location.svg') }}"
+                                                alt="📍" class="location-icon">
+                                            {{ message.found_place }}
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        {% endif %}
                     </div>
                     <span class="message-time">{{message.created_at.strftime('%H:%M')}}</span>
                 </div>
@@ -40,11 +74,45 @@
             <div class="message-row message-sent">
                 <div class="message-content-wrapper">
                     <span class="message-time">{{message.created_at.strftime('%H:%M')}}</span>
-                    <div class="message-body">
-                        {{message.content}}
+
+                    <div class="message-bubbles-column">
+                        <div class="message-body">
+                            {{message.content}}
+                        </div>
+
+                        {% if message.post_id %}
+                        <a href="{{ url_for('show_post_detail', id=message.post_id) }}" class="post-card-link">
+                            <div class="post-card-wrapper">
+                                <div class="post-card">
+                                    <div class="post-image-area">
+                                        {% if message.image_path %}
+                                        <img src="{{ url_for('static', filename=message.image_path) }}" alt="投稿画像"
+                                            class="post-card-image">
+                                        {% else %}
+                                        <div class="no-image">画像なし</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="post-card-info">
+                                        {% if message.category_name %}
+                                        <span class="post-card-category">{{ message.category_name }}</span>
+                                        {% endif %}
+                                        {% if message.found_date %}
+                                        <p class="post-date">{{ message.found_date }}</p>
+                                        {% endif %}
+                                        {% if message.found_place %}
+                                        <span class="post-card-location">
+                                            <img src="{{ url_for('static', filename='images/post-card_location.svg') }}"
+                                                alt="📍" class="location-icon">
+                                            {{ message.found_place }}
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        {% endif %}
                     </div>
                 </div>
-
                 <img class="user-icon" src="{{url_for('static', filename='images/sender-icon.svg')}}" alt="sender">
             </div>
             {% endif %}
@@ -71,9 +139,6 @@
 </div>
 {% endblock %}
 
-{% block bottom_nav %}
-{% endblock %}
-
 {% block page_js %}
 <script>
     const form = document.getElementById("message-form");
@@ -96,4 +161,9 @@
         }
     })
 </script>
+{% endblock %}
+
+{% block footer %}
+{% endblock %}
+{% block bottom_nav %}
 {% endblock %}
