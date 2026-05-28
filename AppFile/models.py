@@ -221,7 +221,9 @@ class Post:
         try:
             with conn.cursor() as cur:
                 sql = """
-                SELECT *
+                SELECT
+                    p.*,
+                    c.name as category_name
                 FROM posts as p
                 LEFT JOIN categories as c
                 ON p.category_id = c.id
