@@ -68,8 +68,8 @@
                     <div class="current-image" style="margin-top: 0;">
                         <img src="{{ url_for('static', filename=image.image_path.replace('static/','')) }}" alt="投稿画像"
                             class="preview-image">
-                        <button type="button" id="remove-photo-button" data-post-id="{{ post.id }}"
-                            data-image-id="{{ image.id }}">
+                        <button type="button" class="remove-photo-button" data-post-id="{{ post.id }}"
+                            data-image-id="{{ image.image_id }}">
                             <img class="close-icon" src="{{url_for('static', filename='images/close_round.svg')}}"
                                 alt="削除">
                         </button>
@@ -122,77 +122,60 @@
     groupSelect.dispatchEvent(new Event('change'));
     categorySelect.value = "{{ post.category_id }}";
 
-    // 2. 画像の「状態管理」変数の定義
-    let isImageDeletedPending = false;
+    // 2. 画像の状態管理
+    let deletedImageIds = [];
     let newImageFilesPending = [];
-    let originalImageId = null;
 
-    // 既存画像がある場合、HTMLのデータ属性から画像IDを取得しておく
-    const removeButton = document.getElementById("remove-photo-button");
-    if (removeButton) {
-        originalImageId = removeButton.dataset.imageId;
-
-        removeButton.addEventListener("click", function () {
-            isImageDeletedPending = true;
+    const removeButtons = document.querySelectorAll(".remove-photo-button");
+    removeButtons.forEach(button => {
+        button.addEventListener("click", function () {
+            const imageId = this.dataset.imageId;
+            deletedImageIds.push(imageId);
             const currentImageDiv = this.closest(".current-image");
             if (currentImageDiv) {
                 currentImageDiv.style.display = "none";
             }
         });
-    }
+    });
 
-    // 3. 写真選択時のプレビュー処理（保留処理）
     const photoInput = document.getElementById("photo");
-    const photoArea = document.querySelector(".photo-area");
 
     photoInput.addEventListener("change", function (e) {
         const files = e.target.files;
+
         if (files && files.length > 0) {
-
-
             const newFiles = Array.from(files);
-
             newFiles.forEach(file => {
                 newImageFilesPending.push(file);
 
                 const previewUrl = URL.createObjectURL(file);
                 const div = document.createElement("div");
                 div.className = "current-image";
-                div.style.marginTop = "0"; // 既存画像と高さを合わせる
-
-
+                div.style.marginTop = "0";
                 div.innerHTML = `
-                    <img src="${previewUrl}" alt="プレビュー画像" class="preview-image">
-                    <button type="button" class="remove-new-photo-button" style="background: transparent; border: none; padding: 0; cursor: pointer; position: absolute; top: -10px; right: -10px; z-index: 10;">
-                        <img class="close-icon" src="{{url_for('static', filename='images/close_round.svg')}}" alt="削除">
-                    </button>
-                `;
-
-
+                <img src="${previewUrl}" alt="プレビュー画像" class="preview-image">
+                <button type="button" class="remove-new-photo-button">
+                    <img class="close-icon" src="/static/images/close_round.svg" alt="削除">
+                </button>
+            `;
                 const removeBtn = div.querySelector('.remove-new-photo-button');
                 removeBtn.addEventListener('click', function () {
-                    // 送信待ちの配列から、この特定のファイルだけを除外する
                     newImageFilesPending = newImageFilesPending.filter(f => f !== file);
-                    // 画面からプレビューを削除する
                     div.remove();
                 });
-
                 const previewContainer = document.getElementById("preview-container");
                 if (previewContainer) {
                     previewContainer.appendChild(div);
                 }
             });
-
-            // 連続して同じ画像を追加・削除できるように、inputの中身をリセット
             photoInput.value = "";
         }
     });
 
-    // 5. 更新ボタン押下時の一括同期処理
+    // submit処理
     document.getElementById('update-form').addEventListener('submit', async function (e) {
         e.preventDefault();
 
-        // A. 送信するテキストデータの組み立て
         const textFormData = {
             category_id: categorySelect.value,
             found_date: document.getElementById('found_date').value,
@@ -201,7 +184,6 @@
         };
 
         try {
-            // ① まずはテキストの更新を実行（PATCH）
             const textResponse = await fetch(`/api/admin/posts/${postId}`, {
                 method: 'PATCH',
                 headers: {
@@ -218,23 +200,21 @@
                 return;
             }
 
-            // ② 既存画像の削除フラグが立っている場合、削除APIを実行（DELETE）
-            if (isImageDeletedPending && originalImageId) {
-                const deleteResponse = await fetch(`/api/admin/posts/${postId}/images/${originalImageId}`, {
+            // ② 削除処理
+            for (const imageId of deletedImageIds) {
+                const deleteResponse = await fetch(`/api/admin/posts/${postId}/images/${imageId}`, {
                     method: "DELETE",
                     headers: { "X-CSRFToken": csrfToken }
                 });
-
                 if (!deleteResponse.ok) {
                     alert("テキストは更新されましたが、古い画像の削除に失敗しました。");
                     return;
                 }
             }
 
-            // ③ 新しい画像ファイルが保留されている場合、追加APIを実行（POST）
+            // ③ 新画像追加処理
             if (newImageFilesPending.length > 0) {
                 const imageFormData = new FormData();
-
                 newImageFilesPending.forEach(file => {
                     imageFormData.append("image", file);
                 });
@@ -251,7 +231,6 @@
                 }
             }
 
-            // 全ての一括処理が正常終了したら、完了通知を出してリダイレクト
             alert("投稿内容をすべて更新しました");
             window.location.href = textData.redirect_url;
 

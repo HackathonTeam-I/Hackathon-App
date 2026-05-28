@@ -8,18 +8,17 @@
     padding: 0;
 }
 
-/* 2. 戻るボタンの配置と余白（参考コードを適用） */
+/* 2. 戻るボタンの配置と余白（重複していた記述を1つに統合） */
 .back-button {
-    display: flex;
+    display: inline-flex;
     justify-content: center;
     align-items: center;
-    padding: 8px;
+    padding: 8px 16px 8px 0;
     margin: 0 16px 0 -8px;
-    /* タイトルとの間に隙間を空ける */
     text-decoration: none;
 }
 
-/* 3. 矢印アイコンのサイズ指定（参考コードの.back-iconに相当） */
+/* 3. 矢印アイコンのサイズ指定 */
 .arrow-left {
     width: 24px;
     height: 24px;
@@ -35,18 +34,10 @@
     text-align: left;
 }
 
-/* メインコンテンツ枠（変更なし） */
+/* メインコンテンツ枠 */
 .main-admin-posts {
     width: 400px;
     margin: 0 auto;
-}
-
-.back-button {
-    display: inline-flex;
-    align-items: center;
-    text-decoration: none;
-    padding: 8px 16px 8px 0;
-    margin: 0;
 }
 
 .posts-form {
@@ -120,12 +111,6 @@ textarea {
     margin-top: 16px;
 }
 
-#preview-area {
-    position: relative;
-    margin-top: 16px;
-    width: 260px;
-}
-
 #preview-container {
     display: flex;
     flex-wrap: wrap;
@@ -143,7 +128,8 @@ textarea {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-#remove-photo-button {
+.remove-photo-button,
+.remove-new-photo-button {
     background: transparent;
     border: none;
     padding: 0;
