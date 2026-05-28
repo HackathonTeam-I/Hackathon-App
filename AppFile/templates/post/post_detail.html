@@ -25,7 +25,7 @@
             </button>
             {% endif %}
 
-            <img src="/{{ images[0].image_path }}" alt="{{ post.category_name}}" class="detail-image">
+            <img src="{{ url_for('static', filename=images[0].image_path) }}" alt="{{ post.category_name}}" class="detail-image">
 
             {% if images|length > 1 %}
             <button type="button" class="slider-arrow right-arrow">
