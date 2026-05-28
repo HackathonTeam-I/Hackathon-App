@@ -9,7 +9,11 @@
 <div class="page-messages">
     <main class="messages-container">
         <header class="messages-header">
-            <a href="{{url_for('show_posts')}}" class="back-button">
+            {% if session.get('role') == 'admin' %}
+            <a href="{{ url_for('show_threads') }}" class="back-button">
+            {% else %}
+            <a href="{{ url_for('show_posts') }}" class="back-button">
+            {% endif %}
                 <img src="{{ url_for('static', filename='images/arrow-left.svg') }}" alt="戻る" class="back-icon">
             </a>
 
