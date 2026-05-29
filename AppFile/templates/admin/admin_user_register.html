@@ -28,12 +28,12 @@
 
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="メールアドレスを入力してください" required>
+                <input type="email" id="email" name="email" placeholder="メールアドレスを入力してください">
             </div>
 
             <div class="form-group">
                 <label for="department_id">部署名</label>
-                <select id="department_id" name="department_id" required>
+                <select id="department_id" name="department_id">
                     <option value="">部署を選択してください</option>
                     {% for department in departments %}
                     <option value="{{ department.id }}">{{ department.name }}</option>
