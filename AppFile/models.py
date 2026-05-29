@@ -147,7 +147,7 @@ class User:
                 sql = """
                 UPDATE users
                 SET deleted_at = NOW(),
-                    email = CONCAT(email, 'deleted_', id)
+                    email = CONCAT(email, '_deleted_', id)
                 WHERE id = %s;
                 """
                 cur.execute(sql, (id,))
