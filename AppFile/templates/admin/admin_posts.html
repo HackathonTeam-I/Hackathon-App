@@ -151,8 +151,9 @@
             body: formData
         });
 
+        const data = await response.json();
+
         if (!response.ok) {
-            const data = await response.json();
             const flashArea = document.getElementById('flash-area');
             flashArea.textContent = data.message;
             flashArea.className = 'flash-message flash-error';
@@ -160,8 +161,8 @@
             return;
         }
 
-        if (response.redirected) {
-            window.location.href = response.url;
+        if (data.redirect_url) {
+            window.location.href = data.redirect.url;
         }
     });
 </script>
