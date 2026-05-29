@@ -195,6 +195,13 @@ def register_user():
             'message': '必須項目を入力して下さい'
         }),400
 
+    # 部署名の選択確認
+    if not department_id:
+        return jsonify({
+            'status': 'error',
+            'message': '部署を選択して下さい'
+            }), 400
+
     # メールアドレスバリデーション
     if not re.match(EMAIL_PATTERN,email):
         return jsonify({
