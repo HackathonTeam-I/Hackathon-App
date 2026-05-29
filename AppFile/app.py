@@ -403,29 +403,35 @@ def create_post():
 @app.route('/api/admin/posts/<int:post_id>/images',methods=['POST'])
 @admin_required
 def upload_images(post_id):
+
     # １：フォームから画像ファイルを受け取る
-    image_file = request.files.get('image')
-    if image_file is None:
+    image_files = request.files.getlist('image')
+    if not image_files:
         return jsonify({
             'status': 'error',
             'message': '投稿画像を選択して下さい'
         }),400
 
-    if not allowed_file(image_file.filename):
-        return jsonify({
-            'status': 'error',
-            'message': 'jpg/jpeg/png形式のファイルを選択して下さい'
-        }),400
+    # ２：先に全件バリデーションチェック
+    for image_file in image_files:
+        if not allowed_file(image_file.filename):
+            return jsonify({
+                'status': 'error',
+                'message': 'jpg/jpeg/png形式のファイルを選択して下さい'
+            }),400
 
-    # ２：保存するファイル名を生成
-    filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
+    # ３：全件OKなら保存・DB登録
+    for image_file in image_files:
+        # 保存するファイル名を生成
+        filename = str(uuid.uuid4()) + os.path.splitext(image_file.filename)[1]
 
-    # ３：パスの組み立て
-    image_path = os.path.join('uploads',filename)
-    image_file.save(os.path.join(app.root_path,'static',image_path))
+        # パスの組み立て
+        image_path = os.path.join('uploads',filename)
+        image_file.save(os.path.join(app.root_path,'static',image_path))
 
-    # ４：DBにパスを登録
-    Image.create_images(post_id,image_path)
+        # DBにパスを登録
+        Image.create_images(post_id,image_path)
+
     return jsonify({'status': 'success',
                     'message': '画像を登録しました'
                     }),200
