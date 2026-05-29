@@ -16,13 +16,7 @@
     </header>
 
     <main class="register-main">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="register-flash-message register-flash-{{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+        <div id="flash-area" class="register-flash-message register-flash-error" hidden></div>
         <form action="{{ url_for('register_user') }}" method="POST" class="register-form">
 
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -58,5 +52,30 @@
             </div>
         </form>
     </main>
+    <script>
+        document.querySelector('.register-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            const response = await fetch(this.action, {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                const flashArea = document.getElementById('flash-area');
+                flashArea.textContent = data.message;
+                flashArea.hidden = false;
+                return;
+            }
+
+            if (data.redirect_url) {
+                window.location.href = data.redirect_url;
+            }
+        });
+    </script>
 </div>
 {% endblock %}
