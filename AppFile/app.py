@@ -190,29 +190,41 @@ def register_user():
     password = request.form.get('password')
 
     if not all([name,email,password]):
-        flash('必須項目を入力して下さい','error')
-        return redirect(url_for('show_signup')) #登録画面に戻す
+        return jsonify({
+            'status': 'error',
+            'message': '必須項目を入力して下さい'
+        }),400
 
     # メールアドレスバリデーション
     if not re.match(EMAIL_PATTERN,email):
-        flash('正しいメール形式で入力して下さい','error')
-        return redirect(url_for('show_signup')) #登録画面に戻す
+        return jsonify({
+            'status': 'error',
+            'message': '正しいメール形式で入力して下さい'
+        }),400
 
     # パスワードバリデーション
     if not re.match(PASSWORD_PATTERN,password):
-        flash('パスワードは8文字以上で、大文字・小文字・英数字を含めてください','error')
-        return redirect(url_for('show_signup')) #登録画面に戻す
+        return jsonify({
+            'status': 'error',
+            'message': 'パスワードは8文字以上で、大文字・小文字・英数字を含めてください'
+        }),400
 
     # 登録メール情報の重複チェック
     existing_user = User.get_user_by_email(email)
     if existing_user:
-        flash('このメールアドレスは既に登録されています','error')
-        return redirect(url_for('show_signup')) #登録画面に戻す
+        return jsonify({
+            'status': 'error',
+            'message': 'このメールアドレスは既に登録されています'
+        }),400
 
     hashed_pw = generate_password_hash(password)
     User.create_user(name,email,department_id,hashed_pw)
-    flash('ユーザーを登録しました','success')
-    return redirect(url_for('show_users'))
+
+    return jsonify({
+        'status': 'success',
+        'message': 'ユーザー登録が完了しました',
+        'redirect_url': url_for('show_users')
+    }),200
 
 # ユーザー編集フォーム表示
 @app.route('/admin/users/<int:id>/edit',methods=['GET'])
