@@ -6,6 +6,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const userId = document.getElementById('userId').value;
     const csrfToken = document.getElementById('csrf_token').value;
 
+    // パスワード表示切り替え
+    const toggleButtons = document.querySelectorAll(".toggle-password");
+    toggleButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+            const input = button.previousElementSibling;
+            if (input.type === "password") {
+                input.type = "text";
+            } else {
+                input.type = "password";
+            }
+        });
+    });
+
     //更新ボタン（PATCHメソッド）が押されたとき
     updateBtn.addEventListener('click', async () => {
         //送信データを作成
@@ -32,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (response.ok) {
-                alert('ユーザ情報を更新しました')
+                alert('ユーザ情報を更新しました');
                 window.location.href = '/admin/users'; //一覧へ戻る
             } else {
                 alert('更新に失敗しました。入力内容を確認してください。');

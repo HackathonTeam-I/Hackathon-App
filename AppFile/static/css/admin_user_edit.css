@@ -80,6 +80,24 @@
     margin-top: 40px;
 }
 
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper input {
+    padding-right: 50px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 14px;
+    bottom: 10px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
 .btn {
     flex: 1;
     /*2つのボタンを同じ幅にする*/
