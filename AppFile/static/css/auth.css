@@ -111,3 +111,10 @@ p {
     background: transparent;
     cursor: pointer;
 }
+
+.flash.flash-success {
+    text-align: center;
+    font-weight: 500;
+    color: #fff;
+    margin-top: 10px;
+}
