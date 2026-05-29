@@ -368,7 +368,6 @@ def create_post():
     found_place = request.form.get('found_place')
     description = request.form.get('description')
     if not all([category_id,found_date,found_place]):
-        flash('必須項目を入力して下さい','error')
         return jsonify({
             'status': 'error',
             'message': '必須項目を入力して下さい'
@@ -397,7 +396,10 @@ def create_post():
     # 通知作成
     Notification.notify_on_post(post_id)
 
-    return redirect(url_for('show_posts')) #投稿一覧へ
+    return jsonify({
+        'status': 'success',
+        'redirect_url': url_for('show_posts')
+    }),200
 
 # 画像追加処理
 @app.route('/api/admin/posts/<int:post_id>/images',methods=['POST'])
