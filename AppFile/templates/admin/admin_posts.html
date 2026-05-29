@@ -21,7 +21,7 @@
             <input type="hidden" name="csrf_token" value="{{ csrf_token()}}">
             <div>
                 <label>カテゴリグループ</label>
-                <select id="groupSelect" name="group_id" class="form-select" required>
+                <select id="groupSelect" name="group_id" class="form-select">
                     <option value="">グループを選択してください</option>
                     {% for group in groups %}
                     <option value="{{ group.id }}">{{ group.name }}</option>
@@ -162,7 +162,7 @@
         }
 
         if (data.redirect_url) {
-            window.location.href = data.redirect.url;
+            window.location.href = data.redirect_url;
         }
     });
 </script>

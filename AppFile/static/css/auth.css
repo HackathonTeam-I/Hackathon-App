@@ -118,3 +118,10 @@ p {
     color: #fff;
     margin-top: 10px;
 }
+
+.flash.flash-error {
+    text-align: center;
+    font-weight: 500;
+    color: #fff;
+    margin-top: 10px;
+}

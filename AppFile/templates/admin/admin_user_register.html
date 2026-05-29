@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}ユーザ登録 - Find it {% endblock %}
+{% block title %}ユーザー登録 - Find it {% endblock %}
 
 {% block page_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_user_register.css') }}">
@@ -16,30 +16,24 @@
     </header>
 
     <main class="register-main">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="register-flash-message register-flash-{{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+        <div id="flash-area" class="register-flash-message register-flash-error" hidden></div>
         <form action="{{ url_for('register_user') }}" method="POST" class="register-form">
 
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
             <div class="form-group">
                 <label for="name">氏名</label>
-                <input type="text" id="name" name="name" placeholder="氏名を入力してください" required>
+                <input type="text" id="name" name="name" placeholder="氏名を入力してください">
             </div>
 
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="メールアドレスを入力してください" required>
+                <input type="email" id="email" name="email" placeholder="メールアドレスを入力してください">
             </div>
 
             <div class="form-group">
                 <label for="department_id">部署名</label>
-                <select id="department_id" name="department_id" required>
+                <select id="department_id" name="department_id">
                     <option value="">部署を選択してください</option>
                     {% for department in departments %}
                     <option value="{{ department.id }}">{{ department.name }}</option>
@@ -47,10 +41,13 @@
                 </select>
             </div>
 
-            <div class="form-group">
+            <div class="form-group password-wrapper">
                 <label for="password">Password <img
                         src="{{ url_for('static', filename='images/lock-icon.svg') }}"></label>
-                <input type="password" id="password" name="password" required>
+                <input type="password" id="password" name="password">
+                <button type="button" class="toggle-password">
+                    <img src="{{url_for('static', filename='images/password-icon.svg')}}" alt="パスワード表示切り替え">
+                </button>
             </div>
 
             <div class="form-actions">
@@ -59,4 +56,51 @@
         </form>
     </main>
 </div>
+{% endblock %}
+
+{% block page_js %}
+<script>
+
+    const toggleButtons = document.querySelectorAll(".toggle-password");
+    toggleButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+            const input = button.previousElementSibling;
+            if (input.type === "password") {
+                input.type = "text";
+            } else {
+                input.type = "password";
+            }
+        });
+    });
+
+    document.querySelector('.register-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+
+        const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+
+        const response = await fetch(this.action, {
+            method: 'POST',
+
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            const flashArea = document.getElementById('flash-area');
+            flashArea.textContent = data.message;
+            flashArea.hidden = false;
+            return;
+        }
+
+        if (data.redirect_url) {
+            window.location.href = data.redirect_url;
+        }
+    });
+</script>
 {% endblock %}

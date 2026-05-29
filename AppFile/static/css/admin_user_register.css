@@ -46,11 +46,6 @@
     margin-bottom: 8px;
 }
 
-.lock-icon {
-    font-size: 14px;
-    color: #888;
-}
-
 .form-group input {
     width: 100%;
     padding: 16px;
@@ -87,7 +82,26 @@
     margin-top: 40px;
 }
 
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper input {
+    padding-right: 50px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 14px;
+    bottom: 10px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
 .submit-btn {
+    width: 45%;
     background-color: #28BE96;
     color: #ffffff;
     font-size: 18px;
