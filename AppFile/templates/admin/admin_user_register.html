@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}ユーザ登録 - Find it {% endblock %}
+{% block title %}ユーザー登録 - Find it {% endblock %}
 
 {% block page_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_user_register.css') }}">
@@ -41,10 +41,13 @@
                 </select>
             </div>
 
-            <div class="form-group">
+            <div class="form-group password-wrapper">
                 <label for="password">Password <img
                         src="{{ url_for('static', filename='images/lock-icon.svg') }}"></label>
                 <input type="password" id="password" name="password">
+                <button type="button" class="toggle-password">
+                    <img src="{{url_for('static', filename='images/password-icon.svg')}}" alt="パスワード表示切り替え">
+                </button>
             </div>
 
             <div class="form-actions">
@@ -52,30 +55,52 @@
             </div>
         </form>
     </main>
-    <script>
-        document.querySelector('.register-form').addEventListener('submit', async function (e) {
-            e.preventDefault();
+</div>
+{% endblock %}
 
-            const formData = new FormData(this);
+{% block page_js %}
+<script>
 
-            const response = await fetch(this.action, {
-                method: 'POST',
-                body: formData
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                const flashArea = document.getElementById('flash-area');
-                flashArea.textContent = data.message;
-                flashArea.hidden = false;
-                return;
-            }
-
-            if (data.redirect_url) {
-                window.location.href = data.redirect_url;
+    const toggleButtons = document.querySelectorAll(".toggle-password");
+    toggleButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+            const input = button.previousElementSibling;
+            if (input.type === "password") {
+                input.type = "text";
+            } else {
+                input.type = "password";
             }
         });
-    </script>
-</div>
+    });
+
+    document.querySelector('.register-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+
+        const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+
+        const response = await fetch(this.action, {
+            method: 'POST',
+
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            const flashArea = document.getElementById('flash-area');
+            flashArea.textContent = data.message;
+            flashArea.hidden = false;
+            return;
+        }
+
+        if (data.redirect_url) {
+            window.location.href = data.redirect_url;
+        }
+    });
+</script>
 {% endblock %}
