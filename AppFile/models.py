@@ -6,6 +6,8 @@ from util.DB import DB
 db_pool = DB.init_db_pool()
 
 # Departmentクラス
+
+
 class Department:
     @classmethod
     def get_all_departments(cls):
@@ -26,6 +28,8 @@ class Department:
             db_pool.release(conn)
 
 # Userクラス
+
+
 class User:
     @classmethod
     def get_all_users(cls):
@@ -35,6 +39,7 @@ class User:
                 sql = """
                 SELECT id,name
                 FROM users
+                WHERE deleted_at IS NULL
                 ORDER BY id ASC;
                 """
                 cur.execute(sql)
@@ -46,7 +51,7 @@ class User:
             db_pool.release(conn)
 
     @classmethod
-    def get_user_by_id(cls,id):
+    def get_user_by_id(cls, id):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
@@ -60,9 +65,10 @@ class User:
                     departments.name AS department
                 FROM users
                 LEFT JOIN departments ON users.department_id = departments.id
-                WHERE users.id = %s;
+                WHERE users.id = %s
+                AND users.deleted_at IS NULL;
                 """
-                cur.execute(sql,(id,))
+                cur.execute(sql, (id,))
                 return cur.fetchone()
         except pymysql.Error as e:
             print(f'サーバー接続上のエラーが発生しています{e}')
@@ -71,16 +77,17 @@ class User:
             db_pool.release(conn)
 
     @classmethod
-    def get_user_by_email(cls,email):
+    def get_user_by_email(cls, email):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
                 sql = """
                 SELECT *
                 FROM users
-                WHERE email = %s;
+                WHERE email = %s
+                AND deleted_at IS NULL;
                 """
-                cur.execute(sql,(email,))
+                cur.execute(sql, (email,))
                 return cur.fetchone()
         except pymysql.Error as e:
             print(f'サーバー接続上のエラーが発生しています{e}')
@@ -89,7 +96,7 @@ class User:
             db_pool.release(conn)
 
     @classmethod
-    def create_user(cls,name,email,department_id,hashed_pw):
+    def create_user(cls, name, email, department_id, hashed_pw):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
@@ -97,7 +104,7 @@ class User:
                 INSERT INTO users(name,email,department_id,password)
                 VALUES(%s,%s,%s,%s);
                 """
-                cur.execute(sql,(name,email,department_id,hashed_pw))
+                cur.execute(sql, (name, email, department_id, hashed_pw))
                 conn.commit()
         except pymysql.Error as e:
             print(f'サーバー接続上のエラーが発生しています{e}')
@@ -106,7 +113,7 @@ class User:
             db_pool.release(conn)
 
     @classmethod
-    def update_user(cls,id,name,email,department_id,hashed_pw):
+    def update_user(cls, id, name, email, department_id, hashed_pw):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
@@ -116,14 +123,15 @@ class User:
                     set name=%s,email=%s,department_id=%s,password=%s
                     WHERE id = %s;
                     """
-                    cur.execute(sql,(name,email,department_id,hashed_pw,id))
+                    cur.execute(
+                        sql, (name, email, department_id, hashed_pw, id))
                 else:
                     sql = """
                     UPDATE users
                     set name=%s,email=%s,department_id=%s
                     WHERE id = %s;
                     """
-                    cur.execute(sql,(name,email,department_id,id))
+                    cur.execute(sql, (name, email, department_id, id))
                 conn.commit()
         except pymysql.Error as e:
             print(f'サーバー接続上のエラーが発生しています{e}')
@@ -132,17 +140,18 @@ class User:
             db_pool.release(conn)
 
     @classmethod
-    def delete_user(cls,id):
+    def delete_user(cls, id):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
                 sql = """
-                DELETE
-                FROM users
+                UPDATE users
+                SET deleted_at = NOW(),
+                    email = CONCAT(email, '_deleted_', id)
                 WHERE id = %s;
                 """
-                cur.execute(sql,(id,))
-            conn.commit()
+                cur.execute(sql, (id,))
+                conn.commit()
         except pymysql.Error as e:
             print(f'サーバー接続上のエラーが発生しています{e}')
             abort(500)
@@ -169,6 +178,8 @@ class User:
             db_pool.release(conn)
 
 # Postクラス
+
+
 class Post:
     @classmethod
     def get_all_posts(cls):
@@ -194,7 +205,7 @@ class Post:
             db_pool.release(conn)
 
     @classmethod
-    def get_post_by_id(cls,id):
+    def get_post_by_id(cls, id):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
@@ -206,7 +217,7 @@ class Post:
                 LEFT JOIN categories ON posts.category_id = categories.id
                 WHERE posts.id = %s AND deleted_at IS NULL;
                 """
-                cur.execute(sql,(id,))
+                cur.execute(sql, (id,))
                 post = cur.fetchone()
             return post
         except pymysql.Error as e:
@@ -216,7 +227,7 @@ class Post:
             db_pool.release(conn)
 
     @classmethod
-    def get_posts_by_category(cls,category_id):
+    def get_posts_by_category(cls, category_id):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
@@ -230,7 +241,7 @@ class Post:
                 WHERE p.category_id = %s AND p.deleted_at IS NULL
                 ORDER BY p.found_date DESC;
                 """
-                cur.execute(sql,(category_id,))
+                cur.execute(sql, (category_id,))
                 posts = cur.fetchall()
             return posts
         except pymysql.Error as e:
@@ -240,7 +251,7 @@ class Post:
             db_pool.release(conn)
 
     @classmethod
-    def create_post(cls,user_id,category_id,found_date,found_place,description):
+    def create_post(cls, user_id, category_id, found_date, found_place, description):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
@@ -248,7 +259,8 @@ class Post:
                 INSERT INTO
                 posts (user_id,category_id,found_date,found_place,description) VALUES (%s,%s,%s,%s,%s);
                 """
-                cur.execute(sql,(user_id,category_id,found_date,found_place,description))
+                cur.execute(sql, (user_id, category_id,
+                            found_date, found_place, description))
                 conn.commit()
         except pymysql.Error as e:
             print(f'サーバー接続上のエラーが発生しています：{e}')
@@ -257,7 +269,7 @@ class Post:
             db_pool.release(conn)
 
     @classmethod
-    def update_post(cls,id,category_id,found_date,found_place,description):
+    def update_post(cls, id, category_id, found_date, found_place, description):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
@@ -266,7 +278,8 @@ class Post:
                 SET category_id=%s,found_date=%s,found_place=%s,description=%s
                 WHERE id = %s;
                 """
-                cur.execute(sql,(category_id,found_date,found_place,description,id))
+                cur.execute(sql, (category_id, found_date,
+                            found_place, description, id))
                 conn.commit()
         except pymysql.Error as e:
             print(f'サーバー接続上のエラーが発生しています：{e}')
@@ -275,16 +288,16 @@ class Post:
             db_pool.release(conn)
 
     @classmethod
-    def delete_post(cls,id):
+    def delete_post(cls, id):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
-                sql ="""
+                sql = """
                 UPDATE posts
                 SET deleted_at = NOW()
                 where id = %s
                 """
-                cur.execute(sql,(id,))
+                cur.execute(sql, (id,))
                 conn.commit()
         except pymysql.Error as e:
             print(f'サーバー接続上のエラーが発生しています：{e}')
@@ -311,9 +324,11 @@ class Post:
             db_pool.release(conn)
 
 # Imageクラス
+
+
 class Image:
     @classmethod
-    def get_images_by_post_id(cls,post_id):
+    def get_images_by_post_id(cls, post_id):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
@@ -325,7 +340,7 @@ class Image:
                 FROM images
                 WHERE post_id = %s;
                 """
-                cur.execute(sql,(post_id,))
+                cur.execute(sql, (post_id,))
                 images = cur.fetchall()
             return images
         except pymysql.Error as e:
@@ -335,7 +350,7 @@ class Image:
             db_pool.release(conn)
 
     @classmethod
-    def get_image_by_image_id(cls,image_id):
+    def get_image_by_image_id(cls, image_id):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
@@ -344,7 +359,7 @@ class Image:
                 from images
                 WHERE id = %s;
                 """
-                cur.execute(sql,(image_id,))
+                cur.execute(sql, (image_id,))
                 image = cur.fetchone()
             return image
         except pymysql.Error as e:
@@ -354,14 +369,14 @@ class Image:
             db_pool.release(conn)
 
     @classmethod
-    def create_images(cls,post_id,image_path):
+    def create_images(cls, post_id, image_path):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
                 sql = """
                 INSERT INTO images (post_id,image_path) VALUES (%s,%s);
                 """
-                cur.execute(sql,(post_id,image_path))
+                cur.execute(sql, (post_id, image_path))
                 conn.commit()
         except pymysql.Error as e:
             print(f'サーバー接続上のエラーが発生しています{e}')
@@ -370,7 +385,7 @@ class Image:
             db_pool.release(conn)
 
     @classmethod
-    def update_image_by_image_id(cls,id,image_path):
+    def update_image_by_image_id(cls, id, image_path):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
@@ -379,7 +394,7 @@ class Image:
                 SET image_path = %s
                 WHERE id = %s;
                 """
-                cur.execute(sql,(image_path,id))
+                cur.execute(sql, (image_path, id))
                 conn.commit()
         except pymysql.Error as e:
             print(f'サーバー接続上のエラー場発生しています{e}')
@@ -388,7 +403,7 @@ class Image:
             db_pool.release(conn)
 
     @classmethod
-    def delete_images_by_post_id(cls,post_id):
+    def delete_images_by_post_id(cls, post_id):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
@@ -396,7 +411,7 @@ class Image:
                 DELETE FROM images
                 WHERE post_id = %s;
                 """
-                cur.execute(sql,(post_id,))
+                cur.execute(sql, (post_id,))
                 conn.commit()
         except pymysql.Error as e:
             print(f'サーバー接続上のエラーが発生しています{e}')
@@ -405,7 +420,7 @@ class Image:
             db_pool.release(conn)
 
     @classmethod
-    def delete_image_by_image_id(cls,image_id):
+    def delete_image_by_image_id(cls, image_id):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
@@ -413,7 +428,7 @@ class Image:
                 DELETE FROM images
                 WHERE id = %s;
                 """
-                cur.execute(sql,(image_id,))
+                cur.execute(sql, (image_id,))
                 conn.commit()
         except pymysql.Error as e:
             print(f'サーバー接続上のエラーが発生しています{e}')
@@ -422,6 +437,8 @@ class Image:
             db_pool.release(conn)
 
 # Category_groupクラス
+
+
 class CategoryGroup:
     @classmethod
     def get_all_category_groups(cls):
@@ -456,13 +473,13 @@ class CategoryGroup:
                         groups[group_id] = {
                             'id': group_id,
                             'name': row['group_name'],
-                            'categories':[]
+                            'categories': []
                         }
                     # category_idが存在する場合、そのグループのcategoriesリストに追加する
                     if row['category_id']:
                         groups[group_id]['categories'].append({
                             'id': row['category_id'],
-                            'name' :row['category_name']
+                            'name': row['category_name']
                         })
 
                 # リスト型に変換して、テンプレートへ渡す
@@ -474,8 +491,10 @@ class CategoryGroup:
             db_pool.release(conn)
 
 # Threadクラス
+
+
 class Thread:
-    #管理者用DMスレッド一覧
+    # 管理者用DMスレッド一覧
     @classmethod
     def get_all_threads(cls):
         conn = db_pool.get_conn()
@@ -500,7 +519,7 @@ class Thread:
         finally:
             db_pool.release(conn)
 
-    #user_idに紐づいたスレッド作成 or 取得
+    # user_idに紐づいたスレッド作成 or 取得
     @classmethod
     def create_thread_by_user_id(cls, user_id):
         conn = db_pool.get_conn()
@@ -531,7 +550,6 @@ class Thread:
                 """
                 cur.execute(sql, (user_id,))
                 conn.commit()
-
 
                 return {
                     "id": cur.lastrowid,
@@ -574,13 +592,13 @@ class Thread:
 
 # Messageクラス
 class Message:
-        #管理者用のDMスレッド一覧から対象ユーザーとのメッセージ内容を取得
-        @classmethod
-        def get_messages_by_thread_id(cls, thread_id):
-            conn = db_pool.get_conn()
-            try:
-                with conn.cursor(pymysql.cursors.DictCursor) as cur:
-                    sql = """
+    # 管理者用のDMスレッド一覧から対象ユーザーとのメッセージ内容を取得
+    @classmethod
+    def get_messages_by_thread_id(cls, thread_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor(pymysql.cursors.DictCursor) as cur:
+                sql = """
                     SELECT
                         messages.id,
                         messages.content,
@@ -608,22 +626,22 @@ class Message:
                     WHERE messages.thread_id = %s
                     ORDER BY messages.created_at ASC;
                     """
-                    cur.execute(sql, (thread_id,))
-                    messages = cur.fetchall()
-                return messages
-            except pymysql.Error as e:
-                print(f'エラーが発生しています：{e}')
-                abort(500)
-            finally:
-                db_pool.release(conn)
+                cur.execute(sql, (thread_id,))
+                messages = cur.fetchall()
+            return messages
+        except pymysql.Error as e:
+            print(f'エラーが発生しています：{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
 
-        #定型文の作成
-        @classmethod
-        def create_template(cls, thread_id, sender_id, post_id):
-            conn = db_pool.get_conn()
-            try:
-                with conn.cursor() as cur:
-                    sql =  """
+    # 定型文の作成
+    @classmethod
+    def create_template(cls, thread_id, sender_id, post_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = """
                     INSERT INTO messages (
                         thread_id,
                         sender_id,
@@ -632,23 +650,23 @@ class Message:
                     )
                     VALUES (%s, %s, %s, %s);
                     """
-                    cur.execute(sql, (
-                        thread_id,
-                        sender_id,
-                        "この落し物について心当たりがあるため、ご連絡しました。詳細確認をお願いいたします。",
-                        post_id
-                    ))
-                    conn.commit()
-            finally:
-                db_pool.release(conn)
+                cur.execute(sql, (
+                    thread_id,
+                    sender_id,
+                    "この落し物について心当たりがあるため、ご連絡しました。詳細確認をお願いいたします。",
+                    post_id
+                ))
+                conn.commit()
+        finally:
+            db_pool.release(conn)
 
-        #メッセージ内容を取得
-        @classmethod
-        def get_messages_by_user_id(cls, thread_id):
-            conn = db_pool.get_conn()
-            try:
-                with conn.cursor() as cur:
-                    sql = """
+    # メッセージ内容を取得
+    @classmethod
+    def get_messages_by_user_id(cls, thread_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = """
                     SELECT
                         messages.id,
                         messages.content,
@@ -660,23 +678,23 @@ class Message:
                     WHERE messages.sender_id = %s
                     ORDER BY messages.created_at ASC;
                     """
-                    cur.execute(sql, (thread_id,))
-                    messages = cur.fetchall()
-                return messages
-            except pymysql.Error as e:
-                print(f'エラーが発生しています：{e}')
-                abort(500)
-            finally:
-                db_pool.release(conn)
+                cur.execute(sql, (thread_id,))
+                messages = cur.fetchall()
+            return messages
+        except pymysql.Error as e:
+            print(f'エラーが発生しています：{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
 
-        # 同じ投稿の定型文が既に存在するか確認
-        @classmethod
-        def exists_post_message(cls, thread_id, post_id):
-            conn = db_pool.get_conn()
+    # 同じ投稿の定型文が既に存在するか確認
+    @classmethod
+    def exists_post_message(cls, thread_id, post_id):
+        conn = db_pool.get_conn()
 
-            try:
-                with conn.cursor() as cur:
-                    sql = """
+        try:
+            with conn.cursor() as cur:
+                sql = """
                     SELECT id
                     FROM messages
                     WHERE thread_id = %s
@@ -684,24 +702,24 @@ class Message:
                     LIMIT 1;
                     """
 
-                    cur.execute(sql, (thread_id, post_id))
+                cur.execute(sql, (thread_id, post_id))
 
-                    return cur.fetchone() is not None
+                return cur.fetchone() is not None
 
-            except pymysql.Error as e:
-                print(f'エラーが発生しています：{e}')
-                abort(500)
+        except pymysql.Error as e:
+            print(f'エラーが発生しています：{e}')
+            abort(500)
 
-            finally:
-                db_pool.release(conn)
+        finally:
+            db_pool.release(conn)
 
-        #メッセージ内容を追加
-        @classmethod
-        def create_message(cls, thread_id, sender_id, content, post_id=None):
-            conn = db_pool.get_conn()
-            try:
-                with conn.cursor() as cur:
-                    sql = """
+    # メッセージ内容を追加
+    @classmethod
+    def create_message(cls, thread_id, sender_id, content, post_id=None):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = """
                     INSERT INTO messages (
                         thread_id,
                         sender_id,
@@ -710,22 +728,24 @@ class Message:
                     )
                     VALUES (%s, %s, %s, %s);
                     """
-                    cur.execute(sql, (
-                        thread_id,
-                        sender_id,
-                        content,
-                        post_id
-                    ))
-                    conn.commit()
-            except pymysql.Error as e:
-                print(f'エラーが発生しています：{e}')
-                abort(500)
-            finally:
-                db_pool.release(conn)
+                cur.execute(sql, (
+                    thread_id,
+                    sender_id,
+                    content,
+                    post_id
+                ))
+                conn.commit()
+        except pymysql.Error as e:
+            print(f'エラーが発生しています：{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
 
 # Notificationクラス
+
+
 class Notification:
-    #通知一覧表示と取得
+    # 通知一覧表示と取得
     @classmethod
     def get_all_notifications(cls, user_id):
         conn = db_pool.get_conn()
@@ -764,7 +784,7 @@ class Notification:
         finally:
             db_pool.release(conn)
 
-    #投稿作成時に通知作成
+    # 投稿作成時に通知作成
     @classmethod
     def notify_on_post(cls, post_id):
         conn = db_pool.get_conn()
@@ -779,7 +799,7 @@ class Notification:
                 VALUES (%s, %s, 'new_post')
                 """
                 # 全ユーザ取得
-                cur.execute("SELECT id FROM users")
+                cur.execute("SELECT id FROM users WHERE deleted_at IS NULL")
                 users = cur.fetchall()
                 for user in users:
                     cur.execute(sql, (user['id'], post_id))
@@ -790,7 +810,7 @@ class Notification:
         finally:
             db_pool.release(conn)
 
-     #通知1件を既読に変更
+     # 通知1件を既読に変更
     @classmethod
     def mark_as_read(cls, notification_id, user_id):
         conn = db_pool.get_conn()
@@ -810,7 +830,7 @@ class Notification:
         finally:
             db_pool.release(conn)
 
-# クリックされた通知情報を取得
+    # クリックされた通知情報を取得
     @classmethod
     def get_notification_by_id(cls, notification_id):
         conn = db_pool.get_conn()
